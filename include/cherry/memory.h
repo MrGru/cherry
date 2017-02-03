@@ -10,6 +10,7 @@ void *smalloc(size_t size);
 void *srealloc(void *ptr, size_t size);
 void  sfree(void *ptr);
 void  smemcpy(void *dst, void *src, size_t length);
+int   smemcmp(void *p1, void *p2, size_t length);
 void  dim_memory();
 
 #endif
