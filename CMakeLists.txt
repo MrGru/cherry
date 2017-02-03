@@ -7,6 +7,12 @@ set(CMAKE_XCODE_EFFECTIVE_PLATFORMS "-iphoneos;-iphonesimulator")
 set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD)")
 endif()
 
+if(${OPENGL} MATCHES "true")
+add_definitions(-DTARGET_RENDERER=RENDERER_OPENGL)
+else(${METAL} MATCHES "true")
+add_definitions(-DTARGET_RENDERER=RENDERER_METAL)
+endif()
+
 add_subdirectory(kernel)
 
 include_directories(include)
