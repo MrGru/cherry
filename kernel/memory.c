@@ -184,6 +184,8 @@ void sfree(void *ptr)
 void *srealloc(void *ptr, size_t size)
 {
         size = __sizep2(size);
+        if(!ptr) return __smalloc(size);
+
         struct mem_block_head *p = (struct mem_block_head *)ptr - 1;
         struct pool_head *b = &p->head;
         size_t psize = ((struct mem_head *)(&*b->pprev))->item_size;
@@ -199,11 +201,48 @@ void *srealloc(void *ptr, size_t size)
 }
 
 /*
- * memcpy do not supply backward copy
+ * fast mem copy
  */
-void  smemcpy(void *dst, void *src, size_t length)
+void  smemcpy(void *dst, void *src, size_t len)
 {
-        if(length) memcpy(dst, src, length);
+        /* ignore zero copy */
+        if(!len || dst == src) return;
+
+        /* copy words */
+        size_t *dw = dst;
+        size_t *sw = src;
+        while(len >= sizeof(size_t)) {
+                *dw++ = *sw++;
+                len -= sizeof(size_t);
+        }
+
+        /* copy bytes */
+        char *d1 = (char *)dw;
+        char *s1 = (char *)sw;
+        while(len) {
+                *d1++ = *s1++;
+                len--;
+        }
+}
+
+int   smemcmp(void *p1, void *p2, size_t len)
+{
+        if(!len || p1 == p2) return 0;
+
+        size_t *dw = p1;
+        size_t *sw = p2;
+        while(len >= sizeof(size_t)) {
+                if(*dw++ != *sw++) return 1;
+                len -= sizeof(size_t);
+        }
+
+        char *d1 = (char *)dw;
+        char *s1 = (char *)sw;
+        while(len) {
+                if(*d1++ != *s1++) return 1;
+                len--;
+        }
+        return 0;
 }
 
 /*
