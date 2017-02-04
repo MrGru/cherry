@@ -9,7 +9,7 @@
 /*
  * allocate new map
  */
-struct map *map_alloc(uint16_t item_size);
+struct map *map_alloc(u16 item_size);
 
 /*
  * deallocate map and content
@@ -41,13 +41,13 @@ void *map_get_pointer(struct map *p, void *key, size_t key_size);
 
 #define map_deep_free(map, item_type, free_func)                                \
         {                                                                       \
-                struct array *items = array_alloc(sizeof(item_type), ORDERED);  \
-                map_get_list_data(map, items);                                  \
-                item_type *item;                                                \
-                array_for_each(item, items) {                                   \
-                        free_func(*item);                                       \
+                struct array *__items = array_alloc(sizeof(item_type), ORDERED);\
+                map_get_list_data(map, __items);                                \
+                item_type *__item;                                              \
+                array_for_each(__item, __items) {                               \
+                        free_func(*__item);                                     \
                 }                                                               \
-                array_free(items);                                              \
+                array_free(__items);                                            \
                 map_free(map);                                                  \
         }
 

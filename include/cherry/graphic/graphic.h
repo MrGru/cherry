@@ -5,14 +5,27 @@
 #define __CHERRY_GRAPHIC_H__
 
 #include <cherry/platform.h>
-#include <stdint.h>
+#include <cherry/stdint.h>
 
-#define NUMBER_BUFFERINGS 3
+/*
+ * define application graphics protocol
+ */
+#define OGL 0
+#define MTL 1
 
-#if TARGET_RENDERER == RENDERER_OPENGL
+#ifndef GFX
+#define GFX OGL
+#endif
+
+/*
+ * define double, triple ... bufferings
+ */
+#define BUFFERS 3
+
+#if GFX == OGL
         extern int opengl_max_textures;
         extern int depth_texture_enable;
-        #if TARGET_PLATFORM == PLATFORM_IOS
+        #if OS == IOS
                 #define GL_GLEXT_PROTOTYPES
                 #include <OpenGLES/ES2/gl.h>
                 #include <OpenGLES/ES2/glext.h>
@@ -26,7 +39,7 @@
 
                 #define glDrawArraysInstanced glDrawArraysInstancedEXT
                 #define glVertexAttribDivisor glVertexAttribDivisorEXT
-        #elif TARGET_PLATFORM == PLATFORM_MAC
+        #elif OS == MAC
                 #define __gl_h_
                 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 
@@ -41,7 +54,7 @@
                 #include <GL/glext.h>
         #endif
 
-#elif TARGET_RENDERER == RENDERER_METAL
+#elif GFX == MTL
         #import <Metal/Metal.h>
 
         /* whole game uses single mtl device */

@@ -15,12 +15,12 @@ void bytes_free(struct bytes *p)
         sfree(p);
 }
 
-void bytes_reserve(struct bytes *p, uint32_t size)
+void bytes_reserve(struct bytes *p, u32 size)
 {
         p->ptr = srealloc(p->ptr, size);
 }
 
-void bytes_cat(struct bytes *p, void *s, uint32_t size)
+void bytes_cat(struct bytes *p, void *s, u32 size)
 {
         bytes_reserve(p, p->len + size);
         smemcpy(p->ptr + p->len, s, size);

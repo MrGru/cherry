@@ -19,11 +19,11 @@ void bytes_free(struct bytes *p);
 /*
  * resize bytes content big enough to hold size bytes
  */
-void bytes_reserve(struct bytes *p, uint32_t size);
+void bytes_reserve(struct bytes *p, u32 size);
 
 /*
  * append size bytes to p
  */
-void bytes_cat(struct bytes *p, void *s, uint32_t size);
+void bytes_cat(struct bytes *p, void *s, u32 size);
 
 #endif

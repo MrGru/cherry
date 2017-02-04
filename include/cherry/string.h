@@ -18,9 +18,4 @@ void string_reserve(struct string *p, size_t size);
 
 void string_cat(struct string *p, char *src, size_t src_len);
 
-static inline size_t string_len(struct string *p)
-{
-        return p->len;
-}
-
 #endif

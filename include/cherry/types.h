@@ -4,13 +4,21 @@
 #ifndef __CHERRY_TYPES_H__
 #define __CHERRY_TYPES_H__
 
-#include <stdint.h>
+#include <cherry/stdint.h>
 #include <stddef.h>
 
+/*
+ * @prev : point to previous head
+ * @next : point to next head
+ */
 struct list_head {
         struct list_head *prev, *next;
 };
 
+/*
+ * @next        : point to next head
+ * @pprev       : point to first head of list
+ */
 struct pool_head {
         struct pool_head *next;
         struct pool_head **pprev;
@@ -21,28 +29,49 @@ enum {
         ORDERED         = 1
 };
 
+/*
+ * @len         : total objects stored in array
+ * @item_size   : size of object
+ * @ordered     : see array_remove document at <cherry/array.h>
+ * @end         : address at the end of array
+ * @ptr         : pointer to array's content array
+ */
 struct array {
-        uint16_t        len;
-        uint16_t        item_size;
-        uint8_t         ordered;
-        size_t          end; /* address array out of bound */
-        void            *ptr;
+        u16     len;
+        u16     item_size;
+        u8      ordered;
+        size_t  end; /* address array out of bound */
+        void    *ptr;
 };
 
+/*
+ * @item_size   : size of object
+ * @total       : total objects stored in map
+ * @keys        : array to get key
+ * @datas       : array to get object
+ */
 struct map {
-        uint16_t        item_size;
-        uint16_t        total;
+        u16             item_size;
+        u16             total;
         struct array    *keys;
         struct array    *datas;
 };
 
+/*
+ * @len : length of char array
+ * @ptr : pointer to char array
+ */
 struct string {
-        uint32_t        len;
+        u32             len;
         char            *ptr;
 };
 
+/*
+ * @len : len of byte array
+ * @ptr : pointer to byte array
+ */
 struct bytes {
-        uint32_t        len;
+        u32             len;
         char            *ptr;
 };
 

@@ -2,7 +2,7 @@
 #include <cherry/memory.h>
 #include <string.h>
 
-struct array *array_alloc(uint16_t item_size, uint8_t ordered)
+struct array *array_alloc(u16 item_size, u8 ordered)
 {
         struct array *p = smalloc(sizeof(struct array));
         p->ptr = NULL;
@@ -19,12 +19,12 @@ void array_free(struct array *p)
         sfree(p);
 }
 
-void array_reserve(struct array *p, uint16_t len)
+void array_reserve(struct array *p, u16 len)
 {
         p->ptr = srealloc(p->ptr, len * p->item_size);
 }
 
-void array_force_len(struct array *p, uint16_t len)
+void array_force_len(struct array *p, u16 len)
 {
         p->ptr = srealloc(p->ptr, len * p->item_size);
         p->len = len;
@@ -39,12 +39,12 @@ void array_push(struct array *p, void *d)
         p->end = (size_t)p->ptr + p->item_size * p->len;
 }
 
-void array_set(struct array *p, uint16_t index, void *d)
+void array_set(struct array *p, u16 index, void *d)
 {
         smemcpy(p->ptr + p->item_size * index, d, p->item_size);
 }
 
-void array_copy(struct array *p, uint16_t index, void *o)
+void array_copy(struct array *p, u16 index, void *o)
 {
         smemcpy(o, p->ptr + p->item_size * index, p->item_size);
 }
@@ -54,10 +54,10 @@ void array_zero(struct array *p)
         if(p->ptr) memset(p->ptr, 0, p->len * p->item_size);
 }
 
-void array_remove(struct array *p, uint16_t index)
+void array_remove(struct array *p, u16 index)
 {
         if(index >= p->len) return;
-        uint16_t item_size = p->item_size;
+        u16 item_size = p->item_size;
 
         if(index != p->len - 1) {
                 if(p->ordered == ORDERED) {

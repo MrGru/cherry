@@ -17,7 +17,7 @@ static inline size_t hash(char* key, size_t key_size)
 }
 
 
-struct map *map_alloc(uint16_t item_size)
+struct map *map_alloc(u16 item_size)
 {
         int i;
         struct map *p = smalloc(sizeof(struct map));
