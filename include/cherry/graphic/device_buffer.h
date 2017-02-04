@@ -6,12 +6,40 @@
 
 #include <cherry/graphic/types.h>
 
-struct device_buffer_head *device_buffer_alloc();
+/*
+ * allocate new device buffer
+ */
+struct device_buffer *device_buffer_alloc();
 
-void device_buffer_fill(struct device_buffer_head *head, void *bytes, uint64_t size);
+/*
+ * resize buffer and fill size bytes
+ * @p           : buffer to resize/file
+ * @bytes       : bytes array
+ * @size        : bytes array length
+ */
+void device_buffer_fill(struct device_buffer *p, void *bytes, u32 size);
 
-void device_buffer_sub(struct device_buffer_head *head, uint64_t offset, void *bytes, uint64_t size);
+/*
+ * @p           : buffer to change
+ * @offset      : index that buffer changes from
+ * @bytes       : bytes array
+ * @size        : bytes array length
+ */
+void device_buffer_sub(struct device_buffer *p, u32 offset, void *bytes, u32 size);
 
-void device_buffer_free(struct device_buffer_head *head);
+/*
+ * deallocate device buffer
+ */
+void device_buffer_free(struct device_buffer *p);
+
+/*
+ * allocate new device buffer group
+ */
+struct device_buffer_group *device_buffer_group_alloc();
+
+/*
+ * deallocate device buffer group
+ */
+void device_buffer_group_free(struct device_buffer_group *p);
 
 #endif
