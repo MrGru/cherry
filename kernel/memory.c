@@ -95,7 +95,7 @@ static inline void __expand(size_t size, int id)
         int i;
         int *count = malloc(sizeof(int));
         *count = 0;
-        for(i = 0; i < n; ++i) {
+        back_i(i, n) {
                 struct mem_block_head *head = (struct mem_block_head *)(p + i * size);
                 head->count = count;
                 pool_add(&head->head, &blocks[id].head);
@@ -251,7 +251,7 @@ int   smemcmp(void *p1, void *p2, size_t len)
 void dim_memory()
 {
 	int i;
-        for(i = 0; i < 32; ++i) {
+        for_i(i, 32) {
                 struct mem_head *head = &blocks[i];
                 struct list_head *lh;
                 struct list_head *lhn;
@@ -264,5 +264,43 @@ void dim_memory()
                                 free(track);
                         }
                 }
+        }
+}
+
+/*
+ * list of cache functions
+ */
+struct cache_function {
+        struct list_head head;
+        void(*f)();
+};
+
+static struct list_head cache_head = LIST_HEAD_INIT(cache_head);
+
+/*
+ * add function need to be called in cache_free
+ */
+void cache_add(void(*func)())
+{
+        struct cache_function *p = malloc(sizeof(struct cache_function));
+        list_add(&p->head, &cache_head);
+        p->f = func;
+}
+
+/*
+ * call all functions registered
+ * call cache_free one time when application is going to terminate
+ */
+void cache_free()
+{
+        if(list_singular(&cache_head)) return;
+
+        struct list_head *p;
+        struct list_head *n;
+        list_for_each_safe(p, n, &cache_head) {
+                struct cache_function *c = (struct cache_function *)p;
+                if(c->f) c->f();
+                list_del(p);
+                free(c);
         }
 }

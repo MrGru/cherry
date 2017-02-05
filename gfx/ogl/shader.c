@@ -26,7 +26,7 @@ struct shader *shader_alloc(char *vert, char *frag, struct shader_descriptor *de
         if (!success)
         {
             glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-            __debug("compile shader vertex error:\n%s\n", infoLog);
+            debug("compile shader vertex error:\n%s\n", infoLog);
             return NULL;
         }
         /* compile fragment shader */
@@ -38,7 +38,7 @@ struct shader *shader_alloc(char *vert, char *frag, struct shader_descriptor *de
         if (!success)
         {
             glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-            __debug("compile shader fragment error:\n%s\n", infoLog);
+            debug("compile shader fragment error:\n%s\n", infoLog);
             return NULL;
         }
         /* link vertex shader and fragment shader together */
@@ -50,7 +50,7 @@ struct shader *shader_alloc(char *vert, char *frag, struct shader_descriptor *de
         glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-            __debug("link shader error:\n%s\n", infoLog);
+            debug("link shader error:\n%s\n", infoLog);
             return NULL;
         }
         glDeleteShader(vertexShader);

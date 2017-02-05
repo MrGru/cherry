@@ -6,6 +6,11 @@
 #include <cherry/map.h>
 #include <cherry/graphic/types.h>
 
+static void deallocate()
+{
+        printf("free up!\n");
+}
+
 int main(int argc, char const *argv[])
 {
         struct array *p = array_alloc(sizeof(int), UNORDERED);
@@ -15,12 +20,14 @@ int main(int argc, char const *argv[])
         int *n;
         int i;
         array_for_each_index(n, i, p) {
-                printf("%d\n", *n);
+                debug("%d\n", *n);
                 array_remove(p, i);
                 i--;
                 n--;
         }
         array_free(p);
         dim_memory();
+        cache_add(deallocate);
+        cache_free();
         return 0;
 }

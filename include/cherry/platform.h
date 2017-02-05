@@ -8,7 +8,7 @@
 #define IOS 1
 #define ANDROID 2
 #define LINUX 3
-#define MAC 4
+#define OSX 4
 
 #define OS UNKNOWN
 
@@ -23,7 +23,7 @@
 
   #elif TARGET_OS_MAC
     #undef OS
-    #define OS MAC
+    #define OS OSX
   #endif
 
 #elif defined(linux)

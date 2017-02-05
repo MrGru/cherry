@@ -45,12 +45,12 @@ struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *de
         /* create pipeline fragment program */
 	id<MTLFunction> fragmentProgram = [shared_mtl_library newFunctionWithName:[NSString stringWithUTF8String:frag]];
 	if(!fragmentProgram)
-                __debug(">> ERROR: Couldn't load fragment function from default library");
+                debug(">> ERROR: Couldn't load fragment function from default library");
 
         /* create pipeline vertex program */
 	id<MTLFunction> vertexProgram = [shared_mtl_library newFunctionWithName:[NSString stringWithUTF8String:vert]];
  	if(!vertexProgram)
-                __debug(">> ERROR: Couldn't load vertex function from default library");
+                debug(">> ERROR: Couldn't load vertex function from default library");
 
   	/* create pipeline descriptor */
 	MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];

@@ -15,4 +15,6 @@ typedef uint64_t        u64;
 
 #define for_i(i, n) for(i = 0; i < n; ++i)
 
+#define back_i(i, n) for(i = n - 1; i >= 0; i--)
+
 #endif
