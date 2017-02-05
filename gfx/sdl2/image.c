@@ -71,7 +71,6 @@ struct image *image_alloc(char *file)
         temp = temp >> fmt->Ashift; /* Shift it down to 8-bit */
         temp = temp << fmt->Aloss;  /* Expand to a full 8-bit number */
         alpha = (Uint8)temp;
-
         if(alpha == 0)
         {
                 p->type = GL_RGB;
