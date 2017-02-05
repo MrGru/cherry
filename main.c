@@ -11,10 +11,10 @@
 
 int main(int argc, char const *argv[])
 {
-        struct texture *p = texture_alloc_file("wolf.jpg");
+        struct texture *p = texture_alloc_file("res/wolf.jpg");
         texture_bind(p);
         debug("%d\n", p->active_id);
-        
+
         cache_free();
         dim_memory();
         return 0;
