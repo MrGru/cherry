@@ -78,7 +78,25 @@ struct texture *texture_alloc_image(struct image *p)
  */
 struct texture *texture_alloc_depth(u16 width, u16 height)
 {
-        return NULL;
+        texture_cache_setup();
+
+        /* create device texture object */
+        MTLTextureDescriptor *shadowTextureDesc = [MTLTextureDescriptor
+                texture2DDescriptorWithPixelFormat      : MTLPixelFormatDepth32Float
+                width                                   : width
+                height                                  : height
+                mipmapped                               : NO];
+        id<MTLTexture> t =  [shared_mtl_device newTextureWithDescriptor: shadowTextureDesc];
+
+        [texture_house addObject:t];
+
+        /* create application texture object */
+        struct texture *ret     = smalloc(sizeof(struct texture));
+        ret->width              = width;
+        ret->height             = height;
+        ret->ptr                = (__bridge void *)(t);
+        ret->ref                = 0;
+        return ret;
 }
 
 /*

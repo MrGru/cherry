@@ -116,7 +116,45 @@ struct texture *texture_alloc_image(struct image *p)
  */
 struct texture *texture_alloc_depth(u16 width, u16 height)
 {
-        return NULL;
+        texture_cache_setup();
+
+        i16 bid;
+        struct texture *t = NULL;
+
+        if(remain_binds->len > 0) {
+                bid = array_get(remain_binds, i16, 0);
+        } else {
+                /* use lowest priority texture in queue */
+                t = (struct texture *)(bind_list.prev - offsetof(struct texture, bind_head));
+                bid = t->active_id;
+        }
+        /* allocate texture and data */
+
+        struct texture *r = smalloc(sizeof(struct texture));
+        glGenTextures(1, &r->id);
+        glActiveTexture(GL_TEXTURE0 + bid);
+        glBindTexture(GL_TEXTURE_2D, r->id);
+
+        if(depth_texture_enable) {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+                        width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+        } else {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+                        width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        }
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        r->width        = width;
+        r->height       = height;
+        r->ref          = 0;
+        r->active_id    = -1;
+        INIT_LIST_HEAD(&r->bind_head);
+
+        /* rebind previous texture */
+        if(t) glBindTexture(GL_TEXTURE_2D, t->id);
+        return r;
 }
 
 /*
