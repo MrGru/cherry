@@ -204,4 +204,52 @@ struct shader {
 #endif
 };
 
+/*
+ * raw image data
+ * @ptr                 : image object
+ * @type                : image channel type
+ *
+ * MTL
+ * @width               : image width
+ * @height              : image height
+ * @bytes_per_row       : bytes per pixel * width
+ */
+struct image {
+        void    *ptr;
+        i32     type;
+#if GFX == MTL
+        u16     width;
+        u16     height;
+        u16     bytes_per_row;
+#endif
+};
+
+/*
+ * device texture
+ * @width       : texture width
+ * @height      : texture height
+ * @ref         : reference counter
+ *
+ * OGL
+ * @id          : opengl texture id
+ * @active_id   : current active texture id that texture is binding
+ *
+ * MTL
+ * @ptr         : bridge pointer to mtl texture object
+ */
+struct texture {
+        u16     width;
+        u16     height;
+
+        i16     ref;
+
+#if GFX == OGL
+        u32     id;
+        i32     active_id;
+#endif
+#if GFX == MTL
+        void*   ptr;
+#endif
+};
+
 #endif
