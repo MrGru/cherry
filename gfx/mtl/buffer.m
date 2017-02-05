@@ -6,7 +6,7 @@
 #include <cherry/graphic/device_buffer.h>
 
 /*
- * array of mtl_buffer created at runtime
+ * buffer_house to keep device mtl buffers alive
  */
 static NSMutableArray *buffer_house = nil;
 

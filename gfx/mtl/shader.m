@@ -8,6 +8,9 @@
 #include <cherry/math/math.h>
 #include <cherry/stdio.h>
 
+/*
+ * shader_house to keep device mtl pipelines alive
+ */
 static NSMutableArray *shader_house = nil;
 
 struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *des)

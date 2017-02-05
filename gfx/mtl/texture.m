@@ -7,6 +7,9 @@
 #import <cherry/string.h>
 #import <cherry/graphic/image.h>
 
+/*
+ * texture_house to keep device mtl textures alive
+ */
 static NSMutableArray *texture_house = nil;
 
 static struct map *texture_cache = NULL;
