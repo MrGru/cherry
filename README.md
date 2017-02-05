@@ -8,6 +8,6 @@
 
 ##Run
 
-* Linux :
+Linux :
         - install SDL2
         - run make.sh
