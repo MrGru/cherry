@@ -27,6 +27,13 @@ struct texture *texture_alloc_depth(u16 width, u16 height);
  */
 void texture_free(struct texture *p);
 
+#if GFX == OGL
+void texture_bind(struct texture *p);
+#endif
+
+/*
+ * remove unused textures in cache
+ */
 void texture_remove_unused();
 
 #endif

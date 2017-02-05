@@ -24,6 +24,8 @@ void map_remove_key(struct map *p, void *key, size_t key_size);
 
 void map_get_list_data(struct map *p, struct array *list);
 
+void map_get_list_key(struct map *p, struct array *list);
+
 void *map_get_pointer(struct map *p, void *key, size_t key_size);
 
 #define map_get(m, t, key...) (*(t*)map_get_pointer(m, key))
@@ -37,7 +39,7 @@ void *map_get_pointer(struct map *p, void *key, size_t key_size);
 
 #define qpkey(p) &p,sizeof(p)
 
-#define qskey(s) s->str,s->len
+#define qskey(s) (s)->ptr,(s)->len
 
 #define map_deep_free(map, item_type, free_func)                                \
         {                                                                       \

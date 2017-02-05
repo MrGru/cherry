@@ -4,30 +4,18 @@
 #include <cherry/math/math.h>
 #include <cherry/array.h>
 #include <cherry/map.h>
+#include <cherry/list.h>
 #include <cherry/graphic/types.h>
-
-static void deallocate()
-{
-        printf("free up!\n");
-}
+#include <cherry/graphic/image.h>
+#include <cherry/graphic/texture.h>
 
 int main(int argc, char const *argv[])
 {
-        struct array *p = array_alloc(sizeof(int), UNORDERED);
-        array_push(p, &(int){0});
-        array_push(p, &(int){1});
-        array_push(p, &(int){2});
-        int *n;
-        int i;
-        array_for_each_index(n, i, p) {
-                debug("%d\n", *n);
-                array_remove(p, i);
-                i--;
-                n--;
-        }
-        array_free(p);
-        dim_memory();
-        cache_add(deallocate);
+        struct texture *p = texture_alloc_file("wolf.jpg");
+        texture_bind(p);
+        debug("%d\n", p->active_id);
+        
         cache_free();
+        dim_memory();
         return 0;
 }

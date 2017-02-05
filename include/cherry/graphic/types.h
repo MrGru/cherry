@@ -233,22 +233,24 @@ struct image {
  * OGL
  * @id          : opengl texture id
  * @active_id   : current active texture id that texture is binding
+ * @bind_head   : node in binding list
  *
  * MTL
  * @ptr         : bridge pointer to mtl texture object
  */
 struct texture {
-        u16     width;
-        u16     height;
+        u16                     width;
+        u16                     height;
 
-        i16     ref;
+        i16                     ref;
 
 #if GFX == OGL
-        u32     id;
-        i32     active_id;
+        u32                     id;
+        i16                     active_id;
+        struct list_head        bind_head;
 #endif
 #if GFX == MTL
-        void*   ptr;
+        void*                   ptr;
 #endif
 };
 

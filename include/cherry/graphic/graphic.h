@@ -18,6 +18,17 @@
 #endif
 
 /*
+ * define application image protocol
+ * use SDL2 as default
+ */
+#define IMAGE_SDL2 1
+#define IMAGE_OBJC 2
+
+#ifndef IMAGE_TYPE
+#define IMAGE_TYPE IMAGE_SDL2
+#endif
+
+/*
  * define double, triple ... bufferings
  */
 #define BUFFERS 3

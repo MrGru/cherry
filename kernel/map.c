@@ -107,6 +107,9 @@ void map_remove_key(struct map *p, void *key, size_t key_size)
         }
 }
 
+/*
+ * fill map datas to list
+ */
 void map_get_list_data(struct map *p, struct array *list)
 {
         list->len = 0;
@@ -120,6 +123,27 @@ void map_get_list_data(struct map *p, struct array *list)
                 if((*datas)->len) {
                         size_t amount = (*datas)->len * (*datas)->item_size;
                         smemcpy(list->ptr + index, (*datas)->ptr, amount);
+                        index += amount;
+                }
+        }
+}
+
+/*
+ * fill map keys to list
+ */
+void map_get_list_key(struct map *p, struct array *list)
+{
+        list->len = 0;
+        if(!p->total) return;
+
+        array_force_len(list, p->total);
+
+        size_t index = 0;
+        struct array **keys;
+        array_for_each(keys, p->keys) {
+                if((*keys)->len) {
+                        size_t amount = (*keys)->len * (*keys)->item_size;
+                        smemcpy(list->ptr + index, (*keys)->ptr, amount);
                         index += amount;
                 }
         }
