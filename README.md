@@ -9,5 +9,5 @@
 ##Run
 
 - Linux :
-        + install SDL2
-        + run make.sh
+        - install SDL2
+        - run make.sh
