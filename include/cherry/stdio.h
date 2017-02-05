@@ -5,12 +5,12 @@
 #include <cherry/types.h>
 
 #ifndef APP_DEBUG
-        #define debug(f_, ...)
+        #define debug(...)
 #else
         #if APP_DEBUG != 0
-                #define debug(f_, ...) printf(f_, __VA_ARGS__)
+                #define debug(...) printf(__VA_ARGS__)
         #else
-                #define debug(f_, ...)
+                #define debug(...)
         #endif
 #endif
 
