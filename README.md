@@ -16,6 +16,7 @@ IOS
 - require Xcode
 - require SDL2 for OpenGL branch
 - run make_ios.sh to build library
+- developing project to choose OpenGL/Metal branch at runtime
 
 OSX
 - require Xcode
