@@ -10,4 +10,9 @@
 
 Linux
 - install SDL2
-- run make.sh
+- run make.sh to build and test
+
+IOS
+- require Xcode
+- require SDL2 for OpenGL branch
+- run make_ios.sh to build library
