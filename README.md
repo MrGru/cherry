@@ -1,4 +1,4 @@
-#Cherry is created to practice C experiments in game.
+#Cherry is created for game in C
 
 - support OpenGL  : developing
 
