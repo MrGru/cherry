@@ -1,7 +1,7 @@
 #import <cherry/graphic/image.h>
 
 #if OS == MTL && IMAGE_TYPE == IMAGE_OBJC
-
+#import <cherry/graphic/metal.h>
 #import <cherry/memory.h>
 #import <cherry/stdio.h>
 #import <cherry/string.h>

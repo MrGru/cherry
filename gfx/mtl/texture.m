@@ -1,6 +1,7 @@
 #import <cherry/graphic/texture.h>
 
 #if GFX == MTL
+#import <cherry/graphic/metal.h>
 #import <cherry/memory.h>
 #import <cherry/map.h>
 #import <cherry/array.h>

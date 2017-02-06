@@ -1,10 +1,10 @@
-#include <cherry/graphic/graphic.h>
+#import <cherry/graphic/graphic.h>
 
 #if GFX == MTL
-
-#include <cherry/memory.h>
-#include <cherry/graphic/device_buffer.h>
-
+#import <cherry/graphic/metal.h>
+#import <cherry/memory.h>
+#import <cherry/graphic/device_buffer.h>
+#import <cherry/array.h>
 /*
  * buffer_house to keep device mtl buffers alive
  */
@@ -61,7 +61,7 @@ void device_buffer_free(struct device_buffer *p)
 struct device_buffer_group *device_buffer_group_alloc()
 {
         struct device_buffer_group *p = smalloc(sizeof(struct device_buffer_group));
-        p->buffers = array_alloc(sizeof(struct device_buffer *));
+        p->buffers = array_alloc(sizeof(struct device_buffer *), ORDERED);
         p->pipeline = NULL;
         return p;
 }

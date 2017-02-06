@@ -1,7 +1,7 @@
 #include <cherry/graphic/graphic.h>
 
 #if GFX == MTL
-
+#import <cherry/graphic/metal.h>
 /*
  * application needs set these objects
  */

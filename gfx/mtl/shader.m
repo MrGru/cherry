@@ -1,12 +1,13 @@
-#include <cherry/graphic/shader.h>
+#import <cherry/graphic/shader.h>
 
 #if GFX == MTL
-
-#include <cherry/memory.h>
-#include <cherry/array.h>
-#include <cherry/string.h>
-#include <cherry/math/math.h>
-#include <cherry/stdio.h>
+#import <cherry/graphic/metal.h>
+#import <cherry/memory.h>
+#import <cherry/array.h>
+#import <cherry/string.h>
+#import <cherry/math/math.h>
+#import <cherry/stdio.h>
+#import <cherry/graphic/device_buffer.h>
 
 /*
  * shader_house to keep device mtl pipelines alive
@@ -20,9 +21,10 @@ struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *de
         }
         /* create piepline vertex descriptor from first application buffer descriptor*/
         MTLVertexDescriptor *vertexDescriptor = [MTLVertexDescriptor new];
-        struct shader_buffer_descriptor *sbd = m_array_get(des->buffers, struct shader_buffer_descriptor *, 0);
+        struct shader_buffer_descriptor *sbd = array_get(des->buffers, struct shader_buffer_descriptor *, 0);
         struct shader_attribute_descriptor **sad;
-        array_for_each(sad, sbd->attributes) {
+        i16 i;
+        array_for_each_index(sad, i, sbd->attributes) {
                 switch((*sad)->type) {
                         case ATTRIBUTE_FLOAT:
                                 vertexDescriptor.attributes[i].format = MTLVertexFormatFloat;
@@ -58,7 +60,7 @@ struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *de
   	/* create pipeline descriptor */
 	MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
 
-	pipelineStateDescriptor.sampleCount                     = shared_sample_count;
+	pipelineStateDescriptor.sampleCount                     = shared_mtl_sample_count;
 	pipelineStateDescriptor.vertexFunction                  = vertexProgram;
 	pipelineStateDescriptor.fragmentFunction                = fragmentProgram;
         pipelineStateDescriptor.vertexDescriptor                = vertexDescriptor;
@@ -68,7 +70,7 @@ struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *de
 	NSError *error = nil;
 	id <MTLRenderPipelineState> pipelineState = [shared_mtl_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
 	if(!pipelineState) {
-	    NSLog(@">> ERROR: Failed Aquiring pipeline state: %@", error);
+	    //NSLog(@">> ERROR: Failed Aquiring pipeline state: %@", error);
 	    return NULL;
 	}
 
@@ -81,7 +83,7 @@ struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *de
 	p->flags = array_alloc(sizeof(i16), ORDERED);
 	p->pendings = array_alloc(sizeof(i16), UNORDERED);
         p->descriptor = des;
-        int i;
+
         for_i(i, BUFFERS) {
                 p->update[i] = 1;
                 p->uniforms[i] = NULL;
@@ -134,7 +136,7 @@ void __shader_reserve_uniform(struct shader *p, i16 index, u8 type, i16 offset)
         } else {
                 struct shader_uniform_track *t = array_get(p->tracks, struct shader_uniform_track *, index);
                 t->type = type;
-                t-offset = offset;
+                t->offset = offset;
         }
 }
 
@@ -164,10 +166,10 @@ void shader_update_uniform(struct shader *p, u8 frame)
                 } else {
                         array_set(p->flags, *pid, &n);
                 }
-                if(t->uniforms) {
+                if(t->uniform) {
                         if(t->offset >= 0 && p->uniforms[frame]) {
                                 device_buffer_sub(p->uniforms[frame], t->offset,
-                                        t->uniforms->data->ptr, t->uniforms->data->len);
+                                        t->uniform->data->ptr, t->uniform->data->len);
                         }
                 }
         }

@@ -4,6 +4,7 @@
 
 #import <cherry/stdio.h>
 #import <cherry/string.h>
+#import <Foundation/Foundation.h>
 
 FILE *file_open(char *file, char *mode)
 {
@@ -16,7 +17,7 @@ struct string *file_full_path(char *file)
 {
         NSString *s = [[NSBundle mainBundle] pathForResource:[NSString stringWithUTF8String:file]
                 ofType:nil inDirectory:nil];
-        return string_alloc_chars([s UTF8String], [s length]);
+        return string_alloc_chars([s UTF8String], s.length);
 }
 
 #endif

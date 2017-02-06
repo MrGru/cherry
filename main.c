@@ -11,10 +11,9 @@
 
 int main(int argc, char const *argv[])
 {
-        struct texture *p = texture_alloc_file("res/wolf.jpg");
-        texture_bind(p);
-        debug("%d\n", p->active_id);
-
+        struct string *s = string_alloc_chars("Hello World",sizeof("Hello World")-1);
+        debug("%s\n",s->ptr);
+        string_free(s);
         cache_free();
         dim_memory();
         return 0;

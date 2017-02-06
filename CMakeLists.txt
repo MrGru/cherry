@@ -9,9 +9,9 @@ endif()
 
 
 if(${OPENGL} MATCHES "true")
-        add_definitions(-DGFX=OGL)
+        add_definitions(-DGFX=OGL -DIMAGE_TYPE=IMAGE_SDL2)
 else(${METAL} MATCHES "true")
-        add_definitions(-DGFX=MTL)
+        add_definitions(-DGFX=MTL -DIMAGE_TYPE=IMAGE_OBJC)
 endif()
 
 if(${APP_DEBUG} MATCHES "true")

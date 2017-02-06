@@ -1,7 +1,6 @@
 #include <cherry/graphic/shader.h>
 
 #if GFX == MTL
-
 #include <cherry/memory.h>
 
 /*
