@@ -5,7 +5,7 @@
 #define __CHERRY_TYPES_H__
 
 #include <cherry/stdint.h>
-#include <stddef.h>
+#include <cherry/stddef.h>
 
 /*
  * @prev : point to previous head

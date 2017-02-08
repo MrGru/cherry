@@ -1,3 +1,8 @@
+/*
+ * only included by m file
+ */
+#ifndef __CHERRY_GRAPHIC_METAL_H__
+#define __CHERRY_GRAPHIC_METAL_H__
 #import <Metal/Metal.h>
 
 /* whole game uses single mtl device */
@@ -12,3 +17,4 @@ extern MTLRenderPassDescriptor* shared_mtl_main_pass;
 extern MTLPixelFormat shared_mtl_pixel_format;
 
 extern NSUInteger shared_mtl_sample_count;
+#endif

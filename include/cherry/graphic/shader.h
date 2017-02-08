@@ -47,8 +47,8 @@ void shader_uniform_track_free(struct shader_uniform_track *p);
  * allocate new shader attribute descriptor
  */
 #if     GFX == OGL
-struct shader_attribute_descriptor *__shader_attribute_descriptor_alloc(u8 type, char *name);
-#define shader_attribute_descriptor_alloc(type, offset, name) __shader_attribute_descriptor_alloc(type, name)
+struct shader_attribute_descriptor *__shader_attribute_descriptor_alloc(u8 type, u16 offset, char *name);
+#define shader_attribute_descriptor_alloc(type, offset, name) __shader_attribute_descriptor_alloc(type, offset, name)
 #elif   GFX == MTL
 struct shader_attribute_descriptor *__shader_attribute_descriptor_alloc(u8 type, u16 offset);
 #define shader_attribute_descriptor_alloc(type, offset, name) __shader_attribute_descriptor_alloc(type, offset)
@@ -116,6 +116,8 @@ void shader_set_uniform(struct shader *p, i16 index, struct shader_uniform *u);
  */
 #if   GFX == OGL
 void shader_use(struct shader *p);
+
+void shader_setup_group(struct shader *p, struct device_buffer_group *g);
 #endif
 
 /*

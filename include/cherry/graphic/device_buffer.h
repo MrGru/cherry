@@ -9,7 +9,11 @@
 /*
  * allocate new device buffer
  */
-struct device_buffer *device_buffer_alloc();
+struct device_buffer *device_buffer_alloc(u8 type);
+
+#if GFX == OGL
+GLenum device_buffer_target(struct device_buffer *p);
+#endif
 
 /*
  * resize buffer and fill size bytes
@@ -36,6 +40,11 @@ void device_buffer_free(struct device_buffer *p);
  * allocate new device buffer group
  */
 struct device_buffer_group *device_buffer_group_alloc();
+
+/*
+ * retain buffer b and push it to group g
+ */
+void device_buffer_group_add(struct device_buffer_group *g, struct device_buffer *b);
 
 /*
  * deallocate device buffer group

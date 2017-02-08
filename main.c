@@ -11,9 +11,12 @@
 
 int main(int argc, char const *argv[])
 {
-        struct string *s = string_alloc_chars("Hello World",sizeof("Hello World")-1);
-        debug("%s\n",s->ptr);
-        string_free(s);
+        struct array *a = array_alloc(sizeof(void *), ORDERED);
+        int *p = NULL;
+        int *i = smalloc(sizeof(int));
+        array_push(a, &p);
+        array_push(a, &i);
+        array_deep_free_safe(a, int *, sfree);
         cache_free();
         dim_memory();
         return 0;

@@ -8,11 +8,12 @@
 /*
  * allocate new shader attribute decsriptor
  */
-struct shader_attribute_descriptor *__shader_attribute_descriptor_alloc(u8 type, char *name)
+struct shader_attribute_descriptor *__shader_attribute_descriptor_alloc(u8 type, u16 offset, char *name)
 {
         struct shader_attribute_descriptor *p = smalloc(sizeof(struct shader_attribute_descriptor));
-        p->type = type;
-        p->name = string_alloc_chars(name, strlen(name));
+        p->type         = type;
+        p->offset       = offset;
+        p->name         = string_alloc_chars(name, strlen(name));
         return p;
 }
 
