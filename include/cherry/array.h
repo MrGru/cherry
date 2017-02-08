@@ -89,4 +89,14 @@ void array_remove(struct array *p, u16 index);
                 array_free(a);                  \
         }
 
+#define array_deep_free_safe(a, type, free_func)        \
+        {					        \
+                type *__p;                              \
+                array_for_each(__p, (a)) {              \
+                        if(*__p)                        \
+                                free_func(*__p);        \
+                }                                       \
+                array_free(a);                          \
+        }
+
 #endif
