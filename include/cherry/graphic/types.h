@@ -10,7 +10,15 @@
 struct device_buffer;
 struct shader;
 
+enum {
+        BUFFER_VERTICE,
+        BUFFER_ELEMENT
+};
+
 /*
+ * @ref         : buffer may be shared among objects
+ * @type        : buffer type
+ *
  * OGL
  * @id          : opengl vbo id
  *
@@ -19,6 +27,8 @@ struct shader;
  * @size        : current size of buffer
  */
 struct device_buffer {
+        i16     ref;
+        u8      type;
 #if   GFX == OGL
         u32     id;
 #elif GFX == MTL
@@ -29,14 +39,12 @@ struct device_buffer {
 
 /*
  * @buffers     : array of device_buffer
- * @pipeline    : current pipeline setting up this group
  *
  * OGL
  * @id          : opengl vao id
  */
 struct device_buffer_group {
         struct array    *buffers;
-        struct shader   *pipeline;
 #if GFX == OGL
         u32             id;
 #endif
@@ -61,15 +69,14 @@ enum {
 
 /*
  * mesh vertex type
- * @PS  : position
- * @NR  : normal
- * @TR  : transformation
- * @CL  : color
  */
 enum {
-        PS_NR_TR_CL,
-        PS_NR,
-        PS_TR
+        MESH_POSITION,
+        MESH_NORMAL,
+        MESH_TRANSFORM,
+        MESH_COLOR,
+        /* custom mesh types should start from this enum */
+        NEXT_MESH_TYPE
 };
 
 /*
@@ -138,20 +145,16 @@ struct shader_uniform_track {
 /*
  * shader attribute descriptor
  * @type        : attribute type
+ * @offset      : attribute offset in buffer
  *
  * OGL
  * name         : attribute name
- *
- * MTL
- * @offset      : attribute offset in buffer
  */
 struct shader_attribute_descriptor {
         u8              type;
+        u16             offset;
 #if GFX == OGL
         struct string   *name;
-#endif
-#if GFX == MTL
-        u16             offset;
 #endif
 };
 
@@ -175,28 +178,31 @@ struct shader_descriptor {
 
 /*
  * shader object
- * @tracks      : array of uniform trackers registered
- * @flags       : array of flag to find active trackers
- * @pendings    : array of active trackers indice
- * @update      : flag allows shader to update uniforms datas
- * @mesh_type   : mesh vertex type allowed in pipeline
+ * @tracks              : array of uniform trackers registered
+ * @flags               : array of flag to find active trackers
+ * @pendings            : array of active trackers indice
+ * @update              : flag allows shader to update uniforms datas
+ * @mesh_types          : mesh vertex types allowed in pipeline
+ *                        application should have max 256 mesh types
  *
  * OGL
- * @id          : opengl shader id
+ * @id                  : opengl shader id
+ * @texture_uniforms    : opengl sampler2D ids
  *
  * MTL
- * @uniforms    : mtl uniforms buffers
- * @ptr         : bridge pointer to mtl pipeline object
+ * @uniforms            : mtl uniforms buffers
+ * @ptr                 : bridge pointer to mtl pipeline object
  */
 struct shader {
         struct array                    *tracks;
         struct array                    *flags;
         struct array                    *pendings;
         u8                              update[BUFFERS];
-        u8                              mesh_type;
+        struct array                    *mesh_types;
         struct shader_descriptor        *descriptor;
 #if GFX == OGL
         u32                             id;
+        struct array                    *texture_uniforms;
 #endif
 #if GFX == MTL
         struct device_buffer            *uniforms[BUFFERS];
@@ -252,6 +258,32 @@ struct texture {
 #if GFX == MTL
         void*                   ptr;
 #endif
+};
+
+struct mesh {
+        struct map      *buffers[BUFFERS];
+};
+
+struct render_content {
+        struct list_head                queue_head;
+        struct device_buffer_group      *groups[BUFFERS];
+        struct array                    *textures;
+};
+
+struct render_queue {
+        struct list_head        content_list;
+        struct list_head        stage_head;
+        struct shader           *pipeline;
+};
+
+struct render_stage {
+        struct list_head        renderer_head;
+        struct list_head        stencil_queue_list;
+        struct list_head        content_queue_list;
+};
+
+struct renderer {
+        struct list_head        stage_list;
 };
 
 #endif
