@@ -11,6 +11,8 @@ struct mesh *mesh_alloc()
         for_i(i, BUFFERS) {
                 p->buffers[i] = map_alloc(sizeof(struct device_buffer *));
         }
+        p->vertice_count        = 0;
+        p->instances            = 0;
         return p;
 }
 

@@ -5,6 +5,7 @@
 #define __CHERRY_GRAPHIC_TYPES_H__
 
 #include <cherry/types.h>
+#include <cherry/math/types.h>
 #include <cherry/graphic/graphic.h>
 
 struct device_buffer;
@@ -260,14 +261,18 @@ struct texture {
 #endif
 };
 
+
 struct mesh {
         struct map      *buffers[BUFFERS];
+        u16             vertice_count;
+        u16             instances;
 };
 
 struct render_content {
         struct list_head                queue_head;
         struct device_buffer_group      *groups[BUFFERS];
         struct array                    *textures;
+        struct mesh                     *mesh;
 };
 
 struct render_queue {
@@ -282,8 +287,18 @@ struct render_stage {
         struct list_head        content_queue_list;
 };
 
+struct render_pass {
+#if     GFX == OGL
+        u32     id;
+#elif   GFX == MTL
+        void    *ptr;
+#endif
+};
+
 struct renderer {
         struct list_head        stage_list;
+        struct render_pass      *pass;
+        union vec4              *color;
 };
 
 #endif

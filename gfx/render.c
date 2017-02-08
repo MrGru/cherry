@@ -4,6 +4,7 @@
 #include <cherry/map.h>
 #include <cherry/array.h>
 #include <cherry/graphic/device_buffer.h>
+#include <cherry/math/vec4.h>
 
 struct render_queue *render_queue_alloc(struct list_head *stage, struct shader *pipeline)
 {
@@ -46,6 +47,7 @@ struct render_content *render_content_alloc(struct render_queue *queue, struct m
 #endif
         }
         p->textures = array_alloc(sizeof(struct texture *), ORDERED);
+        p->mesh     = mesh;
         return p;
 }
 
@@ -106,7 +108,24 @@ struct renderer *renderer_alloc()
 {
         struct renderer *p = smalloc(sizeof(struct renderer));
         INIT_LIST_HEAD(&p->stage_list);
+        p->color = smalloc(sizeof(union vec4));
+        *p->color = vec4((float[4]){0, 0, 0, 1});
+        p->pass = NULL;
         return p;
+}
+
+void renderer_set_color(struct renderer *p, union vec4 *color)
+{
+        if(color) {
+                if(!p->color) {
+                        p->color = smalloc(sizeof(union vec4));
+                }
+                *p->color = *color;
+        }
+        else {
+                sfree(p->color);
+                p->color = NULL;
+        }
 }
 
 void renderer_free(struct renderer *p)
@@ -117,5 +136,6 @@ void renderer_free(struct renderer *p)
                         ((void*)head - offsetof(struct render_stage, renderer_head));
                 render_stage_free(stage);
         }
+        if(p->color) sfree(p->color);
         sfree(p);
 }

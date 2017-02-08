@@ -59,14 +59,12 @@
                 #include <OpenGL/glext.h>
                 #include <GLUT/glut.h>
         #else
-                #define GL_GLEXT_PROTOTYPES
                 #include <GL/glut.h>
-                #include <GL/gl.h>
-                #include <GL/glext.h>
+                #include <GLES3/gl3.h>
         #endif
 
 #elif GFX == MTL
-        
+
 #endif
 
 /*

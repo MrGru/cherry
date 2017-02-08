@@ -29,12 +29,11 @@ if(MACOSX)
                 include_directories( ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS} )
                 set(PROJECT_LINK_LIBS kernel m pthread SDL2 SDL2_image ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
         endif()
-        
+
         include_directories(/usr/local/include)
         file(GLOB_RECURSE SOURCES "*.c" "*.m")
 
 else() #linux
-
         set(PROJECT_LINK_LIBS kernel m pthread GL GLU glut SDL2 SDL2_image)
 
         file(GLOB_RECURSE SOURCES "*.c")

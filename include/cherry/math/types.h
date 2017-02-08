@@ -40,4 +40,10 @@ union mat4 {
         float mm[4][4];
 } __attribute__((aligned(16))) ;
 
+#define devec4(p) (p).x, (p).y, (p).z, (p).w
+
+#define devec3(p) (p).x, (p).y, (p).z
+
+#define devec2(p) (p).x, (p).y
+
 #endif

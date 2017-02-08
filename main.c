@@ -1,22 +1,62 @@
-#include <cherry/stdio.h>
 #include <cherry/memory.h>
-#include <cherry/string.h>
-#include <cherry/math/math.h>
-#include <cherry/array.h>
-#include <cherry/map.h>
-#include <cherry/list.h>
-#include <cherry/graphic/types.h>
-#include <cherry/graphic/image.h>
-#include <cherry/graphic/texture.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#include <cherry/game/game.h>
 
-int main(int argc, char const *argv[])
+int main(int args, char **argv)
 {
-        struct array *a = array_alloc(sizeof(void *), ORDERED);
-        int *p = NULL;
-        int *i = smalloc(sizeof(int));
-        array_push(a, &p);
-        array_push(a, &i);
-        array_deep_free_safe(a, int *, sfree);
+        /* setup window parameters */
+        int width = 480, height = 800, fullscreen = 0;
+        i16 i;
+        for_i(i, args - 1) {
+                char* t = argv[i];
+                char* v = argv[i + 1];
+                if(strcmp(t, "-m") == 0) {
+                        if(strcmp(v, "fullscreen") == 0) {
+                                fullscreen = 1;
+                        }
+                } else if(strcmp(t, "-w") == 0) {
+                        width = atoi(v);
+                } else if(strcmp(t, "-h") == 0) {
+                        height = atoi(v);
+                }
+        }
+        video_width = width;
+        video_height = height;
+
+        SDL_Init(SDL_INIT_VIDEO);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+        SDL_Window* window = SDL_CreateWindow("Game", 0, 0, video_width, video_height, SDL_WINDOW_OPENGL);
+        SDL_GLContext context = SDL_GL_CreateContext(window);
+        SDL_Event windowEvent;
+
+        if(fullscreen) {
+                SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+        }
+        glViewport(0, 0, video_width, video_height);
+
+        struct game *game = game_alloc();
+
+        /* main loop */
+        while (1) {
+                if (SDL_PollEvent(&windowEvent)) {
+                        if (windowEvent.type == SDL_QUIT) break;
+                        if (windowEvent.type == SDL_KEYUP &&
+                                windowEvent.key.keysym.sym == SDLK_ESCAPE) break;
+                }
+                game_update(game);
+                game_render(game);
+                SDL_GL_SwapWindow(window);
+        }
+        game_free(game);
+        SDL_GL_DeleteContext(context);
+        SDL_Quit();
+        /* destroy cache and free memory pages allocated */
         cache_free();
         dim_memory();
         return 0;

@@ -22,6 +22,7 @@ endif()
 
 add_subdirectory(kernel)
 add_subdirectory(gfx)
+add_subdirectory(game)
 
 include_directories(include)
 
@@ -30,7 +31,7 @@ if(${USER_BUILD_IOS} MATCHES "true")
 else()
 
         add_executable(cherry main.c)
-        add_dependencies(cherry kernel gfx)
-        target_link_libraries(cherry kernel gfx)
+        add_dependencies(cherry kernel gfx game)
+        target_link_libraries(cherry kernel gfx game)
 
 endif()

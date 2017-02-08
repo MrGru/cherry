@@ -34,7 +34,17 @@ void render_stage_free(struct render_stage *p);
  * allocate new renderer
  */
 struct renderer *renderer_alloc();
-void renderer_render(struct renderer *p);
+
+/*
+ * render frame
+ */
+void renderer_render(struct renderer *p, u8 frame);
+
+void renderer_set_color(struct renderer *p, union vec4 *color);
+
+/*
+ * deallocate renderer and content
+ */
 void renderer_free(struct renderer *p);
 
 #endif

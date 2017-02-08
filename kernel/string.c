@@ -1,4 +1,5 @@
 #include <cherry/string.h>
+#include <cherry/memory.h>
 
 struct string *string_alloc(size_t len)
 {

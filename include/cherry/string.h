@@ -4,7 +4,6 @@
 #ifndef __CHERRY_STRING_H__
 #define __CHERRY_STRING_H__
 
-#include <cherry/memory.h>
 #include <cherry/types.h>
 #include <string.h>
 
