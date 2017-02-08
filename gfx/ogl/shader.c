@@ -57,12 +57,14 @@ struct shader *shader_alloc(char *vert, char *frag, struct shader_descriptor *de
         glDeleteShader(fragmentShader);
 
         /* allocate application shader object */
-        struct shader *p = smalloc(sizeof(struct shader));
-        p->id           = shaderProgram;
-        p->tracks       = array_alloc(sizeof(struct shader_uniform_track *), ORDERED);
-        p->flags        = array_alloc(sizeof(i16), ORDERED);
-        p->pendings     = array_alloc(sizeof(i16), UNORDERED);
-        p->descriptor   = des;
+        struct shader *p        = smalloc(sizeof(struct shader));
+        p->id                   = shaderProgram;
+        p->tracks               = array_alloc(sizeof(struct shader_uniform_track *), ORDERED);
+        p->flags                = array_alloc(sizeof(i16), ORDERED);
+        p->pendings             = array_alloc(sizeof(i16), UNORDERED);
+        p->mesh_types           = array_alloc(sizeof(u8), ORDERED);
+        p->texture_uniforms     = array_alloc(sizeof(struct shader_uniform *), ORDERED);
+        p->descriptor           = des;
         int i;
         for_i(i, BUFFERS) p->update[i] = 1;
 
@@ -85,6 +87,8 @@ void shader_free(struct shader *p)
         array_deep_free(p->tracks, struct shader_uniform_track *, shader_uniform_track_free);
         array_free(p->flags);
         array_free(p->pendings);
+        array_free(p->mesh_types);
+        array_deep_free(p->texture_uniforms, struct shader_uniform *, shader_uniform_free);
         sfree(p);
 }
 
@@ -226,6 +230,83 @@ void shader_update_uniform(struct shader *p, u8 frame)
                 }
         }
         array_force_len(p->pendings, 0);
+}
+
+void shader_setup_group(struct shader *p, struct device_buffer_group *g)
+{
+        glBindVertexArray(g->id);
+        i16 i;
+        for_i(i, p->descriptor->buffers->len) {
+                struct shader_buffer_descriptor *sbd = array_get(p->descriptor->buffers,
+                        struct shader_buffer_descriptor *, i);
+                struct device_buffer *db = array_get(g->buffers, struct device_buffer *, i);
+                glBindBuffer(device_buffer_target(db), db->id);
+                struct shader_attribute_descriptor **sad;
+                array_for_each(sad, sbd->attributes) {
+                        GLint attr = glGetAttribLocation(p->id, (*sad)->name->ptr);
+                        glEnableVertexAttribArray(attr);
+                        i16 k;
+                        switch((*sad)->type) {
+                          case ATTRIBUTE_FLOAT:
+                                glVertexAttribPointer(attr, 1, GL_FLOAT, GL_FALSE,
+                                        sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
+                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                break;
+                          case ATTRIBUTE_VEC2:
+                                glVertexAttribPointer(attr, 2, GL_FLOAT, GL_FALSE,
+                                        sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
+                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                break;
+                          case ATTRIBUTE_VEC3:
+                                glVertexAttribPointer(attr, 3, GL_FLOAT, GL_FALSE,
+                                        sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
+                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                break;
+                          case ATTRIBUTE_VEC4:
+                                glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
+                                        sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
+                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                break;
+                          case ATTRIBUTE_MAT4:
+                                glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
+                                        sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
+                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                for_i_from(k, 1, 4) {
+                                        attr++;
+                                        glEnableVertexAttribArray(attr);
+                                        glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
+                                                sbd->vertex_size, (void*)(((*sad)->offset + k * 4) * sizeof(GLfloat)));
+                                        if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                }
+                                break;
+                          case ATTRIBUTE_MAT3:
+                                glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
+                                        sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
+                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                for_i_from(k, 1, 3) {
+                                        attr++;
+                                        glEnableVertexAttribArray(attr);
+                                        glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
+                                                sbd->vertex_size, (void*)(((*sad)->offset + k * 4) * sizeof(GLfloat)));
+                                        if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                }
+                                break;
+                          case ATTRIBUTE_MAT2:
+                                glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
+                                        sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
+                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                for_i_from(k, 1, 2) {
+                                        attr++;
+                                        glEnableVertexAttribArray(attr);
+                                        glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
+                                                sbd->vertex_size, (void*)(((*sad)->offset + k * 4) * sizeof(GLfloat)));
+                                        if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                }
+                                break;
+                        }
+                }
+        }
+        glBindVertexArray(0);
 }
 
 #endif
