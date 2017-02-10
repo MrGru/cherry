@@ -8,6 +8,8 @@
 #include <cherry/graphic/shader.h>
 #include <cherry/math/math.h>
 
+struct node *test_node;
+
 struct game *game_alloc()
 {
         struct game *p  = smalloc(sizeof(struct game));
@@ -51,19 +53,36 @@ struct game *game_alloc()
         shader_uniform_update(project_uniform, mat4_identity.m, sizeof(mat4_identity));
         shader_uniform_update(view_uniform, mat4_identity.m, sizeof(mat4_identity));
 
-        struct node *n = node_alloc(content);
-        float z = 0;
-        node_set_data(n, 1, &z, sizeof(z));
-        node_set_data(n, 2, mat4_identity.m, sizeof(mat4_identity));
-        union vec4 color = vec4((float[4]){1, 0, 1, 1});
-        node_set_data(n, 3, color.v, sizeof(color));
+        {
+                struct node *n = node_alloc(content);
+                float z = -0.00001f;
+                node_set_data(n, 1, &z, sizeof(z));
+                node_set_data(n, 2, mat4_identity.m, sizeof(mat4_identity));
+                union vec4 color = vec4((float[4]){1, 1, 1, 1});
+                node_set_data(n, 3, color.v, sizeof(color));
+                test_node = n;
+        }
+        {
+                struct node *n = node_alloc(content);
+                float z = 0;
+                node_set_data(n, 1, &z, sizeof(z));
+                node_set_data(n, 2, mat4_identity.m, sizeof(mat4_identity));
+                union vec4 color = vec4((float[4]){1, 0, 1, 1});
+                node_set_data(n, 3, color.v, sizeof(color));
+        }
+
 
         return p;
 }
 
+float angle = 0;
+
 void game_update(struct game *p)
 {
-
+        angle += 1;
+        union mat4 m = mat4_new_y_rotation(DEG_TO_RAD(angle));
+        m = mat4_scale(m, vec3((float[3]){0.5, 0.5, 0.5}));
+        node_set_data(test_node, 2, m.m, sizeof(m));
 }
 
 void game_render(struct game *p)
