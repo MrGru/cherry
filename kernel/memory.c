@@ -175,7 +175,7 @@ void sfree(void *ptr)
         struct mem_block_head *p = (struct mem_block_head *)ptr - 1;
         (*p->count)--;
         struct pool_head *b = &p->head;
-        pool_add(b, *b->pprev);
+        pool_add(b, b->pprev);
 }
 
 /*
@@ -188,7 +188,7 @@ void *srealloc(void *ptr, size_t size)
 
         struct mem_block_head *p = (struct mem_block_head *)ptr - 1;
         struct pool_head *b = &p->head;
-        size_t psize = ((struct mem_head *)(&*b->pprev))->item_size;
+        size_t psize = ((struct mem_head *)(b->pprev))->item_size;
 
         /* block holding ptr currently has enough space, no need to resize */
         if(psize >= size) return ptr;

@@ -21,7 +21,7 @@ struct list_head {
  */
 struct pool_head {
         struct pool_head *next;
-        struct pool_head **pprev;
+        struct pool_head *pprev;
 };
 
 enum {

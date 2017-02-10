@@ -74,6 +74,12 @@ void render_content_free(struct render_content *content)
                 device_buffer_group_free(content->groups[i]);
         }
         array_deep_free_safe(content->textures, struct texture *, texture_free);
+        struct list_head *head, *next;
+        list_for_each_safe(head, next, &content->node_list) {
+                struct node *n = (struct node *)
+                        ((void *)head - offsetof(struct node, content_head));
+                node_free(n);
+        }
         /* detach and deallocate */
         list_del(&content->queue_head);
         sfree(content);

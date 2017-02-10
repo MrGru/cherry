@@ -143,8 +143,8 @@ void shader_update_uniform(struct shader *p, u8 frame)
 
         /* i don't know if it has to link shader before changing uniform */
         shader_use(p);
-
         i16 *pid;
+
         array_for_each(pid, p->pendings) {
                 array_set(p->flags, *pid, &(i16){0});
                 struct shader_uniform_track *t = array_get(p->tracks,

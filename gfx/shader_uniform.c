@@ -21,7 +21,6 @@ struct shader_uniform *shader_uniform_alloc()
  */
 void shader_uniform_free(struct shader_uniform *p)
 {
-        printf("???\n");
         p->ref--;
         if(p->ref <= 0) {
                 bytes_free(p->data);
