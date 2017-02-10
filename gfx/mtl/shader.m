@@ -130,7 +130,7 @@ void __shader_reserve_uniform(struct shader *p, i16 index, u8 type, i16 offset)
                                 t->type = type;
                                 t->offset = offset;
                         }
-                        array_push(p->tracks, &p);
+                        array_push(p->tracks, &t);
                         array_push(p->flags, &(i16){0});
                 }
         } else {

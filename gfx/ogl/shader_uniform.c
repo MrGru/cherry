@@ -4,6 +4,7 @@
 
 #include <cherry/memory.h>
 #include <cherry/string.h>
+#include <cherry/stdio.h>
 
 /*
  * allocate new shader uniform tracker

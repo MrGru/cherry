@@ -3,6 +3,7 @@
 #include <cherry/array.h>
 #include <cherry/graphic/render.h>
 #include <cherry/stdio.h>
+#include <cherry/graphic/shader/shader_collection.h>
 
 struct game *game_alloc()
 {
@@ -13,6 +14,9 @@ struct game *game_alloc()
         struct renderer *r = renderer_alloc();
         r->pass = render_pass_main_alloc();
         array_push(p->renderers, &r);
+
+        struct shader *s = shader_color_alloc();
+
         return p;
 }
 

@@ -6,6 +6,7 @@
 #include <cherry/list.h>
 #include <cherry/map.h>
 #include <cherry/array.h>
+#include <cherry/graphic/shader.h>
 #include <cherry/graphic/device_buffer.h>
 
 static inline void begin_stencil()
@@ -80,7 +81,7 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                 /* bind vao and draw */
                 if(content->current_instances) {
                         glBindVertexArray(content->groups[frame]->id);
-                        glDrawArraysInstanced(GL_TRIANGLES, 0, content->vertice, content->current_instances);        
+                        glDrawArraysInstanced(GL_TRIANGLES, 0, content->vertice, content->current_instances);
                 }
         }
 }
