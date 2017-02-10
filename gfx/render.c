@@ -136,7 +136,9 @@ struct node *node_alloc(struct render_content *host)
 void node_set_data(struct node *p, u8 index, void *bytes, u32 len)
 {
         struct node_data *d = array_get(p->datas, struct node_data *, index);
-        if(d->frames == 0) array_push(p->pending_datas, &d);
+        if(d->frames == 0) {
+                array_push(p->pending_datas, &d);
+        }
         node_data_set(d, index, bytes, len);
 
         if(list_singular(&p->updater_head)) {

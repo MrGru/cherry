@@ -153,7 +153,7 @@ void shader_update_uniform(struct shader *p, u8 frame)
                         if(t->id == -1) {
                                 t->id = glGetUniformLocation(p->id, t->name->ptr);
                         }
-                        if(t->id) {
+                        if(t->id >= 0) {
                                 switch(t->type) {
                                         case UNIFORM_F1:
                                                 glUniform1fv(t->id,

@@ -61,7 +61,7 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                 struct list_head *updater, *next_updater;
                 list_for_each_safe(updater, next_updater, &content->pending_updaters) {
                         struct node *node = (struct node *)
-                                ((void*)updater - offsetof(struct node, content_head));
+                                ((void*)updater - offsetof(struct node, updater_head));
                         struct node_data **data;
                         i16 data_index;
                         array_for_each_index(data, data_index, node->pending_datas) {

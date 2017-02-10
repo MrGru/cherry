@@ -48,9 +48,15 @@ struct game *game_alloc()
         shader_set_uniform(s, SHADER_COLOR_PROJECT, project_uniform);
         shader_set_uniform(s, SHADER_COLOR_VIEW, view_uniform);
 
-        //
-        // shader_uniform_update(project_uniform, mat4_identity.m, sizeof(mat4_identity));
-        // shader_uniform_update(view_uniform, mat4_identity.m, sizeof(mat4_identity));
+        shader_uniform_update(project_uniform, mat4_identity.m, sizeof(mat4_identity));
+        shader_uniform_update(view_uniform, mat4_identity.m, sizeof(mat4_identity));
+
+        struct node *n = node_alloc(content);
+        float z = 0;
+        node_set_data(n, 1, &z, sizeof(z));
+        node_set_data(n, 2, mat4_identity.m, sizeof(mat4_identity));
+        union vec4 color = vec4((float[4]){1, 0, 1, 1});
+        node_set_data(n, 3, color.v, sizeof(color));
 
         return p;
 }
