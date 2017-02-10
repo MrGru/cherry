@@ -9,22 +9,26 @@ struct game *game_alloc()
         struct game *p  = smalloc(sizeof(struct game));
         p->renderers    = array_alloc(sizeof(struct renderer *), ORDERED);
         p->frame        = 0;
+
         struct renderer *r = renderer_alloc();
+        r->pass = render_pass_main_alloc();
         array_push(p->renderers, &r);
         return p;
 }
 
 void game_update(struct game *p)
 {
-        
+
 }
 
 void game_render(struct game *p)
 {
+        /* process all renderers */
         struct renderer **r;
         array_for_each(r, p->renderers) {
                 renderer_render(*r, p->frame);
         }
+        /* increase frame by 1 */
         p->frame++;
         p->frame %= BUFFERS;
 }

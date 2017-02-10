@@ -26,6 +26,7 @@ struct device_buffer *device_buffer_alloc(u8 type)
         glGenBuffers(1, &p->id);
         p->ref  = 0;
         p->type = type;
+        p->item_size = 0;
         return p;
 }
 

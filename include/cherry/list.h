@@ -1,5 +1,6 @@
 /*
  * linked list definition
+ * inspired from linux kernel list head
  */
 #ifndef __CHERRY_LIST_H__
 #define __CHERRY_LIST_H__

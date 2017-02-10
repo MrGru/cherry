@@ -20,6 +20,7 @@ struct device_buffer *device_buffer_alloc(u8 type)
         p->type = type;
         p->size = 0;
         p->ref  = 0;
+        p->item_size = 0;
         return p;
 }
 

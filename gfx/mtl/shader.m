@@ -82,7 +82,6 @@ struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *de
 	p->tracks = array_alloc(sizeof(struct shader_uniform_track *), ORDERED);
 	p->flags = array_alloc(sizeof(i16), ORDERED);
 	p->pendings = array_alloc(sizeof(i16), UNORDERED);
-        p->mesh_types = array_alloc(sizeof(u8), ORDERED);
         p->descriptor = des;
 
         for_i(i, BUFFERS) {
@@ -111,7 +110,6 @@ void shader_free(struct shader *p)
         array_deep_free(p->tracks, struct shader_uniform_track *, shader_uniform_track_free);
         array_free(p->flags);
         array_free(p->pendings);
-        array_free(p->mesh_types);
         sfree(p);
 }
 
