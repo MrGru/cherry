@@ -30,6 +30,7 @@ enum {
 struct device_buffer {
         i16     ref;
         u8      type;
+        u16     item_size;
 #if   GFX == OGL
         u32     id;
 #elif GFX == MTL
@@ -66,18 +67,6 @@ enum {
         UNIFORM_M2,
         UNIFORM_M3,
         UNIFORM_M4
-};
-
-/*
- * mesh vertex type
- */
-enum {
-        MESH_POSITION,
-        MESH_NORMAL,
-        MESH_TRANSFORM,
-        MESH_COLOR,
-        /* custom mesh types should start from this enum */
-        NEXT_MESH_TYPE
 };
 
 /*
@@ -199,7 +188,6 @@ struct shader {
         struct array                    *flags;
         struct array                    *pendings;
         u8                              update[BUFFERS];
-        struct array                    *mesh_types;
         struct shader_descriptor        *descriptor;
 #if GFX == OGL
         u32                             id;
@@ -261,18 +249,44 @@ struct texture {
 #endif
 };
 
-
-struct mesh {
-        struct map      *buffers[BUFFERS];
-        u16             vertice_count;
-        u16             instances;
-};
+/*
+ * render content constructed from mesh
+ * a mesh can create many render content for different purpose
+ * e.g : a mesh has position, normal, texcoord, transform ...
+ *       pipeline1 only need position, texcoord
+ *       pipeline2 only need position, normal...so on
+ */
 
 struct render_content {
         struct list_head                queue_head;
         struct device_buffer_group      *groups[BUFFERS];
         struct array                    *textures;
-        struct mesh                     *mesh;
+        u16                             vertice;
+        u16                             max_instances;
+        u16                             current_instances;
+
+        struct list_head                node_list;
+        struct list_head                pending_updaters;
+};
+
+struct node_data {
+        u8              frames;
+        u8              buffer_id;
+        struct bytes    *data;
+};
+
+struct node {
+        struct list_head        content_head;
+        u16                     content_index;
+        struct render_content   *host;
+
+        struct list_head        updater_head;
+
+        struct list_head        tree_head;
+        struct list_head        children;
+
+        struct array            *pending_datas;
+        struct array            *datas;
 };
 
 struct render_queue {
@@ -293,6 +307,16 @@ struct render_pass {
 #elif   GFX == MTL
         void    *ptr;
 #endif
+        void(*del)(struct render_pass *);
+};
+
+struct main_render_pass {
+        struct render_pass      pass;
+};
+
+struct shadow_render_pass {
+        struct render_pass      pass;
+        struct texture          *map;
 };
 
 struct renderer {

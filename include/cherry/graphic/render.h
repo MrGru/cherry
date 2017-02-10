@@ -16,11 +16,38 @@ void render_queue_free(struct render_queue *queue);
  * allocate new render_content
  * content groups are built from queue's pipeline and mesh's buffers
  */
-struct render_content *render_content_alloc(struct render_queue *queue, struct mesh *mesh);
+struct render_content *render_content_alloc(struct render_queue *queue,
+        struct array *buffers[BUFFERS], u16 vertice, u16 max_instances);
 
 void render_content_set_texture(struct render_content *content, u16 index, struct texture *t);
 
 void render_content_free(struct render_content *content);
+
+struct node_data *node_data_alloc();
+void node_data_set(struct node_data *p, u8 bid, void *bytes, u32 len);
+void node_data_free(struct node_data *p);
+
+/*
+ * allocate new node from host
+ */
+struct node *node_alloc(struct render_content *host);
+
+/*
+ * change node instance data of index-th buffer in host
+ */
+void node_set_data(struct node *p, u8 index, void *bytes, u32 len);
+
+/*
+ * detach p and all it's children from host, current tree and deallocate it
+ */
+void node_free(struct node *p);
+
+/*
+ * add child to p children tree
+ * used to calculate render information like z order,
+ * does not affect if child is drawn or not
+ */
+void node_add_child(struct node *p, struct node *child);
 
 /*
  * allocate new render_stage
@@ -29,6 +56,13 @@ void render_content_free(struct render_content *content);
 struct render_stage *render_stage_alloc(struct renderer *renderer);
 
 void render_stage_free(struct render_stage *p);
+
+/*
+ * render pass allocations
+ */
+struct render_pass *render_pass_main_alloc();
+
+struct render_pass *render_pass_shadow_alloc();
 
 /*
  * allocate new renderer

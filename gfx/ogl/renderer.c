@@ -37,11 +37,12 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
 {
         /* apply pipeline */
         shader_use(queue->pipeline);
-        /* bind textures */
+        /* draw */
         struct list_head *head;
         list_for_each(head, &queue->content_list) {
                 struct render_content *content = (struct render_content *)
                         ((void*)head - offsetof(struct render_content, queue_head));
+                /* bind textures */
                 struct texture **tex;
                 i16 i;
                 array_for_each_index(tex, i, content->textures) {
@@ -55,9 +56,30 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                 }
                 /* push uniform datas to device memory */
                 shader_update_uniform(queue->pipeline, frame);
+                /* update buffers */
+                struct list_head *updater, *next_updater;
+                list_for_each_safe(updater, next_updater, &content->pending_updaters) {
+                        struct node *node = (struct node *)
+                                ((void*)updater - offsetof(struct node, content_head));
+                        struct node_data **data;
+                        i16 data_index;
+                        array_for_each_index(data, data_index, node->pending_datas) {
+                                (*data)->frames--;
+                                struct device_buffer *buffer = array_get(content->groups[frame]->buffers,
+                                        struct device_buffer *, (*data)->buffer_id);
+                                device_buffer_sub(buffer, node->content_index * (*data)->data->len,
+                                        (*data)->data->ptr, (*data)->data->len);
+                                if((*data)->frames == 0) {
+                                        array_remove(node->pending_datas, data_index);
+                                        data_index--;
+                                        data--;
+                                }
+                        }
+                        if(node->pending_datas->len == 0) list_del(updater);
+                }
                 /* bind vao and draw */
                 glBindVertexArray(content->groups[frame]->id);
-                glDrawArraysInstanced(GL_TRIANGLES, 0, content->mesh->vertice_count, content->mesh->instances);
+                glDrawArraysInstanced(GL_TRIANGLES, 0, content->vertice, content->max_instances);
         }
 }
 
@@ -75,7 +97,7 @@ static struct render_pass *current_pass = NULL;
 
 void renderer_render(struct renderer *p, u8 frame)
 {
-        if(current_pass != p->pass && p->pass) {
+        if(current_pass != p->pass) {
                 glBindFramebuffer(GL_FRAMEBUFFER, p->pass->id);
                 current_pass = p->pass;
         }
