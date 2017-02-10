@@ -24,6 +24,9 @@ void array_free(struct array *p);
  */
 void array_reserve(struct array *p, u16 len);
 
+/*
+ * after this call p's len is greater than or equal to len
+ */
 void array_force_len(struct array *p, u16 len);
 
 /*

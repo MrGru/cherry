@@ -1,5 +1,4 @@
 #ignore build folder
 build
-res
 ios_build
 ios_build_metal

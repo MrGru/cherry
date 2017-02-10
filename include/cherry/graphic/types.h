@@ -249,14 +249,6 @@ struct texture {
 #endif
 };
 
-/*
- * render content constructed from mesh
- * a mesh can create many render content for different purpose
- * e.g : a mesh has position, normal, texcoord, transform ...
- *       pipeline1 only need position, texcoord
- *       pipeline2 only need position, normal...so on
- */
-
 struct render_content {
         struct list_head                queue_head;
         struct device_buffer_group      *groups[BUFFERS];

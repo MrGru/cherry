@@ -78,8 +78,10 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                         if(node->pending_datas->len == 0) list_del(updater);
                 }
                 /* bind vao and draw */
-                glBindVertexArray(content->groups[frame]->id);
-                glDrawArraysInstanced(GL_TRIANGLES, 0, content->vertice, content->max_instances);
+                if(content->current_instances) {
+                        glBindVertexArray(content->groups[frame]->id);
+                        glDrawArraysInstanced(GL_TRIANGLES, 0, content->vertice, content->current_instances);        
+                }
         }
 }
 
