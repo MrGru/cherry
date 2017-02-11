@@ -64,6 +64,16 @@ struct shader *shader_texture_alloc()
         sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC2, 0, "texcoord");
         array_push(sbd->attributes, &sad);
         array_push(des->buffers, &sbd);
+        /* texroot */
+        sbd = shader_buffer_descriptor_alloc(2 * sizeof(float), 1, 1);
+        sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC2, 0, "texroot");
+        array_push(sbd->attributes, &sad);
+        array_push(des->buffers, &sbd);
+        /* texrange */
+        sbd = shader_buffer_descriptor_alloc(2 * sizeof(float), 1, 1);
+        sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC2, 0, "texrange");
+        array_push(sbd->attributes, &sad);
+        array_push(des->buffers, &sbd);
         /* texid */
         sbd = shader_buffer_descriptor_alloc(sizeof(float), 1, 1);
         sad = shader_attribute_descriptor_alloc(ATTRIBUTE_FLOAT, 0, "texid");

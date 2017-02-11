@@ -49,6 +49,8 @@ void shader_uniform_update(struct shader_uniform *p, void *bytes, u32 len)
  */
 void shader_uniform_submit(struct shader_uniform *p)
 {
+        if(p->data->len == 0) return;
+        
         struct shader_uniform_index **index;
         array_for_each(index, p->indice) {
                 struct shader *pipeline = (*index)->pipeline;

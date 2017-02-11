@@ -37,6 +37,24 @@ struct device_buffer *buffer_quad_texcoord_alloc()
         return buffer;
 }
 
+struct device_buffer *buffer_quad_texroot_alloc(u16 instances)
+{
+        void *data = smalloc(sizeof(union vec2) * instances);
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE);
+        device_buffer_fill(buffer, data, sizeof(union vec2) * instances);
+        sfree(data);
+        return buffer;
+}
+
+struct device_buffer *buffer_quad_texrange_alloc(u16 instances)
+{
+        void *data = smalloc(sizeof(union vec2) * instances);
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE);
+        device_buffer_fill(buffer, data, sizeof(union vec2) * instances);
+        sfree(data);
+        return buffer;
+}
+
 struct device_buffer *buffer_z_alloc(u16 instances)
 {
         void *data = smalloc(sizeof(float) * instances);

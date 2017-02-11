@@ -37,17 +37,23 @@ struct game *game_alloc()
                 struct device_buffer *transform = buffer_transform_alloc(900);
                 struct device_buffer *color     = buffer_color_alloc(900);
                 struct device_buffer *texcoord  = buffer_quad_texcoord_alloc();
+                struct device_buffer *texroot   = buffer_quad_texroot_alloc(900);
+                struct device_buffer *texrange  = buffer_quad_texrange_alloc(900);
                 struct device_buffer *texid     = buffer_texid_alloc(900);
                 array_push(buffers[i], &quad);
                 array_push(buffers[i], &z);
                 array_push(buffers[i], &transform);
                 array_push(buffers[i], &color);
                 array_push(buffers[i], &texcoord);
+                array_push(buffers[i], &texroot);
+                array_push(buffers[i], &texrange);
                 array_push(buffers[i], &texid);
                 z->item_size            = sizeof(float);
                 transform->item_size    = sizeof(union mat4);
                 color->item_size        = sizeof(union vec4);
                 texid->item_size        = sizeof(float);
+                texroot->item_size      = sizeof(union vec2);
+                texrange->item_size     = sizeof(union vec2);
         }
 
         struct render_content *content = render_content_alloc(queue, buffers, 6, 900);
@@ -70,8 +76,15 @@ struct game *game_alloc()
                 node_set_data(n, 2, mat4_identity.m, sizeof(mat4_identity));
                 union vec4 color = vec4((float[4]){1, 1, 1, 1});
                 node_set_data(n, 3, color.v, sizeof(color));
+
+                union vec2 root = vec2((float[2]){0.5, 0.5});
+                node_set_data(n, 5, root.v, sizeof(root));
+
+                union vec2 range = vec2((float[2]){0.5, 0.5});
+                node_set_data(n, 6, range.v, sizeof(range));
+
                 float tid = 1.001f;
-                node_set_data(n, 5, &tid, sizeof(tid));
+                node_set_data(n, 7, &tid, sizeof(tid));
         }
         {
                 struct node *n = node_alloc(content);
@@ -80,8 +93,15 @@ struct game *game_alloc()
                 node_set_data(n, 2, mat4_identity.m, sizeof(mat4_identity));
                 union vec4 color = vec4((float[4]){1, 1, 1, 1});
                 node_set_data(n, 3, color.v, sizeof(color));
+
+                union vec2 root = vec2((float[2]){0, 0});
+                node_set_data(n, 5, root.v, sizeof(root));
+
+                union vec2 range = vec2((float[2]){1, 1});
+                node_set_data(n, 6, range.v, sizeof(range));
+
                 float tid = 0.001f;
-                node_set_data(n, 5, &tid, sizeof(tid));
+                node_set_data(n, 7, &tid, sizeof(tid));
                 test_node = n;
         }
 
