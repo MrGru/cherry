@@ -20,13 +20,13 @@ GLenum device_buffer_target(struct device_buffer *p)
         return target;
 }
 
-struct device_buffer *device_buffer_alloc(u8 type)
+struct device_buffer *device_buffer_alloc(u8 type, u16 item_size)
 {
         struct device_buffer *p = smalloc(sizeof(struct device_buffer));
         glGenBuffers(1, &p->id);
         p->ref  = 0;
         p->type = type;
-        p->item_size = 0;
+        p->item_size = item_size;
         return p;
 }
 

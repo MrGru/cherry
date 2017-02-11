@@ -9,7 +9,7 @@
 /*
  * allocate new device buffer
  */
-struct device_buffer *device_buffer_alloc(u8 type);
+struct device_buffer *device_buffer_alloc(u8 type, u16 item_size);
 
 #if GFX == OGL
 GLenum device_buffer_target(struct device_buffer *p);

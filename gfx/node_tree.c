@@ -47,6 +47,7 @@ void node_tree_free(struct node_tree *p)
         detach_node(p);
         detach_z(p);
         detach_transform(p);
+        sfree(p);
 }
 
 void node_tree_set_node(struct node_tree *p, struct node *n)

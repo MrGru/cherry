@@ -16,6 +16,9 @@ input vec4              pixel_color;
 input vec2              pixel_coord;
 input float             pixel_texid;
 
+/*
+ * almost mobile devices allow only 8 concurrent sampler2Ds as maximum
+ */
 uniform sampler2D       image[8];
 
 void main()

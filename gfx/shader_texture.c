@@ -113,6 +113,7 @@ struct shader *shader_texture_alloc()
 
                 struct shader_uniform *u = shader_uniform_alloc();
                 shader_set_uniform(instance, i, u);
+                u->ref++;
                 array_push(instance->texture_uniforms, &u);
 
                 u32 id = 0;

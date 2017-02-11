@@ -19,6 +19,7 @@
  */
 struct mem_block_head {
         struct pool_head head;
+        u8      used;
         int *count;
 };
 
@@ -98,6 +99,7 @@ static inline void __expand(size_t size, int id)
         back_i(i, n) {
                 struct mem_block_head *head = (struct mem_block_head *)(p + i * size);
                 head->count = count;
+                head->used = 0;
                 pool_add(&head->head, &blocks[id].head);
         }
 
@@ -117,6 +119,7 @@ static inline void __expand_large(size_t size, int id)
         struct mem_block_head *head = (struct mem_block_head *)p;
         head->count = malloc(sizeof(int));
         *head->count = 0;
+        head->used = 0;
         pool_add(&head->head, &blocks[id].head);
 
         /* expand track list */
@@ -142,6 +145,7 @@ static inline void *__smalloc(size_t size)
                 }
         }
         struct mem_block_head * p = (struct mem_block_head *)pool_get(&blocks[id].head);
+        p->used = 1;
         (*p->count)++;
         return p + 1;
 }
@@ -174,6 +178,10 @@ void sfree(void *ptr)
 {
         struct mem_block_head *p = (struct mem_block_head *)ptr - 1;
         (*p->count)--;
+        if(!p->used) {
+                printf("???\n");
+        }
+        p->used = 0;
         struct pool_head *b = &p->head;
         pool_add(b, b->pprev);
 }
@@ -262,6 +270,8 @@ void dim_memory()
                                 free(track->ptr);
                                 free(track->count);
                                 free(track);
+                        } else {
+                                printf("leak %d , %ld!\n", *track->count, head->item_size);
                         }
                 }
         }
@@ -283,7 +293,7 @@ static struct list_head cache_head = LIST_HEAD_INIT(cache_head);
 void cache_add(void(*func)())
 {
         struct cache_function *p = malloc(sizeof(struct cache_function));
-        list_add(&p->head, &cache_head);
+        list_add_tail(&p->head, &cache_head);
         p->f = func;
 }
 
@@ -296,8 +306,7 @@ void cache_free()
         if(list_singular(&cache_head)) return;
 
         struct list_head *p;
-        struct list_head *n;
-        list_for_each_safe(p, n, &cache_head) {
+        list_while_not_singular(p, &cache_head) {
                 struct cache_function *c = (struct cache_function *)p;
                 if(c->f) c->f();
                 list_del(p);

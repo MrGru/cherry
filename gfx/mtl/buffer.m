@@ -10,7 +10,7 @@
  */
 static NSMutableArray *buffer_house = nil;
 
-struct device_buffer *device_buffer_alloc(u8 type)
+struct device_buffer *device_buffer_alloc(u8 type, u16 item_size)
 {
         if(buffer_house == nil) {
 		buffer_house = [NSMutableArray array];
@@ -20,7 +20,7 @@ struct device_buffer *device_buffer_alloc(u8 type)
         p->type = type;
         p->size = 0;
         p->ref  = 0;
-        p->item_size = 0;
+        p->item_size = item_size;
         return p;
 }
 
