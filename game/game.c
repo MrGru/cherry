@@ -10,8 +10,8 @@
 #include <cherry/graphic/texture.h>
 #include <cherry/graphic/node/node_tree.h>
 #include <cherry/graphic/node/branch.h>
+#include <cherry/graphic/node/twig.h>
 
-struct node *test_node = NULL;
 struct node_tree *nt1 = NULL;
 struct node_tree *nt2 = NULL;
 
@@ -67,59 +67,44 @@ struct game *game_alloc()
         shader_uniform_update(project_uniform, mat4_identity.m, sizeof(mat4_identity));
         shader_uniform_update(view_uniform, mat4_identity.m, sizeof(mat4_identity));
 
-        struct node *n1, *n2;
         {
-                struct node *n = node_alloc(content);
-                float z = 0;
-                node_set_data(n, 1, &z, sizeof(z));
-
-                node_set_data(n, 2, mat4_identity.m, sizeof(mat4_identity));
-
-                union vec4 color = vec4((float[4]){1, 1, 1, 1});
-                node_set_data(n, 3, color.v, sizeof(color));
-
-                union vec2 root = vec2((float[2]){0.5, 0.5});
-                node_set_data(n, 5, root.v, sizeof(root));
-
-                union vec2 range = vec2((float[2]){0.5, 0.5});
-                node_set_data(n, 6, range.v, sizeof(range));
-
-                float tid = 1.001f;
-                node_set_data(n, 7, &tid, sizeof(tid));
-                n1 = n;
+                nt1 = node_tree_alloc(node_alloc(content));
+                node_tree_set_branch_z(nt1, branch_z_alloc(1));
+                node_tree_set_branch_transform(nt1, branch_transform_alloc(2));
+                node_tree_set_branch_color(nt1, branch_color_alloc(3));
+                node_tree_set_twig_texroot(nt1, twig_texroot_alloc(5));
+                node_tree_set_twig_texrange(nt1, twig_texrange_alloc(6));
+                node_tree_set_twig_texid(nt1, twig_texid_alloc(7));
         }
         {
-                struct node *n = node_alloc(content);
-                float z = 0;
-                node_set_data(n, 1, &z, sizeof(z));
-
-                node_set_data(n, 2, mat4_identity.m, sizeof(mat4_identity));
-
-                union vec4 color = vec4((float[4]){1, 1, 1, 1});
-                node_set_data(n, 3, color.v, sizeof(color));
-
-                union vec2 root = vec2((float[2]){0, 0});
-                node_set_data(n, 5, root.v, sizeof(root));
-
-                union vec2 range = vec2((float[2]){1, 1});
-                node_set_data(n, 6, range.v, sizeof(range));
-
-                float tid = 0.001f;
-                node_set_data(n, 7, &tid, sizeof(tid));
-                test_node = n;
-                n2 = n;
+                nt2 = node_tree_alloc(node_alloc(content));
+                node_tree_set_branch_z(nt2, branch_z_alloc(1));
+                node_tree_set_branch_transform(nt2, branch_transform_alloc(2));
+                node_tree_set_branch_color(nt2, branch_color_alloc(3));
+                node_tree_set_twig_texroot(nt2, twig_texroot_alloc(5));
+                node_tree_set_twig_texrange(nt2, twig_texrange_alloc(6));
+                node_tree_set_twig_texid(nt2, twig_texid_alloc(7));
         }
-        nt1 = node_tree_alloc();
-        nt2 = node_tree_alloc();
-        node_tree_set_node(nt1, n1);
-        node_tree_set_node(nt2, n2);
-        struct branch_z *bz1 = branch_z_alloc(1);
-        struct branch_z *bz2 = branch_z_alloc(1);
-        branch_z_add(bz1, bz2);
-        node_tree_set_branch_z(nt1, bz1);
-        node_tree_set_branch_z(nt2, bz2);
+        branch_z_add(node_tree_get_branch_z(nt1), node_tree_get_branch_z(nt2));
+        branch_transform_add(node_tree_get_branch_transform(nt1), node_tree_get_branch_transform(nt2));
+        branch_color_add(node_tree_get_branch_color(nt1), node_tree_get_branch_color(nt2));
+
+        node_tree_set_texid(nt1, 1);
+        node_tree_set_texid(nt2, 0);
+
+        node_tree_set_scale(nt2, vec3((float[3]){0.5, 0.5, 0.5}));
+
+        /* recalculate transform */
+        union mat4 m = mat4_identity;
+        branch_transform_traverse(node_tree_get_branch_transform(nt1), m);
+
+        /* recalculate color tree */
+        union vec4 v = vec4((float[4]){1, 1, 1, 1});
+        branch_color_traverse(node_tree_get_branch_color(nt1), v);
+
+        /* recalculate z order  */
         float z = 0;
-        branch_z_traverse(bz1, &z);
+        branch_z_traverse(node_tree_get_branch_z(nt1), &z);
 
         render_content_set_texture(content, 1, texture_alloc_file("res/images/wolf.jpg"));
         render_content_set_texture(content, 0, texture_alloc_file("res/images/test.png"));
@@ -128,15 +113,19 @@ struct game *game_alloc()
 }
 
 float angle = 0;
+union vec3 pos = {0, 0, 0};
 
 void game_update(struct game *p)
 {
-        if(test_node) {
+        if(nt2) {
                 angle += 1;
-                union mat4 m = mat4_new_z_rotation(DEG_TO_RAD(angle));
-                m = mat4_scale(m, vec3((float[3]){0.5, 0.5, 0.5}));
-                node_set_data(test_node, 2, m.m, sizeof(m));
+                union vec4 quat = quat_angle_axis(DEG_TO_RAD(angle), (float[3]){0, 0, 1});
+                node_tree_set_rotation(nt2, quat);
+                pos.x += 0.001;
+                node_tree_set_position(nt2, pos);
         }
+        union mat4 m = mat4_identity;
+        branch_transform_traverse(node_tree_get_branch_transform(nt1), m);
 }
 
 void game_render(struct game *p)

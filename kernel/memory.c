@@ -7,7 +7,8 @@
 #include <cherry/memory.h>
 #include <cherry/pool.h>
 #include <cherry/list.h>
-#include <stdint.h>
+#include <cherry/stdint.h>
+#include <cherry/stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -271,7 +272,7 @@ void dim_memory()
                                 free(track->count);
                                 free(track);
                         } else {
-                                printf("leak %d , %ld!\n", *track->count, head->item_size);
+                                debug("leak %d , %d!\n", *track->count, head->item_size);
                         }
                 }
         }

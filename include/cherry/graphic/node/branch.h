@@ -29,4 +29,17 @@ void branch_transform_del(struct branch_transform *p);
 
 void branch_transform_traverse(struct branch_transform *p, union mat4 cm);
 
+/*
+ * branch color definitions
+ */
+struct branch_color *branch_color_alloc(u8 bid);
+
+void branch_color_free(struct branch_color *p);
+
+void branch_color_add(struct branch_color *parent, struct branch_color *child);
+
+void branch_color_del(struct branch_color *p);
+
+void branch_color_traverse(struct branch_color *p, union vec4 cc);
+
 #endif
