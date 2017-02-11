@@ -17,4 +17,6 @@ void string_reserve(struct string *p, size_t size);
 
 void string_cat(struct string *p, char *src, size_t src_len);
 
+void string_cat_int(struct string *p, int number);
+
 #endif

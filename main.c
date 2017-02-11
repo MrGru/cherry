@@ -1,6 +1,7 @@
 #include <cherry/memory.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#include <SDL2/SDL_image.h>
 #include <cherry/game/game.h>
 
 int main(int args, char **argv)
@@ -25,6 +26,7 @@ int main(int args, char **argv)
         video_height = height;
 
         SDL_Init(SDL_INIT_VIDEO);
+        IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);

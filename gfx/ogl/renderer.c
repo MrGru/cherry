@@ -103,10 +103,12 @@ void renderer_render(struct renderer *p, u8 frame)
         if(current_pass != p->pass) {
                 glBindFramebuffer(GL_FRAMEBUFFER, p->pass->id);
                 current_pass = p->pass;
+                glEnable(GL_DEPTH_TEST);
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         }
         if(p->color) glClearColor(devec4(*p->color));
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
 
         struct list_head *head, *next;
         list_for_each_safe(head, next, &p->stage_list) {

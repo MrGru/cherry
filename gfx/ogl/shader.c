@@ -248,57 +248,57 @@ void shader_setup_group(struct shader *p, struct device_buffer_group *g)
                           case ATTRIBUTE_FLOAT:
                                 glVertexAttribPointer(attr, 1, GL_FLOAT, GL_FALSE,
                                         sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
-                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                if(sbd->instanced) glVertexAttribDivisor(attr, sbd->divisor);
                                 break;
                           case ATTRIBUTE_VEC2:
                                 glVertexAttribPointer(attr, 2, GL_FLOAT, GL_FALSE,
                                         sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
-                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                if(sbd->instanced) glVertexAttribDivisor(attr, sbd->divisor);
                                 break;
                           case ATTRIBUTE_VEC3:
                                 glVertexAttribPointer(attr, 3, GL_FLOAT, GL_FALSE,
                                         sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
-                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                if(sbd->instanced) glVertexAttribDivisor(attr, sbd->divisor);
                                 break;
                           case ATTRIBUTE_VEC4:
                                 glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
                                         sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
-                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                if(sbd->instanced) glVertexAttribDivisor(attr, sbd->divisor);
                                 break;
                           case ATTRIBUTE_MAT4:
                                 glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
                                         sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
-                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                if(sbd->instanced) glVertexAttribDivisor(attr, sbd->divisor);
                                 for_i_from(k, 1, 4) {
                                         attr++;
                                         glEnableVertexAttribArray(attr);
                                         glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
                                                 sbd->vertex_size, (void*)(((*sad)->offset + k * 4) * sizeof(GLfloat)));
-                                        if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                        if(sbd->instanced) glVertexAttribDivisor(attr, sbd->divisor);
                                 }
                                 break;
                           case ATTRIBUTE_MAT3:
                                 glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
                                         sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
-                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                if(sbd->instanced) glVertexAttribDivisor(attr, sbd->divisor);
                                 for_i_from(k, 1, 3) {
                                         attr++;
                                         glEnableVertexAttribArray(attr);
                                         glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
                                                 sbd->vertex_size, (void*)(((*sad)->offset + k * 4) * sizeof(GLfloat)));
-                                        if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                        if(sbd->instanced) glVertexAttribDivisor(attr, sbd->divisor);
                                 }
                                 break;
                           case ATTRIBUTE_MAT2:
                                 glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
                                         sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
-                                if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                if(sbd->instanced) glVertexAttribDivisor(attr, sbd->divisor);
                                 for_i_from(k, 1, 2) {
                                         attr++;
                                         glEnableVertexAttribArray(attr);
                                         glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
                                                 sbd->vertex_size, (void*)(((*sad)->offset + k * 4) * sizeof(GLfloat)));
-                                        if(sbd->instanced) glVertexAttribDivisor(attr, 1);
+                                        if(sbd->instanced) glVertexAttribDivisor(attr, sbd->divisor);
                                 }
                                 break;
                         }

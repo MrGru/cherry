@@ -5,12 +5,13 @@
 /*
  * allocate new shader buffer descriptor
  */
-struct shader_buffer_descriptor *shader_buffer_descriptor_alloc(u16 vertex_size, u8 instanced)
+struct shader_buffer_descriptor *shader_buffer_descriptor_alloc(u16 vertex_size, u8 instanced, u8 divisor)
 {
         struct shader_buffer_descriptor *p = smalloc(sizeof(struct shader_buffer_descriptor));
         p->attributes   = array_alloc(sizeof(struct shader_attribute_descriptor *), ORDERED);
         p->vertex_size  = vertex_size;
         p->instanced    = instanced;
+        p->divisor      = divisor;
         return p;
 }
 

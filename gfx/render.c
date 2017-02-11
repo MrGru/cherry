@@ -63,7 +63,7 @@ void render_content_set_texture(struct render_content *content, u16 index, struc
         }
         struct texture *p = array_get(content->textures, struct texture *, index);
         if(p) texture_free(p);
-        t->ref++;
+        if(t) t->ref++;
         array_set(content->textures, index, &t);
 }
 
@@ -190,7 +190,6 @@ void node_free(struct node *p)
                         ((void*)child_head - offsetof(struct node, tree_head));
                 node_free(child_node);
         }
-
         sfree(p);
 }
 

@@ -1,5 +1,6 @@
 #include <cherry/string.h>
 #include <cherry/memory.h>
+#include <cherry/stdio.h>
 
 struct string *string_alloc(size_t len)
 {
@@ -34,4 +35,10 @@ void string_cat(struct string *p, char *src, size_t src_len)
         smemcpy(p->ptr + p->len, src, src_len);
         p->len += src_len;
         p->ptr[p->len] = '\0';
+}
+
+void string_cat_int(struct string *p, int number)
+{
+        int_to_chars(v, number)
+        string_cat(p, v, strlen(v));
 }

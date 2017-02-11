@@ -62,7 +62,7 @@ void shader_attribute_descriptor_free(struct shader_attribute_descriptor *p);
 /*
  * allocate new shader buffer descriptor
  */
-struct shader_buffer_descriptor *shader_buffer_descriptor_alloc(u16 vertex_size, u8 instanced);
+struct shader_buffer_descriptor *shader_buffer_descriptor_alloc(u16 vertex_size, u8 instanced, u8 divisor);
 
 /*
  * deallocate shader buffer descriptor

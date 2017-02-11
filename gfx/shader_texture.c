@@ -19,12 +19,12 @@ static void clear()
 
 static inline struct string *get_vert()
 {
-        return file_read_string("res/shaders/shader_color.vert");
+        return file_read_string("res/shaders/shader_texture.vert");
 }
 
 static inline struct string *get_frag()
 {
-        return file_read_string("res/shaders/shader_color.frag");
+        return file_read_string("res/shaders/shader_texture.frag");
 }
 
 #elif GFX == MTL
@@ -33,7 +33,7 @@ static inline struct string *get_frag()
 
 #endif
 
-struct shader *shader_color_alloc()
+struct shader *shader_texture_alloc()
 {
         if(!instance) {
                 cache_add(clear);
@@ -59,6 +59,16 @@ struct shader *shader_color_alloc()
         sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC4, 0, "color");
         array_push(sbd->attributes, &sad);
         array_push(des->buffers, &sbd);
+        /* texcoord */
+        sbd = shader_buffer_descriptor_alloc(2 * sizeof(float), 0, 0);
+        sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC2, 0, "texcoord");
+        array_push(sbd->attributes, &sad);
+        array_push(des->buffers, &sbd);
+        /* texid */
+        sbd = shader_buffer_descriptor_alloc(sizeof(float), 1, 1);
+        sad = shader_attribute_descriptor_alloc(ATTRIBUTE_FLOAT, 0, "texid");
+        array_push(sbd->attributes, &sad);
+        array_push(des->buffers, &sbd);
 
         /* vert */
         struct string *vert = get_vert();
@@ -68,17 +78,37 @@ struct shader *shader_color_alloc()
         string_free(vert);
         string_free(frag);
 
-        shader_reserve_uniform(instance, SHADER_COLOR_PROJECT, UNIFORM_M4,
-                "project", offsetof(struct shader_color_uniform, project));
-        shader_reserve_uniform(instance, SHADER_COLOR_VIEW, UNIFORM_M4,
-                "view", offsetof(struct shader_color_uniform, view));
+        shader_reserve_uniform(instance, SHADER_TEXTURE_PROJECT, UNIFORM_M4,
+                "project", offsetof(struct shader_texture_uniform, project));
+        shader_reserve_uniform(instance, SHADER_TEXTURE_VIEW, UNIFORM_M4,
+                "view", offsetof(struct shader_texture_uniform, view));
 
 #if GFX == MTL
         u8 i;
-        struct shader_color_uniform scu;
+        struct shader_texture_uniform u;
         for_i(i, BUFFERS) {
                 instance->uniforms[i] = device_buffer_alloc();
-                device_buffer_fill(instance->uniforms[i], &scu, sizeof(scu));
+                device_buffer_fill(instance->uniforms[i], &u, sizeof(u));
+        }
+#endif
+
+#if GFX == OGL
+        u8 i;
+        for_i_from(i, SHADER_TEXTURE_IMAGE_0, SHADER_TEXTURE_IMAGE_N) {
+                struct string *name = string_alloc(10);
+                string_cat(name, "image[", sizeof("image[") - 1);
+                string_cat_int(name, i - SHADER_TEXTURE_IMAGE_0);
+                string_cat(name, "]", sizeof("]") - 1);
+                shader_reserve_uniform(instance, i, UNIFORM_I1, name->ptr, 0);
+
+                struct shader_uniform *u = shader_uniform_alloc();
+                shader_set_uniform(instance, i, u);
+                array_push(instance->texture_uniforms, &u);
+
+                u32 id = 0;
+                shader_uniform_update(u, &id, sizeof(id));
+
+                string_free(name);
         }
 #endif
 

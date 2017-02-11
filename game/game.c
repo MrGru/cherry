@@ -7,6 +7,7 @@
 #include <cherry/graphic/buffer/buffer_collection.h>
 #include <cherry/graphic/shader.h>
 #include <cherry/math/math.h>
+#include <cherry/graphic/texture.h>
 
 struct node *test_node;
 
@@ -18,11 +19,12 @@ struct game *game_alloc()
 
         struct renderer *r = renderer_alloc();
         r->pass = render_pass_main_alloc();
+        renderer_set_color(r, NULL);
         array_push(p->renderers, &r);
 
         struct render_stage *stage = render_stage_alloc(r);
 
-        struct shader *s = shader_color_alloc();
+        struct shader *s = shader_texture_alloc();
 
         struct render_queue *queue = render_queue_alloc(&stage->content_queue_list, s);
 
@@ -34,10 +36,18 @@ struct game *game_alloc()
                 struct device_buffer *z         = buffer_z_alloc(900);
                 struct device_buffer *transform = buffer_transform_alloc(900);
                 struct device_buffer *color     = buffer_color_alloc(900);
+                struct device_buffer *texcoord  = buffer_quad_texcoord_alloc();
+                struct device_buffer *texid     = buffer_texid_alloc(900);
                 array_push(buffers[i], &quad);
                 array_push(buffers[i], &z);
                 array_push(buffers[i], &transform);
                 array_push(buffers[i], &color);
+                array_push(buffers[i], &texcoord);
+                array_push(buffers[i], &texid);
+                z->item_size            = sizeof(float);
+                transform->item_size    = sizeof(union mat4);
+                color->item_size        = sizeof(union vec4);
+                texid->item_size        = sizeof(float);
         }
 
         struct render_content *content = render_content_alloc(queue, buffers, 6, 900);
@@ -55,22 +65,34 @@ struct game *game_alloc()
 
         {
                 struct node *n = node_alloc(content);
+                float z = 0;
+                node_set_data(n, 1, &z, sizeof(z));
+                node_set_data(n, 2, mat4_identity.m, sizeof(mat4_identity));
+                union vec4 color = vec4((float[4]){1, 1, 1, 1});
+                node_set_data(n, 3, color.v, sizeof(color));
+                float tid = 1.001f;
+                node_set_data(n, 5, &tid, sizeof(tid));
+        }
+        {
+                struct node *n = node_alloc(content);
                 float z = -0.00001f;
                 node_set_data(n, 1, &z, sizeof(z));
                 node_set_data(n, 2, mat4_identity.m, sizeof(mat4_identity));
                 union vec4 color = vec4((float[4]){1, 1, 1, 1});
                 node_set_data(n, 3, color.v, sizeof(color));
+                float tid = 0.001f;
+                node_set_data(n, 5, &tid, sizeof(tid));
                 test_node = n;
         }
-        {
-                struct node *n = node_alloc(content);
-                float z = 0;
-                node_set_data(n, 1, &z, sizeof(z));
-                node_set_data(n, 2, mat4_identity.m, sizeof(mat4_identity));
-                union vec4 color = vec4((float[4]){1, 0, 1, 1});
-                node_set_data(n, 3, color.v, sizeof(color));
-        }
 
+        {
+                struct texture *t = texture_alloc_file("res/images/wolf.jpg");
+                render_content_set_texture(content, 1, t);
+        }
+        {
+                struct texture *t = texture_alloc_file("res/images/test.png");
+                render_content_set_texture(content, 0, t);
+        }
 
         return p;
 }
@@ -80,7 +102,7 @@ float angle = 0;
 void game_update(struct game *p)
 {
         angle += 1;
-        union mat4 m = mat4_new_y_rotation(DEG_TO_RAD(angle));
+        union mat4 m = mat4_new_z_rotation(DEG_TO_RAD(angle));
         m = mat4_scale(m, vec3((float[3]){0.5, 0.5, 0.5}));
         node_set_data(test_node, 2, m.m, sizeof(m));
 }

@@ -8,4 +8,9 @@
  */
 struct shader *shader_color_alloc();
 
+/*
+ * get shader texture from cache
+ */
+struct shader *shader_texture_alloc();
+
 #endif

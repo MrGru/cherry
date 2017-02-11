@@ -34,44 +34,12 @@ struct image *image_alloc(char *file)
         SDL_BlitSurface(tempimage, NULL, tempsurface, NULL);
         SDL_FreeSurface(tempimage);
 
+        tempimage = tempsurface;
+
         struct image *p = smalloc(sizeof(struct image));
-        p->ptr = tempsurface;
+        p->ptr = tempimage;
 
-        /* Extracting color components from a 32-bit color value */
-        SDL_PixelFormat *fmt;
-        SDL_Surface *surface = tempsurface;
-        Uint32 temp, pixel;
-        Uint8 red, green, blue, alpha;
-
-        fmt = surface->format;
-        SDL_LockSurface(surface);
-        pixel = *((Uint32*)surface->pixels);
-        SDL_UnlockSurface(surface);
-
-        /* Get Red component */
-        temp = pixel & fmt->Rmask;  /* Isolate red component */
-        temp = temp >> fmt->Rshift; /* Shift it down to 8-bit */
-        temp = temp << fmt->Rloss;  /* Expand to a full 8-bit number */
-        red = (Uint8)temp;
-
-        /* Get Green component */
-        temp = pixel & fmt->Gmask;  /* Isolate green component */
-        temp = temp >> fmt->Gshift; /* Shift it down to 8-bit */
-        temp = temp << fmt->Gloss;  /* Expand to a full 8-bit number */
-        green = (Uint8)temp;
-
-        /* Get Blue component */
-        temp = pixel & fmt->Bmask;  /* Isolate blue component */
-        temp = temp >> fmt->Bshift; /* Shift it down to 8-bit */
-        temp = temp << fmt->Bloss;  /* Expand to a full 8-bit number */
-        blue = (Uint8)temp;
-
-        /* Get Alpha component */
-        temp = pixel & fmt->Amask;  /* Isolate alpha component */
-        temp = temp >> fmt->Ashift; /* Shift it down to 8-bit */
-        temp = temp << fmt->Aloss;  /* Expand to a full 8-bit number */
-        alpha = (Uint8)temp;
-        if(alpha == 0)
+        if(tempimage->format->BytesPerPixel == 3)
         {
                 p->type = GL_RGB;
         }

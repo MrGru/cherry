@@ -15,14 +15,38 @@ static float quad[18] = {
 
 struct device_buffer *buffer_quad_alloc()
 {
-        void *data = smalloc(sizeof(quad));
         struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE);
         device_buffer_fill(buffer, quad, sizeof(quad));
-        sfree(data);
+        return buffer;
+}
+
+static float quad_coord[12] = {
+        0, 0,
+        0, 1,
+        1, 1,
+
+        0, 0,
+        1, 0,
+        1, 1
+};
+
+struct device_buffer *buffer_quad_texcoord_alloc()
+{
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE);
+        device_buffer_fill(buffer, quad_coord, sizeof(quad_coord));
         return buffer;
 }
 
 struct device_buffer *buffer_z_alloc(u16 instances)
+{
+        void *data = smalloc(sizeof(float) * instances);
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE);
+        device_buffer_fill(buffer, data, sizeof(float) * instances);
+        sfree(data);
+        return buffer;
+}
+
+struct device_buffer *buffer_texid_alloc(u16 instances)
 {
         void *data = smalloc(sizeof(float) * instances);
         struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE);
