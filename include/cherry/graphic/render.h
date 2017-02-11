@@ -43,13 +43,6 @@ void node_set_data(struct node *p, u8 index, void *bytes, u32 len);
 void node_free(struct node *p);
 
 /*
- * add child to p children tree
- * used to calculate render information like z order,
- * does not affect if child is drawn or not
- */
-void node_add_child(struct node *p, struct node *child);
-
-/*
  * allocate new render_stage
  * @renderer    : renderer that stage attachs to
  */

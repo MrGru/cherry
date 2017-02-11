@@ -19,6 +19,7 @@ struct image *image_alloc(char *file)
         SDL_Surface *tempsurface;
         Uint32 rmask, gmask, bmask, amask;
 
+        /* fix ios color */
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
         rmask = 0xff000000;
         gmask = 0x00ff0000;

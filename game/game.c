@@ -8,8 +8,12 @@
 #include <cherry/graphic/shader.h>
 #include <cherry/math/math.h>
 #include <cherry/graphic/texture.h>
+#include <cherry/graphic/node/node_tree.h>
+#include <cherry/graphic/node/branch.h>
 
 struct node *test_node;
+struct node_tree *nt1;
+struct node_tree *nt2;
 
 struct game *game_alloc()
 {
@@ -69,6 +73,7 @@ struct game *game_alloc()
         shader_uniform_update(project_uniform, mat4_identity.m, sizeof(mat4_identity));
         shader_uniform_update(view_uniform, mat4_identity.m, sizeof(mat4_identity));
 
+        struct node *n1, *n2;
         {
                 struct node *n = node_alloc(content);
                 float z = 0;
@@ -85,10 +90,11 @@ struct game *game_alloc()
 
                 float tid = 1.001f;
                 node_set_data(n, 7, &tid, sizeof(tid));
+                n1 = n;
         }
         {
                 struct node *n = node_alloc(content);
-                float z = -0.00001f;
+                float z = 0;
                 node_set_data(n, 1, &z, sizeof(z));
                 node_set_data(n, 2, mat4_identity.m, sizeof(mat4_identity));
                 union vec4 color = vec4((float[4]){1, 1, 1, 1});
@@ -103,7 +109,19 @@ struct game *game_alloc()
                 float tid = 0.001f;
                 node_set_data(n, 7, &tid, sizeof(tid));
                 test_node = n;
+                n2 = n;
         }
+        nt1 = node_tree_alloc();
+        nt2 = node_tree_alloc();
+        node_tree_set_node(nt1, n1);
+        node_tree_set_node(nt2, n2);
+        struct branch_z *bz1 = branch_z_alloc(1);
+        struct branch_z *bz2 = branch_z_alloc(1);
+        branch_z_add(bz1, bz2);
+        node_tree_set_branch_z(nt1, bz1);
+        node_tree_set_branch_z(nt2, bz2);
+        float z = 0;
+        branch_z_traverse(bz1, &z);
 
         {
                 struct texture *t = texture_alloc_file("res/images/wolf.jpg");
@@ -141,6 +159,8 @@ void game_render(struct game *p)
 
 void game_free(struct game *p)
 {
+        node_tree_free(nt1);
+        node_tree_free(nt2);
         array_deep_free(p->renderers, struct renderer *, renderer_free);
         sfree(p);
 }

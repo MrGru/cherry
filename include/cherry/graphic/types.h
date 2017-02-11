@@ -275,8 +275,7 @@ struct node {
 
         struct list_head        updater_head;
 
-        struct list_head        tree_head;
-        struct list_head        children;
+        struct list_head        user_head;
 
         struct array            *pending_datas;
         struct array            *datas;

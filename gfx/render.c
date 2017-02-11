@@ -74,8 +74,9 @@ void render_content_free(struct render_content *content)
                 device_buffer_group_free(content->groups[i]);
         }
         array_deep_free_safe(content->textures, struct texture *, texture_free);
-        struct list_head *head, *next;
-        list_for_each_safe(head, next, &content->node_list) {
+
+        struct list_head *head;
+        list_while_not_singular(head, &content->node_list) {
                 struct node *n = (struct node *)
                         ((void *)head - offsetof(struct node, content_head));
                 node_free(n);
@@ -110,16 +111,15 @@ void node_data_free(struct node_data *p)
 
 struct node *node_alloc(struct render_content *host)
 {
-        struct node *p = smalloc(sizeof(struct node));
-        p->content_index = host->current_instances;
-        p->host = host;
+        struct node *p          = smalloc(sizeof(struct node));
+        p->content_index        = host->current_instances;
+        p->host                 = host;
 
         host->current_instances++;
         list_add_tail(&p->content_head, &host->node_list);
 
-        INIT_LIST_HEAD(&p->children);
-        INIT_LIST_HEAD(&p->tree_head);
         INIT_LIST_HEAD(&p->updater_head);
+        INIT_LIST_HEAD(&p->user_head);
 
         p->pending_datas = array_alloc(sizeof(struct node_data *), UNORDERED);
         p->datas         = array_alloc(sizeof(struct node_data *), ORDERED);
@@ -146,12 +146,6 @@ void node_set_data(struct node *p, u8 index, void *bytes, u32 len)
         }
 }
 
-void node_add_child(struct node *p, struct node *child)
-{
-        list_del(&child->tree_head);
-        list_add_tail(&child->tree_head, &p->children);
-}
-
 void node_free(struct node *p)
 {
         /*
@@ -176,20 +170,13 @@ void node_free(struct node *p)
                 p->host->current_instances--;
         }
         list_del(&p->updater_head);
-        /* detach from parent-child tree */
-        list_del(&p->tree_head);
+        /* detach from user */
+        list_del(&p->user_head);
 
         /* clear data */
         array_free(p->pending_datas);
         array_deep_free(p->datas, struct node_data *, node_data_free);
 
-        /* deallocate children */
-        struct list_head *child_head, *child_head_next;
-        list_for_each_safe(child_head, child_head_next, &p->children) {
-                struct node *child_node = (struct node *)
-                        ((void*)child_head - offsetof(struct node, tree_head));
-                node_free(child_node);
-        }
         sfree(p);
 }
 
@@ -204,15 +191,15 @@ struct render_stage *render_stage_alloc(struct renderer *renderer)
 
 void render_stage_free(struct render_stage *p)
 {
-        struct list_head *head, *next;
+        struct list_head *head;
         /* free stencil queues */
-        list_for_each_safe(head, next, &p->stencil_queue_list) {
+        list_while_not_singular(head, &p->stencil_queue_list) {
                 struct render_queue *queue = (struct render_queue *)
                         ((void*)head - offsetof(struct render_queue, stage_head));
                 render_queue_free(queue);
         }
         /* free content queues */
-        list_for_each_safe(head, next, &p->content_queue_list) {
+        list_while_not_singular(head, &p->content_queue_list) {
                 struct render_queue *queue = (struct render_queue *)
                         ((void*)head - offsetof(struct render_queue, stage_head));
                 render_queue_free(queue);
@@ -248,8 +235,8 @@ void renderer_set_color(struct renderer *p, union vec4 *color)
 
 void renderer_free(struct renderer *p)
 {
-        struct list_head *head, *next;
-        list_for_each_safe(head, next, &p->stage_list) {
+        struct list_head *head;
+        list_while_not_singular(head, &p->stage_list) {
                 struct render_stage *stage = (struct render_stage *)
                         ((void*)head - offsetof(struct render_stage, renderer_head));
                 render_stage_free(stage);
