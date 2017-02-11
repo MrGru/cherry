@@ -12,6 +12,8 @@ void node_tree_free(struct node_tree *p);
 
 void node_tree_set_node(struct node_tree *p, struct node *n);
 
+void node_tree_add_node_tree(struct node_tree *p, struct node_tree *q);
+
 /*
  * node_tree setup branchs and twigs
  */

@@ -85,9 +85,7 @@ struct game *game_alloc()
                 node_tree_set_twig_texrange(nt2, twig_texrange_alloc(6));
                 node_tree_set_twig_texid(nt2, twig_texid_alloc(7));
         }
-        branch_z_add(node_tree_get_branch_z(nt1), node_tree_get_branch_z(nt2));
-        branch_transform_add(node_tree_get_branch_transform(nt1), node_tree_get_branch_transform(nt2));
-        branch_color_add(node_tree_get_branch_color(nt1), node_tree_get_branch_color(nt2));
+        node_tree_add_node_tree(nt1, nt2);
 
         node_tree_set_texid(nt1, 1);
         node_tree_set_texid(nt2, 0);
@@ -122,7 +120,7 @@ void game_update(struct game *p)
                 union vec4 quat = quat_angle_axis(DEG_TO_RAD(angle), (float[3]){0, 0, 1});
                 node_tree_set_rotation(nt2, quat);
                 pos.x += 0.001;
-                node_tree_set_position(nt2, pos);
+                node_tree_set_position(nt1, pos);
         }
         union mat4 m = mat4_identity;
         branch_transform_traverse(node_tree_get_branch_transform(nt1), m);

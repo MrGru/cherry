@@ -107,8 +107,12 @@ void renderer_render(struct renderer *p, u8 frame)
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         }
-        if(p->color) glClearColor(devec4(*p->color));
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if(p->color) {
+                glClearColor(devec4(*p->color));
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        } else {
+                glClear(GL_DEPTH_BUFFER_BIT);
+        }
 
         struct list_head *head, *next;
         list_for_each_safe(head, next, &p->stage_list) {

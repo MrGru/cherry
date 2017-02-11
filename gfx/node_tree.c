@@ -115,6 +115,16 @@ void node_tree_set_node(struct node_tree *p, struct node *n)
         list_add_tail(&n->user_head, &p->node_head);
 }
 
+void node_tree_add_node_tree(struct node_tree *p, struct node_tree *q)
+{
+        branch_z_add(node_tree_get_branch_z(p),
+                node_tree_get_branch_z(q));
+        branch_transform_add(node_tree_get_branch_transform(p),
+                node_tree_get_branch_transform(q));
+        branch_color_add(node_tree_get_branch_color(p),
+                node_tree_get_branch_color(q));
+}
+
 /*
  * setup branchs
  */
