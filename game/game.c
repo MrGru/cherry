@@ -185,8 +185,6 @@ struct game *game_alloc()
 
 void game_update(struct game *p)
 {
-        union vec3 pos = *node_tree_get_position(nt1);
-        node_tree_set_position(nt1, vec3_add(pos, vec3((float[3]){1, 0, 0})));
         union mat4 m = mat4_identity;
         branch_transform_traverse(node_tree_get_branch_transform(nt1), m);
 }

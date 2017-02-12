@@ -44,6 +44,9 @@ uniform mat4    view;
 
 void main()
 {
+        /*
+         * group texcoords
+         */
         texcoords[0]    = texcoord_1.xy;
         texcoords[1]    = texcoord_1.zw;
         texcoords[2]    = texcoord_2.xy;
@@ -51,6 +54,9 @@ void main()
         texcoords[4]    = texcoord_3.xy;
         texcoords[5]    = texcoord_3.zw;
 
+        /*
+         * group vertice 
+         */
         vertice[0]      = vertex_1.xy;
         vertice[1]      = vertex_1.zw;
         vertice[2]      = vertex_2.xy;
@@ -58,10 +64,18 @@ void main()
         vertice[4]      = vertex_3.xy;
         vertice[5]      = vertex_3.zw;
 
+        /*
+         * working for 2d rendering so pos.z = 0
+         */
         vec2 pos        = vertice[int(vid)];
-
         gl_Position     = project * view * transform * vec4(vec3(pos, 0.0), 1.0);
+        /*
+         * set position z for depth test working
+         */
         gl_Position.z   = z;
+        /*
+         * pass pixel parameters
+         */
         pixel_color     = color;
         pixel_coord     = texcoords[int(vid)];
         pixel_texid     = texid;

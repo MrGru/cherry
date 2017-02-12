@@ -1,11 +1,3 @@
-//
-//  AppDelegate.m
-//  ios-dynamic-loading-framework
-//
-//  Created by Patrik Nyblad on 18/05/16.
-//  Copyright © 2016 CarmineStudios. All rights reserved.
-//
-
 #import "AppDelegate.h"
 #import "dlfcn.h"
 #import "GameControllerProtocol.h"
@@ -16,7 +8,7 @@ static NSString* deviceName()
 {
     struct utsname systemInfo;
     uname(&systemInfo);
-    
+
     return [NSString stringWithCString:systemInfo.machine
                               encoding:NSUTF8StringEncoding];
 }
@@ -49,13 +41,13 @@ static int getDeviceModelNumber(NSString *n)
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    
+
     bool metal_available = FALSE;
     NSString *framework;
     NSString *storyboardbundle;
     NSString *storyboardname;
     NSString *gamecontrolleridentifier;
-    
+
     NSString *n = deviceName();
     int ni = getDeviceModelNumber(n);
     if([n containsString:@"iPhone"]) {
@@ -65,30 +57,30 @@ static int getDeviceModelNumber(NSString *n)
     } else if([n containsString:@"iPod"]) {
         metal_available = ni >= 7;
     }
-    
+
     metal_available = FALSE;
-    
+
     if(metal_available) {
         framework = @"DynamicFramework2.framework/DynamicFramework2";
         storyboardbundle = @"com.manh.DynamicFramework2";
         storyboardname = @"GameStoryBoard";
         gamecontrolleridentifier = @"gamecontroller";
     } else {
-        
+
         framework = @"DynamicFramework1.framework/DynamicFramework1";
         storyboardbundle = @"com.manh.DynamicFramework1";
         storyboardname = @"GameStoryBoard";
         gamecontrolleridentifier = @"gamecontroller";
     }
- 
+
     _gamecode = dlopen([framework UTF8String], RTLD_NOW);
-    
+
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:storyboardname bundle:[NSBundle bundleWithIdentifier:storyboardbundle]];
     UIViewController *object = [storyboard instantiateViewControllerWithIdentifier:gamecontrolleridentifier];
-    
+
     _window.rootViewController = object;
     [_window makeKeyAndVisible];
-    
+
     _gamecontroller = object;
     _gamedelegate = (id<GameControllerDelegate>)object;
 
