@@ -4,22 +4,25 @@
 #include <cherry/memory.h>
 #include <cherry/math/math.h>
 
-struct twig_texrange *twig_texrange_alloc(u8 bid)
+struct twig_texcoord *twig_texcoord_alloc(u8 bid[6])
 {
-        struct twig_texrange *p = smalloc(sizeof(struct twig_texrange));
-        p->range                = vec2((float[2]){1, 1});
-        p->bid                  = bid;
+        struct twig_texcoord *p         = smalloc(sizeof(struct twig_texcoord));
+        u8 i;
+        for_i(i, 6) {
+                p->bid[i]               = bid[i];
+                p->texcoord[i]          = vec2((float[2]){0, 0});
+        }
         INIT_LIST_HEAD(&p->tree_head);
         return p;
 }
 
-void twig_texrange_free(struct twig_texrange *p)
+void twig_texcoord_free(struct twig_texcoord *p)
 {
         list_del(&p->tree_head);
         sfree(p);
 }
 
-void twig_texrange_update(struct twig_texrange *p)
+void twig_texcoord_update(struct twig_texcoord *p)
 {
         if(!list_singular(&p->tree_head)) {
                 struct list_head *head = p->tree_head.next;
@@ -28,7 +31,10 @@ void twig_texrange_update(struct twig_texrange *p)
                 if(!list_singular(node_head)) {
                         struct node *node = (struct node *)
                                 ((void *)node_head->next - offsetof(struct node, user_head));
-                        node_set_data(node, p->bid, p->range.v, sizeof(p->range));
+                        u8 i;
+                        for_i(i, 6) {
+                                node_set_data(node, p->bid[i], &p->texcoord[i], sizeof(p->texcoord[i]));
+                        }
                 }
         }
 }

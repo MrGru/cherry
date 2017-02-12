@@ -40,8 +40,8 @@ struct shader *shader_color_alloc()
         }
         struct shader_descriptor *des = shader_descriptor_alloc();
         /* vertex */
-        struct shader_buffer_descriptor *sbd = shader_buffer_descriptor_alloc(3 * sizeof(float), 0, 0);
-        struct shader_attribute_descriptor *sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC3, 0, "position");
+        struct shader_buffer_descriptor *sbd = shader_buffer_descriptor_alloc(4 * sizeof(float), 0, 0);
+        struct shader_attribute_descriptor *sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC4, 0, "position");
         array_push(sbd->attributes, &sad);
         array_push(des->buffers, &sbd);
         /*z*/

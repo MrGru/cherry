@@ -3,14 +3,14 @@
 #include <cherry/memory.h>
 #include <cherry/math/types.h>
 
-static float quad[18] = {
-        -0.5,  0.5,  0,
-        -0.5, -0.5,  0,
-         0.5, -0.5,  0,
+static float quad[24] = {
+        -0.5,  0.5,  0,  0.01,
+        -0.5, -0.5,  0,  1.01,
+         0.5, -0.5,  0,  2.01,
 
-        -0.5,  0.5,  0,
-         0.5,  0.5,  0,
-         0.5, -0.5,  0
+        -0.5,  0.5,  0,  3.01,
+         0.5,  0.5,  0,  4.01,
+         0.5, -0.5,  0,  5.01
 };
 
 struct device_buffer *buffer_quad_alloc()
@@ -30,10 +30,12 @@ static float quad_coord[12] = {
         1, 1
 };
 
-struct device_buffer *buffer_quad_texcoord_alloc()
+struct device_buffer *buffer_texcoord_alloc(u16 instances)
 {
-        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE, 0);
-        device_buffer_fill(buffer, quad_coord, sizeof(quad_coord));
+        void *data = smalloc(sizeof(union vec2) * instances);
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE, sizeof(union vec2));
+        device_buffer_fill(buffer, data, sizeof(union vec2) * instances);
+        sfree(data);
         return buffer;
 }
 

@@ -75,6 +75,15 @@ struct twig_texid {
         u16                     offset_to_node;
 };
 
+struct twig_texcoord {
+        struct list_head        tree_head;
+
+        union vec2              texcoord[6];
+
+        u8                      bid[6];
+        u16                     offset_to_node;
+};
+
 /*
  * node_tree is useful to render 2d graph
  *
@@ -90,6 +99,7 @@ struct node_tree {
         struct list_head                texroot;
         struct list_head                texrange;
         struct list_head                texid;
+        struct list_head                texcoord;
 
         struct list_head                life_head;
 };

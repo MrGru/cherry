@@ -2,6 +2,8 @@
 #include <cherry/graphic/render.h>
 #include <cherry/memory.h>
 #include <cherry/list.h>
+#include <cherry/graphic/node/branch.h>
+#include <cherry/graphic/node/twig.h>
 
 /*
  * detachs
@@ -46,25 +48,17 @@ static inline void detach_color(struct node_tree *p)
         }
 }
 
-static inline void detach_texroot(struct node_tree *p)
+
+static inline void detach_texcoord(struct node_tree *p)
 {
-        if( ! list_singular(&p->texroot)) {
-                struct list_head *head = p->texroot.next;
-                struct twig_texroot *ob = (struct twig_texroot *)
-                        ((void *)head - offsetof(struct twig_texroot, tree_head));
-                twig_texroot_free(ob);
+        if( ! list_singular(&p->texcoord)) {
+                struct list_head *head = p->texcoord.next;
+                struct twig_texcoord *ob = (struct twig_texcoord *)
+                        ((void *)head - offsetof(struct twig_texcoord, tree_head));
+                twig_texcoord_free(ob);
         }
 }
 
-static inline void detach_texrange(struct node_tree *p)
-{
-        if( ! list_singular(&p->texrange)) {
-                struct list_head *head = p->texrange.next;
-                struct twig_texrange *ob = (struct twig_texrange *)
-                        ((void *)head - offsetof(struct twig_texrange, tree_head));
-                twig_texrange_free(ob);
-        }
-}
 
 static inline void detach_texid(struct node_tree *p)
 {
@@ -86,9 +80,8 @@ struct node_tree *node_tree_alloc(struct node *n)
         INIT_LIST_HEAD(&p->z);
         INIT_LIST_HEAD(&p->transform);
         INIT_LIST_HEAD(&p->color);
-        INIT_LIST_HEAD(&p->texroot);
-        INIT_LIST_HEAD(&p->texrange);
         INIT_LIST_HEAD(&p->texid);
+        INIT_LIST_HEAD(&p->texcoord);
         INIT_LIST_HEAD(&p->life_head);
         node_tree_set_node(p, n);
         return p;
@@ -100,8 +93,7 @@ void node_tree_free(struct node_tree *p)
         detach_z(p);
         detach_transform(p);
         detach_color(p);
-        detach_texroot(p);
-        detach_texrange(p);
+        detach_texcoord(p);
         detach_texid(p);
         list_del(&p->life_head);
         sfree(p);
@@ -160,22 +152,13 @@ void node_tree_set_branch_color(struct node_tree *p, struct branch_color *b)
         b->offset_to_node = offsetof(struct node_tree, color);
 }
 
-void node_tree_set_twig_texroot(struct node_tree *p, struct twig_texroot *b)
+void node_tree_set_twig_texcoord(struct node_tree *p, struct twig_texcoord *b)
 {
-        detach_texroot(p);
+        detach_texcoord(p);
         list_del(&b->tree_head);
-        list_add_tail(&b->tree_head, &p->texroot);
-        b->offset_to_node = offsetof(struct node_tree, texroot);
-        twig_texroot_update(b);
-}
-
-void node_tree_set_twig_texrange(struct node_tree *p, struct twig_texrange *b)
-{
-        detach_texrange(p);
-        list_del(&b->tree_head);
-        list_add_tail(&b->tree_head, &p->texrange);
-        b->offset_to_node = offsetof(struct node_tree, texrange);
-        twig_texrange_update(b);
+        list_add_tail(&b->tree_head, &p->texcoord);
+        b->offset_to_node = offsetof(struct node_tree, texcoord);
+        twig_texcoord_update(b);
 }
 
 void node_tree_set_twig_texid(struct node_tree *p, struct twig_texid *b)
@@ -267,21 +250,32 @@ void node_tree_set_rotation(struct node_tree *p, union vec4 quat)
         }
 }
 
-void node_tree_set_texcoord(struct node_tree *p, union vec2 root, union vec2 range)
+// void node_tree_set_texcoord(struct node_tree *p, union vec2 root, union vec2 range)
+// {
+//         if( ! list_singular(&p->texroot)) {
+//                 struct list_head *head = p->texroot.next;
+//                 struct twig_texroot *ob = (struct twig_texroot *)
+//                         ((void *)head - offsetof(struct twig_texroot, tree_head));
+//                 ob->root = root;
+//                 twig_texroot_update(ob);
+//         }
+//         if( ! list_singular(&p->texrange)) {
+//                 struct list_head *head = p->texrange.next;
+//                 struct twig_texrange *ob = (struct twig_texrange *)
+//                         ((void *)head - offsetof(struct twig_texrange, tree_head));
+//                 ob->range = range;
+//                 twig_texrange_update(ob);
+//         }
+// }
+
+void node_tree_set_texcoord(struct node_tree *p, u8 id, union vec2 coord, u8 update)
 {
-        if( ! list_singular(&p->texroot)) {
-                struct list_head *head = p->texroot.next;
-                struct twig_texroot *ob = (struct twig_texroot *)
-                        ((void *)head - offsetof(struct twig_texroot, tree_head));
-                ob->root = root;
-                twig_texroot_update(ob);
-        }
-        if( ! list_singular(&p->texrange)) {
-                struct list_head *head = p->texrange.next;
-                struct twig_texrange *ob = (struct twig_texrange *)
-                        ((void *)head - offsetof(struct twig_texrange, tree_head));
-                ob->range = range;
-                twig_texrange_update(ob);
+        if( ! list_singular(&p->texcoord)) {
+                struct list_head *head = p->texcoord.next;
+                struct twig_texcoord *ob = (struct twig_texcoord *)
+                        ((void *)head - offsetof(struct twig_texcoord, tree_head));
+                ob->texcoord[id] = coord;
+                if(update) twig_texcoord_update(ob);
         }
 }
 

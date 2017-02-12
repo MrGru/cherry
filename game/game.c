@@ -27,7 +27,7 @@ struct game *game_alloc()
 
         struct renderer *r = renderer_alloc();
         r->pass = render_pass_main_alloc();
-        renderer_set_color(r, &(union vec4){1, 0, 0.3, 1});
+        renderer_set_color(r, &(union vec4){0.3, 0, 1.0, 1});
         list_add_tail(&r->chain_head, &p->renderer_list);
 
         struct render_stage *stage = render_stage_alloc(r);
@@ -40,22 +40,15 @@ struct game *game_alloc()
         i16 i;
         for_i(i, BUFFERS) {
                 buffers[i] = array_alloc(sizeof(struct device_buffer *), ORDERED);
-                struct device_buffer *quad      = buffer_quad_alloc();
-                struct device_buffer *z         = buffer_z_alloc(900);
-                struct device_buffer *transform = buffer_transform_alloc(900);
-                struct device_buffer *color     = buffer_color_alloc(900);
-                struct device_buffer *texcoord  = buffer_quad_texcoord_alloc();
-                struct device_buffer *texroot   = buffer_quad_texroot_alloc(900);
-                struct device_buffer *texrange  = buffer_quad_texrange_alloc(900);
-                struct device_buffer *texid     = buffer_texid_alloc(900);
-                array_push(buffers[i], &quad);
-                array_push(buffers[i], &z);
-                array_push(buffers[i], &transform);
-                array_push(buffers[i], &color);
-                array_push(buffers[i], &texcoord);
-                array_push(buffers[i], &texroot);
-                array_push(buffers[i], &texrange);
-                array_push(buffers[i], &texid);
+                array_push(buffers[i], &(struct device_buffer *){buffer_quad_alloc()});
+                array_push(buffers[i], &(struct device_buffer *){buffer_z_alloc(900)});
+                array_push(buffers[i], &(struct device_buffer *){buffer_transform_alloc(900)});
+                array_push(buffers[i], &(struct device_buffer *){buffer_color_alloc(900)});
+                array_push(buffers[i], &(struct device_buffer *){buffer_texid_alloc(900)});
+                u8 j;
+                for_i(j, 6) {
+                        array_push(buffers[i], &(struct device_buffer *){buffer_texcoord_alloc(900)});
+                }
         }
 
         struct render_content *content = render_content_alloc(queue, buffers, 6, 900);
@@ -81,30 +74,48 @@ struct game *game_alloc()
                 node_tree_set_branch_z(nt1, branch_z_alloc(1));
                 node_tree_set_branch_transform(nt1, branch_transform_alloc(2));
                 node_tree_set_branch_color(nt1, branch_color_alloc(3));
-                node_tree_set_twig_texroot(nt1, twig_texroot_alloc(5));
-                node_tree_set_twig_texrange(nt1, twig_texrange_alloc(6));
-                node_tree_set_twig_texid(nt1, twig_texid_alloc(7));
+                node_tree_set_twig_texid(nt1, twig_texid_alloc(4));
+                u8 cbid[6] = {5, 6, 7, 8, 9, 10};
+                node_tree_set_twig_texcoord(nt1, twig_texcoord_alloc(cbid));
                 list_add_tail(&nt1->life_head, &p->node_tree_list);
+                node_tree_set_texcoord(nt1, 0, vec2((float[2]){0, 0}), 0);
+                node_tree_set_texcoord(nt1, 1, vec2((float[2]){0, 1}), 0);
+                node_tree_set_texcoord(nt1, 2, vec2((float[2]){1, 1}), 0);
+                node_tree_set_texcoord(nt1, 3, vec2((float[2]){0, 0}), 0);
+                node_tree_set_texcoord(nt1, 4, vec2((float[2]){1, 0}), 0);
+                node_tree_set_texcoord(nt1, 5, vec2((float[2]){1, 1}), 1);
         }
         {
                 nt2 = node_tree_alloc(node_alloc(content));
                 node_tree_set_branch_z(nt2, branch_z_alloc(1));
                 node_tree_set_branch_transform(nt2, branch_transform_alloc(2));
                 node_tree_set_branch_color(nt2, branch_color_alloc(3));
-                node_tree_set_twig_texroot(nt2, twig_texroot_alloc(5));
-                node_tree_set_twig_texrange(nt2, twig_texrange_alloc(6));
-                node_tree_set_twig_texid(nt2, twig_texid_alloc(7));
+                node_tree_set_twig_texid(nt2, twig_texid_alloc(4));
+                u8 cbid[6] = {5, 6, 7, 8, 9, 10};
+                node_tree_set_twig_texcoord(nt2, twig_texcoord_alloc(cbid));
                 list_add_tail(&nt2->life_head, &p->node_tree_list);
+                node_tree_set_texcoord(nt2, 0, vec2((float[2]){0, 0}), 0);
+                node_tree_set_texcoord(nt2, 1, vec2((float[2]){0, 1}), 0);
+                node_tree_set_texcoord(nt2, 2, vec2((float[2]){1, 1}), 0);
+                node_tree_set_texcoord(nt2, 3, vec2((float[2]){0, 0}), 0);
+                node_tree_set_texcoord(nt2, 4, vec2((float[2]){1, 0}), 0);
+                node_tree_set_texcoord(nt2, 5, vec2((float[2]){1, 1}), 1);
         }
         {
                 nt3 = node_tree_alloc(node_alloc(content));
                 node_tree_set_branch_z(nt3, branch_z_alloc(1));
                 node_tree_set_branch_transform(nt3, branch_transform_alloc(2));
                 node_tree_set_branch_color(nt3, branch_color_alloc(3));
-                node_tree_set_twig_texroot(nt3, twig_texroot_alloc(5));
-                node_tree_set_twig_texrange(nt3, twig_texrange_alloc(6));
-                node_tree_set_twig_texid(nt3, twig_texid_alloc(7));
+                node_tree_set_twig_texid(nt3, twig_texid_alloc(4));
+                u8 cbid[6] = {5, 6, 7, 8, 9, 10};
+                node_tree_set_twig_texcoord(nt3, twig_texcoord_alloc(cbid));
                 list_add_tail(&nt3->life_head, &p->node_tree_list);
+                node_tree_set_texcoord(nt3, 0, vec2((float[2]){0, 0}), 0);
+                node_tree_set_texcoord(nt3, 1, vec2((float[2]){0, 1}), 0);
+                node_tree_set_texcoord(nt3, 2, vec2((float[2]){1, 1}), 0);
+                node_tree_set_texcoord(nt3, 3, vec2((float[2]){0, 0}), 0);
+                node_tree_set_texcoord(nt3, 4, vec2((float[2]){1, 0}), 0);
+                node_tree_set_texcoord(nt3, 5, vec2((float[2]){1, 1}), 1);
         }
 
         node_tree_add_node_tree(nt1, nt2);
@@ -113,7 +124,7 @@ struct game *game_alloc()
         node_tree_set_texid(nt1, 1);
         node_tree_set_texid(nt2, 0);
         node_tree_set_texid(nt3, 0);
-        node_tree_set_size(nt1, vec3((float[3]){620, 372, 0}));
+        node_tree_set_size(nt1, vec3((float[3]){620 * 2, 372 * 2, 0}));
         node_tree_set_size(nt2, vec3((float[3]){523, 391, 0}));
         node_tree_set_size(nt3, vec3((float[3]){523, 391, 0}));
 
