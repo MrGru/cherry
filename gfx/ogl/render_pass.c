@@ -5,6 +5,9 @@
 #include <cherry/graphic/texture.h>
 #include <cherry/stdio.h>
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+
 static i32 main_pass_id = -1;
 
 static void store_main_pass()
@@ -59,8 +62,8 @@ struct render_pass *render_pass_shadow_alloc()
         p->map  = texture_alloc_depth(shadow_width, shadow_width);
         p->map->ref++;
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, p->map->id, 0);
-        //glDrawBuffer(GL_NONE);
-        //glReadBuffer(GL_NONE);
+        // glDrawBuffer(GL_NONE);
+        // glReadBuffer(GL_NONE);
 
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
         if(status != GL_FRAMEBUFFER_COMPLETE) {
