@@ -59,8 +59,8 @@ struct render_pass *render_pass_shadow_alloc()
         p->map  = texture_alloc_depth(shadow_width, shadow_width);
         p->map->ref++;
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, p->map->id, 0);
-        glDrawBuffer(GL_NONE);
-        glReadBuffer(GL_NONE);
+        //glDrawBuffer(GL_NONE);
+        //glReadBuffer(GL_NONE);
 
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
         if(status != GL_FRAMEBUFFER_COMPLETE) {

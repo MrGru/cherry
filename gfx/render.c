@@ -6,6 +6,8 @@
 #include <cherry/bytes.h>
 #include <cherry/graphic/device_buffer.h>
 #include <cherry/math/vec4.h>
+#include <cherry/graphic/shader.h>
+#include <cherry/graphic/texture.h>
 
 struct render_queue *render_queue_alloc(struct list_head *stage, struct shader *pipeline)
 {

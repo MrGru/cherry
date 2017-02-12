@@ -4,6 +4,7 @@
 #include <cherry/string.h>
 #include <cherry/graphic/shader.h>
 #include <cherry/graphic/device_buffer.h>
+#include <cherry/array.h>
 
 static struct shader *instance = NULL;
 
@@ -29,7 +30,15 @@ static inline struct string *get_frag()
 
 #elif GFX == MTL
 
+static inline struct string *get_vert()
+{
+        return NULL;
+}
 
+static inline struct string *get_frag()
+{
+        return NULL;
+}
 
 #endif
 
@@ -88,7 +97,7 @@ struct shader *shader_color_alloc()
         u8 i;
         struct shader_color_uniform scu;
         for_i(i, BUFFERS) {
-                instance->uniforms[i] = device_buffer_alloc();
+                instance->uniforms[i] = device_buffer_alloc(BUFFER_VERTICE, 0);
                 device_buffer_fill(instance->uniforms[i], &scu, sizeof(scu));
         }
 #endif

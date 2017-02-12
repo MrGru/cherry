@@ -11,4 +11,6 @@ void game_render(struct game *p);
 
 void game_free(struct game *p);
 
+void game_resize(struct game *p, int width, int height);
+
 #endif

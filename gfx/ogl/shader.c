@@ -7,6 +7,7 @@
 #include <cherry/string.h>
 #include <cherry/math/math.h>
 #include <cherry/stdio.h>
+#include <cherry/graphic/device_buffer.h>
 
 static struct shader *current_shader = NULL;
 

@@ -17,6 +17,7 @@
 struct node_tree *nt1 = NULL;
 struct node_tree *nt2 = NULL;
 struct node_tree *nt3 = NULL;
+struct shader_uniform *project_uniform = NULL;
 
 struct game *game_alloc()
 {
@@ -59,7 +60,7 @@ struct game *game_alloc()
         for_i(i, BUFFERS) {
                 array_free(buffers[i]);
         }
-        struct shader_uniform *project_uniform  = shader_uniform_alloc();
+        project_uniform  = shader_uniform_alloc();
         shader_set_uniform(s, SHADER_COLOR_PROJECT, project_uniform);
 
         union mat4 project = mat4_new_ortho(-video_width/2,
@@ -202,6 +203,16 @@ void game_render(struct game *p)
         /* increase frame by 1 */
         p->frame++;
         p->frame %= BUFFERS;
+}
+
+void game_resize(struct game *p, int width, int height)
+{
+        video_width = width;
+        video_height = height;
+
+        union mat4 project = mat4_new_ortho(-video_width/2,
+                video_width/2, -video_height/2, video_height/2, 1, 10);
+        shader_uniform_update(project_uniform, project.m, sizeof(project));
 }
 
 void game_free(struct game *p)

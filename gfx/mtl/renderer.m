@@ -6,8 +6,9 @@
 #import <cherry/list.h>
 #import <cherry/map.h>
 #import <cherry/array.h>
-#import <cherry/shader.h>
+#import <cherry/graphic/shader.h>
 #import <cherry/graphic/device_buffer.h>
+#import <cherry/graphic/texture.h>
 
 static inline void begin_stencil()
 {

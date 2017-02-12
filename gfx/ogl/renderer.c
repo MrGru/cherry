@@ -8,6 +8,7 @@
 #include <cherry/array.h>
 #include <cherry/graphic/shader.h>
 #include <cherry/graphic/device_buffer.h>
+#include <cherry/graphic/texture.h>
 
 static inline void begin_stencil()
 {

@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "93E1E9148AC1A9C6C0FAF31461F8AF634C41FC64",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "93E1E9148AC1A9C6C0FAF31461F8AF634C41FC64" : 9223372036854775807,
+    "72F5B3616DFAFF56B21C07F46BE26CF61F89D9F0" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "141D440D-DBF8-40E1-AE7E-3D7C6A100656",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "93E1E9148AC1A9C6C0FAF31461F8AF634C41FC64" : "ios-runtime-loading-dynamic-framework\/",
+    "72F5B3616DFAFF56B21C07F46BE26CF61F89D9F0" : ""
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "ios-dynamic-loading-framework",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "ios-dynamic-loading-framework.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/bitbucket.org\/ichiyo\/fishout.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "72F5B3616DFAFF56B21C07F46BE26CF61F89D9F0"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/patriknyblad\/ios-runtime-loading-dynamic-framework.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "93E1E9148AC1A9C6C0FAF31461F8AF634C41FC64"
+    }
+  ]
+}
