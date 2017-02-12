@@ -48,24 +48,6 @@ struct branch_color {
         u16                     offset_to_node;
 };
 
-struct twig_texroot {
-        struct list_head        tree_head;
-
-        union vec2              root;
-
-        u8                      bid;
-        u16                     offset_to_node;
-};
-
-struct twig_texrange {
-        struct list_head        tree_head;
-
-        union vec2              range;
-
-        u8                      bid;
-        u16                     offset_to_node;
-};
-
 struct twig_texid {
         struct list_head        tree_head;
 
@@ -78,9 +60,18 @@ struct twig_texid {
 struct twig_texcoord {
         struct list_head        tree_head;
 
-        union vec2              texcoord[6];
+        union vec4              texcoord[3];
 
-        u8                      bid[6];
+        u8                      bid[3];
+        u16                     offset_to_node;
+};
+
+struct twig_vertex {
+        struct list_head        tree_head;
+
+        union vec4              vertex[3];
+
+        u8                      bid[3];
         u16                     offset_to_node;
 };
 
@@ -96,10 +87,9 @@ struct node_tree {
         struct list_head                z;
         struct list_head                transform;
         struct list_head                color;
-        struct list_head                texroot;
-        struct list_head                texrange;
         struct list_head                texid;
         struct list_head                texcoord;
+        struct list_head                vertex;
 
         struct list_head                life_head;
 };

@@ -5,6 +5,8 @@
 
 struct device_buffer *buffer_quad_alloc();
 
+struct device_buffer *buffer_vertex_alloc(u16 instances);
+
 struct device_buffer *buffer_texcoord_alloc(u16 instances);
 
 struct device_buffer *buffer_quad_texroot_alloc(u16 instances);

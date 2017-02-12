@@ -27,6 +27,8 @@ void node_tree_set_twig_texid(struct node_tree *p, struct twig_texid *b);
 
 void node_tree_set_twig_texcoord(struct node_tree *p, struct twig_texcoord *b);
 
+void node_tree_set_twig_vertex(struct node_tree *p, struct twig_vertex *b);
+
 struct branch_z *node_tree_get_branch_z(struct node_tree *p);
 
 struct branch_transform *node_tree_get_branch_transform(struct node_tree *p);
@@ -45,6 +47,8 @@ void node_tree_set_rotation(struct node_tree *p, union vec4 quat);
 void node_tree_set_size(struct node_tree *p, union vec3 size);
 
 void node_tree_set_texcoord(struct node_tree *p, u8 id, union vec2 coord, u8 update);
+
+void node_tree_set_vertex(struct node_tree *p, u8 id, union vec2 vertex, u8 update);
 
 void node_tree_set_texid(struct node_tree *p, u8 id);
 

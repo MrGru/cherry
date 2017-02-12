@@ -3,10 +3,16 @@
 
 #include <cherry/graphic/node/types.h>
 
+struct twig_vertex *twig_vertex_alloc(u8 bid[3]);
+
+void twig_vertex_free(struct twig_vertex *p);
+
+void twig_vertex_update(struct twig_vertex *p);
+
 /*
  * twig texcoord definitions
  */
-struct twig_texcoord *twig_texcoord_alloc(u8 bid[6]);
+struct twig_texcoord *twig_texcoord_alloc(u8 bid[3]);
 
 void twig_texcoord_free(struct twig_texcoord *p);
 

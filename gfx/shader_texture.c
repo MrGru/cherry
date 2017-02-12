@@ -40,8 +40,8 @@ struct shader *shader_texture_alloc()
         }
         struct shader_descriptor *des = shader_descriptor_alloc();
         /* vertex */
-        struct shader_buffer_descriptor *sbd = shader_buffer_descriptor_alloc(4 * sizeof(float), 0, 0);
-        struct shader_attribute_descriptor *sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC4, 0, "position");
+        struct shader_buffer_descriptor *sbd = shader_buffer_descriptor_alloc(sizeof(float), 0, 0);
+        struct shader_attribute_descriptor *sad = shader_attribute_descriptor_alloc(ATTRIBUTE_FLOAT, 0, "vid");
         array_push(sbd->attributes, &sad);
         array_push(des->buffers, &sbd);
         /*z*/
@@ -66,19 +66,28 @@ struct shader *shader_texture_alloc()
         array_push(des->buffers, &sbd);
         /* texcoords */
 #define ADD_TEXCOORDS(name)                                                     \
-        sbd = shader_buffer_descriptor_alloc(2 * sizeof(float), 1, 1);          \
-        sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC2, 0, name);       \
+        sbd = shader_buffer_descriptor_alloc(4 * sizeof(float), 1, 1);          \
+        sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC4, 0, name);       \
         array_push(sbd->attributes, &sad);                                      \
         array_push(des->buffers, &sbd);
 
         ADD_TEXCOORDS("texcoord_1")
         ADD_TEXCOORDS("texcoord_2")
         ADD_TEXCOORDS("texcoord_3")
-        ADD_TEXCOORDS("texcoord_4")
-        ADD_TEXCOORDS("texcoord_5")
-        ADD_TEXCOORDS("texcoord_6")
 
 #undef ADD_TEXCOORDS
+        /* vertex */
+#define ADD_VERTEX(name)                                                        \
+        sbd = shader_buffer_descriptor_alloc(4 * sizeof(float), 1, 1);          \
+        sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC4, 0, name);       \
+        array_push(sbd->attributes, &sad);                                      \
+        array_push(des->buffers, &sbd);
+
+        ADD_VERTEX("vertex_1")
+        ADD_VERTEX("vertex_2")
+        ADD_VERTEX("vertex_3")
+
+#undef ADD_VERTEX
 
         /* vert */
         struct string *vert = get_vert();

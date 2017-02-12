@@ -9,26 +9,26 @@
 #endif
 
 /*
- * position and texcoord are static data shared among instances
  * z used to sort instances by depth test function after fragment step
- * color is passed to fragment shader
+ * vid used to access current texcoord, vertex
  */
-input vec4      position;
+input float     vid;
 input float     z;
-input mat4      transform;
-input vec4      color;
 input float     texid;
-input vec2      texcoord_1;
-input vec2      texcoord_2;
-input vec2      texcoord_3;
-input vec2      texcoord_4;
-input vec2      texcoord_5;
-input vec2      texcoord_6;
+input vec4      color;
+input mat4      transform;
+input vec4      texcoord_1;
+input vec4      texcoord_2;
+input vec4      texcoord_3;
+input vec4      vertex_1;
+input vec4      vertex_2;
+input vec4      vertex_3;
 
 /*
- * combine texcoord_i into array to access from vertex id in position.w
+ * combine texcoord_i, vertex_i into array to access from vid
  */
 vec2            texcoords[6];
+vec2            vertice[6];
 
 /*
  * pixel_coord used to fetch next pixel in image applied to fragment
@@ -44,15 +44,25 @@ uniform mat4    view;
 
 void main()
 {
-        texcoords[0] = texcoord_1;
-        texcoords[1] = texcoord_2;
-        texcoords[2] = texcoord_3;
-        texcoords[3] = texcoord_4;
-        texcoords[4] = texcoord_5;
-        texcoords[5] = texcoord_6;
-        gl_Position     = project * view * transform * vec4(position.xyz, 1.0);
+        texcoords[0]    = texcoord_1.xy;
+        texcoords[1]    = texcoord_1.zw;
+        texcoords[2]    = texcoord_2.xy;
+        texcoords[3]    = texcoord_2.zw;
+        texcoords[4]    = texcoord_3.xy;
+        texcoords[5]    = texcoord_3.zw;
+
+        vertice[0]      = vertex_1.xy;
+        vertice[1]      = vertex_1.zw;
+        vertice[2]      = vertex_2.xy;
+        vertice[3]      = vertex_2.zw;
+        vertice[4]      = vertex_3.xy;
+        vertice[5]      = vertex_3.zw;
+
+        vec2 pos        = vertice[int(vid)];
+
+        gl_Position     = project * view * transform * vec4(vec3(pos, 0.0), 1.0);
         gl_Position.z   = z;
         pixel_color     = color;
-        pixel_coord     = texcoords[int(position.w)];
+        pixel_coord     = texcoords[int(vid)];
         pixel_texid     = texid;
 }

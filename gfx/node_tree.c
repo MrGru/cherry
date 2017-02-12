@@ -59,6 +59,15 @@ static inline void detach_texcoord(struct node_tree *p)
         }
 }
 
+static inline void detach_vertex(struct node_tree *p)
+{
+        if( ! list_singular(&p->vertex)) {
+                struct list_head *head = p->vertex.next;
+                struct twig_vertex *ob = (struct twig_vertex *)
+                        ((void *)head - offsetof(struct twig_vertex, tree_head));
+                twig_vertex_free(ob);
+        }
+}
 
 static inline void detach_texid(struct node_tree *p)
 {
@@ -82,6 +91,7 @@ struct node_tree *node_tree_alloc(struct node *n)
         INIT_LIST_HEAD(&p->color);
         INIT_LIST_HEAD(&p->texid);
         INIT_LIST_HEAD(&p->texcoord);
+        INIT_LIST_HEAD(&p->vertex);
         INIT_LIST_HEAD(&p->life_head);
         node_tree_set_node(p, n);
         return p;
@@ -95,6 +105,7 @@ void node_tree_free(struct node_tree *p)
         detach_color(p);
         detach_texcoord(p);
         detach_texid(p);
+        detach_vertex(p);
         list_del(&p->life_head);
         sfree(p);
 }
@@ -159,6 +170,15 @@ void node_tree_set_twig_texcoord(struct node_tree *p, struct twig_texcoord *b)
         list_add_tail(&b->tree_head, &p->texcoord);
         b->offset_to_node = offsetof(struct node_tree, texcoord);
         twig_texcoord_update(b);
+}
+
+void node_tree_set_twig_vertex(struct node_tree *p, struct twig_vertex *b)
+{
+        detach_vertex(p);
+        list_del(&b->tree_head);
+        list_add_tail(&b->tree_head, &p->vertex);
+        b->offset_to_node = offsetof(struct node_tree, vertex);
+        twig_vertex_update(b);
 }
 
 void node_tree_set_twig_texid(struct node_tree *p, struct twig_texid *b)
@@ -250,32 +270,28 @@ void node_tree_set_rotation(struct node_tree *p, union vec4 quat)
         }
 }
 
-// void node_tree_set_texcoord(struct node_tree *p, union vec2 root, union vec2 range)
-// {
-//         if( ! list_singular(&p->texroot)) {
-//                 struct list_head *head = p->texroot.next;
-//                 struct twig_texroot *ob = (struct twig_texroot *)
-//                         ((void *)head - offsetof(struct twig_texroot, tree_head));
-//                 ob->root = root;
-//                 twig_texroot_update(ob);
-//         }
-//         if( ! list_singular(&p->texrange)) {
-//                 struct list_head *head = p->texrange.next;
-//                 struct twig_texrange *ob = (struct twig_texrange *)
-//                         ((void *)head - offsetof(struct twig_texrange, tree_head));
-//                 ob->range = range;
-//                 twig_texrange_update(ob);
-//         }
-// }
-
 void node_tree_set_texcoord(struct node_tree *p, u8 id, union vec2 coord, u8 update)
 {
         if( ! list_singular(&p->texcoord)) {
                 struct list_head *head = p->texcoord.next;
                 struct twig_texcoord *ob = (struct twig_texcoord *)
                         ((void *)head - offsetof(struct twig_texcoord, tree_head));
-                ob->texcoord[id] = coord;
+                // ob->texcoord[id] = coord;
+                smemcpy((void*)&ob->texcoord + id * sizeof(coord),
+                        &coord, sizeof(coord));
                 if(update) twig_texcoord_update(ob);
+        }
+}
+
+void node_tree_set_vertex(struct node_tree *p, u8 id, union vec2 vertex, u8 update)
+{
+        if( ! list_singular(&p->vertex)) {
+                struct list_head *head = p->vertex.next;
+                struct twig_vertex *ob = (struct twig_vertex *)
+                        ((void *)head - offsetof(struct twig_vertex, tree_head));
+                smemcpy((void*)&ob->vertex + id * sizeof(vertex),
+                        &vertex, sizeof(vertex));
+                if(update) twig_vertex_update(ob);
         }
 }
 

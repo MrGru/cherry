@@ -46,8 +46,11 @@ struct game *game_alloc()
                 array_push(buffers[i], &(struct device_buffer *){buffer_color_alloc(900)});
                 array_push(buffers[i], &(struct device_buffer *){buffer_texid_alloc(900)});
                 u8 j;
-                for_i(j, 6) {
+                for_i(j, 3) {
                         array_push(buffers[i], &(struct device_buffer *){buffer_texcoord_alloc(900)});
+                }
+                for_i(j, 3) {
+                        array_push(buffers[i], &(struct device_buffer *){buffer_vertex_alloc(900)});
                 }
         }
 
@@ -75,15 +78,25 @@ struct game *game_alloc()
                 node_tree_set_branch_transform(nt1, branch_transform_alloc(2));
                 node_tree_set_branch_color(nt1, branch_color_alloc(3));
                 node_tree_set_twig_texid(nt1, twig_texid_alloc(4));
-                u8 cbid[6] = {5, 6, 7, 8, 9, 10};
+                u8 cbid[3] = {5, 6, 7};
                 node_tree_set_twig_texcoord(nt1, twig_texcoord_alloc(cbid));
+                u8 vbid[3] = {8, 9, 10};
+                node_tree_set_twig_vertex(nt1, twig_vertex_alloc(vbid));
                 list_add_tail(&nt1->life_head, &p->node_tree_list);
+
                 node_tree_set_texcoord(nt1, 0, vec2((float[2]){0, 0}), 0);
                 node_tree_set_texcoord(nt1, 1, vec2((float[2]){0, 1}), 0);
                 node_tree_set_texcoord(nt1, 2, vec2((float[2]){1, 1}), 0);
                 node_tree_set_texcoord(nt1, 3, vec2((float[2]){0, 0}), 0);
                 node_tree_set_texcoord(nt1, 4, vec2((float[2]){1, 0}), 0);
                 node_tree_set_texcoord(nt1, 5, vec2((float[2]){1, 1}), 1);
+
+                node_tree_set_vertex(nt1, 0, vec2((float[2]){-0.5,  0.5}), 0);
+                node_tree_set_vertex(nt1, 1, vec2((float[2]){-0.5, -0.5}), 0);
+                node_tree_set_vertex(nt1, 2, vec2((float[2]){ 0.5, -0.5}), 0);
+                node_tree_set_vertex(nt1, 3, vec2((float[2]){-0.5,  0.5}), 0);
+                node_tree_set_vertex(nt1, 4, vec2((float[2]){ 0.5,  0.5}), 0);
+                node_tree_set_vertex(nt1, 5, vec2((float[2]){ 0.5, -0.5}), 1);
         }
         {
                 nt2 = node_tree_alloc(node_alloc(content));
@@ -91,15 +104,25 @@ struct game *game_alloc()
                 node_tree_set_branch_transform(nt2, branch_transform_alloc(2));
                 node_tree_set_branch_color(nt2, branch_color_alloc(3));
                 node_tree_set_twig_texid(nt2, twig_texid_alloc(4));
-                u8 cbid[6] = {5, 6, 7, 8, 9, 10};
+                u8 cbid[3] = {5, 6, 7};
                 node_tree_set_twig_texcoord(nt2, twig_texcoord_alloc(cbid));
+                u8 vbid[3] = {8, 9, 10};
+                node_tree_set_twig_vertex(nt2, twig_vertex_alloc(vbid));
                 list_add_tail(&nt2->life_head, &p->node_tree_list);
+
                 node_tree_set_texcoord(nt2, 0, vec2((float[2]){0, 0}), 0);
                 node_tree_set_texcoord(nt2, 1, vec2((float[2]){0, 1}), 0);
                 node_tree_set_texcoord(nt2, 2, vec2((float[2]){1, 1}), 0);
                 node_tree_set_texcoord(nt2, 3, vec2((float[2]){0, 0}), 0);
                 node_tree_set_texcoord(nt2, 4, vec2((float[2]){1, 0}), 0);
                 node_tree_set_texcoord(nt2, 5, vec2((float[2]){1, 1}), 1);
+
+                node_tree_set_vertex(nt2, 0, vec2((float[2]){-0.5,  0.5}), 0);
+                node_tree_set_vertex(nt2, 1, vec2((float[2]){-0.5, -0.5}), 0);
+                node_tree_set_vertex(nt2, 2, vec2((float[2]){ 0.5, -0.5}), 0);
+                node_tree_set_vertex(nt2, 3, vec2((float[2]){-0.5,  0.5}), 0);
+                node_tree_set_vertex(nt2, 4, vec2((float[2]){ 0.5,  0.5}), 0);
+                node_tree_set_vertex(nt2, 5, vec2((float[2]){ 0.5, -0.5}), 1);
         }
         {
                 nt3 = node_tree_alloc(node_alloc(content));
@@ -107,8 +130,10 @@ struct game *game_alloc()
                 node_tree_set_branch_transform(nt3, branch_transform_alloc(2));
                 node_tree_set_branch_color(nt3, branch_color_alloc(3));
                 node_tree_set_twig_texid(nt3, twig_texid_alloc(4));
-                u8 cbid[6] = {5, 6, 7, 8, 9, 10};
+                u8 cbid[3] = {5, 6, 7};
                 node_tree_set_twig_texcoord(nt3, twig_texcoord_alloc(cbid));
+                u8 vbid[3] = {8, 9, 10};
+                node_tree_set_twig_vertex(nt3, twig_vertex_alloc(vbid));
                 list_add_tail(&nt3->life_head, &p->node_tree_list);
                 node_tree_set_texcoord(nt3, 0, vec2((float[2]){0, 0}), 0);
                 node_tree_set_texcoord(nt3, 1, vec2((float[2]){0, 1}), 0);
@@ -116,6 +141,13 @@ struct game *game_alloc()
                 node_tree_set_texcoord(nt3, 3, vec2((float[2]){0, 0}), 0);
                 node_tree_set_texcoord(nt3, 4, vec2((float[2]){1, 0}), 0);
                 node_tree_set_texcoord(nt3, 5, vec2((float[2]){1, 1}), 1);
+
+                node_tree_set_vertex(nt3, 0, vec2((float[2]){-0.5,  0.5}), 0);
+                node_tree_set_vertex(nt3, 1, vec2((float[2]){-0.5, -0.5}), 0);
+                node_tree_set_vertex(nt3, 2, vec2((float[2]){ 0.5, -0.5}), 0);
+                node_tree_set_vertex(nt3, 3, vec2((float[2]){-0.5,  0.5}), 0);
+                node_tree_set_vertex(nt3, 4, vec2((float[2]){ 0.5,  0.5}), 0);
+                node_tree_set_vertex(nt3, 5, vec2((float[2]){ 0.5, -0.5}), 1);
         }
 
         node_tree_add_node_tree(nt1, nt2);
@@ -130,8 +162,7 @@ struct game *game_alloc()
 
         node_tree_set_position(nt3, vec3((float[3]){100, 0, 0}));
         node_tree_set_position(nt2, vec3((float[3]){-100, -100, 0}));
-        node_tree_set_color(nt2, vec4((float[4]){1, 1, 1, 0.5}));
-        // node_tree_set_color(nt3, vec4((float[4]){1, 1, 1, 1}));
+        node_tree_set_color(nt2, vec4((float[4]){1, 0, 1, 0.5}));
 
         /* recalculate transform */
         union mat4 m = mat4_identity;
@@ -153,6 +184,8 @@ struct game *game_alloc()
 
 void game_update(struct game *p)
 {
+        union vec3 pos = *node_tree_get_position(nt1);
+        node_tree_set_position(nt1, vec3_add(pos, vec3((float[3]){1, 0, 0})));
         union mat4 m = mat4_identity;
         branch_transform_traverse(node_tree_get_branch_transform(nt1), m);
 }

@@ -68,13 +68,14 @@ void branch_transform_traverse(struct branch_transform *p, union mat4 cm)
                                 node_set_data(node, p->bid, transform.m, sizeof(transform));
                         }
                 }
-                p->update = 0;
         }
 
         struct list_head *head;
         list_for_each(head, &p->branch_list) {
                 struct branch_transform *b = (struct branch_transform *)
                         ((void *)head - offsetof(struct branch_transform, branch_head));
+                b->update |= p->update;
                 branch_transform_traverse(b, p->last_transform);
         }
+        p->update = 0;
 }

@@ -3,15 +3,25 @@
 #include <cherry/memory.h>
 #include <cherry/math/types.h>
 
-static float quad[24] = {
-        -0.5,  0.5,  0,  0.01,
-        -0.5, -0.5,  0,  1.01,
-         0.5, -0.5,  0,  2.01,
+static float quad[6] = {
+        0.01,
+        1.01,
+        2.01,
 
-        -0.5,  0.5,  0,  3.01,
-         0.5,  0.5,  0,  4.01,
-         0.5, -0.5,  0,  5.01
+        3.01,
+        4.01,
+        5.01
 };
+
+// static float quad[24] = {
+//         0.01,
+//         1.01,
+//         2.01,
+//
+//         3.01,
+//         4.01,
+//         5.01
+// };
 
 struct device_buffer *buffer_quad_alloc()
 {
@@ -20,21 +30,20 @@ struct device_buffer *buffer_quad_alloc()
         return buffer;
 }
 
-static float quad_coord[12] = {
-        0, 0,
-        0, 1,
-        1, 1,
-
-        0, 0,
-        1, 0,
-        1, 1
-};
+struct device_buffer *buffer_vertex_alloc(u16 instances)
+{
+        void *data = smalloc(sizeof(union vec4) * instances);
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE, sizeof(union vec4));
+        device_buffer_fill(buffer, data, sizeof(union vec4) * instances);
+        sfree(data);
+        return buffer;
+}
 
 struct device_buffer *buffer_texcoord_alloc(u16 instances)
 {
-        void *data = smalloc(sizeof(union vec2) * instances);
-        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE, sizeof(union vec2));
-        device_buffer_fill(buffer, data, sizeof(union vec2) * instances);
+        void *data = smalloc(sizeof(union vec4) * instances);
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE, sizeof(union vec4));
+        device_buffer_fill(buffer, data, sizeof(union vec4) * instances);
         sfree(data);
         return buffer;
 }
