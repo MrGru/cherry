@@ -4,13 +4,13 @@
 #include <cherry/math/types.h>
 
 static float quad[18] = {
-        -1,  1,  0,
-        -1, -1,  0,
-         1, -1,  0,
+        -0.5,  0.5,  0,
+        -0.5, -0.5,  0,
+         0.5, -0.5,  0,
 
-        -1,  1,  0,
-         1,  1,  0,
-         1, -1,  0
+        -0.5,  0.5,  0,
+         0.5,  0.5,  0,
+         0.5, -0.5,  0
 };
 
 struct device_buffer *buffer_quad_alloc()

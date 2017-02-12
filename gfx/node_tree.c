@@ -89,6 +89,7 @@ struct node_tree *node_tree_alloc(struct node *n)
         INIT_LIST_HEAD(&p->texroot);
         INIT_LIST_HEAD(&p->texrange);
         INIT_LIST_HEAD(&p->texid);
+        INIT_LIST_HEAD(&p->life_head);
         node_tree_set_node(p, n);
         return p;
 }
@@ -102,6 +103,7 @@ void node_tree_free(struct node_tree *p)
         detach_texroot(p);
         detach_texrange(p);
         detach_texid(p);
+        list_del(&p->life_head);
         sfree(p);
 }
 
@@ -232,6 +234,17 @@ void node_tree_set_position(struct node_tree *p, union vec3 v)
         }
 }
 
+void node_tree_set_size(struct node_tree *p, union vec3 size)
+{
+        if(!list_singular(&p->transform)) {
+                struct list_head *head = p->transform.next;
+                struct branch_transform *ob = (struct branch_transform *)
+                        ((void *)head - offsetof(struct branch_transform, tree_head));
+                ob->update = 1;
+                ob->size = size;
+        }
+}
+
 void node_tree_set_scale(struct node_tree *p, union vec3 v)
 {
         if(!list_singular(&p->transform)) {
@@ -269,6 +282,16 @@ void node_tree_set_texcoord(struct node_tree *p, union vec2 root, union vec2 ran
                         ((void *)head - offsetof(struct twig_texrange, tree_head));
                 ob->range = range;
                 twig_texrange_update(ob);
+        }
+}
+
+void node_tree_set_color(struct node_tree *p, union vec4 color)
+{
+        if( ! list_singular(&p->color)) {
+                struct list_head *head = p->color.next;
+                struct branch_color *ob = (struct branch_color *)
+                        ((void *)head - offsetof(struct branch_color, tree_head));
+                ob->color = color;
         }
 }
 

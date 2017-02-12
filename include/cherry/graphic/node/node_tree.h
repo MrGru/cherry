@@ -44,9 +44,13 @@ void node_tree_set_scale(struct node_tree *p, union vec3 v);
 
 void node_tree_set_rotation(struct node_tree *p, union vec4 quat);
 
+void node_tree_set_size(struct node_tree *p, union vec3 size);
+
 void node_tree_set_texcoord(struct node_tree *p, union vec2 root, union vec2 range);
 
 void node_tree_set_texid(struct node_tree *p, u8 id);
+
+void node_tree_set_color(struct node_tree *p, union vec4 color);
 
 union vec3 *node_tree_get_position(struct node_tree *p);
 

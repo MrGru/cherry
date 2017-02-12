@@ -250,6 +250,22 @@ struct texture {
 #endif
 };
 
+struct camera {
+        union mat4              view;
+        union vec3              position;
+        u8                      position_update;
+
+        struct shader_uniform   *view_uniform;
+        struct shader_uniform   *position_uniform;
+};
+
+/*
+ * render technique
+ * I want application to have number draw calls as low as possible
+ * read node folder for information
+ *
+ * each render_content will consume one draw call
+ */
 struct render_content {
         struct list_head                queue_head;
         struct device_buffer_group      *groups[BUFFERS];
@@ -262,6 +278,10 @@ struct render_content {
         struct list_head                pending_updaters;
 };
 
+/*
+ * each node will have permission to manipulate a small part
+ * of render_content's buffers
+ */
 struct node_data {
         u8              frames;
         u8              buffer_id;
@@ -281,18 +301,29 @@ struct node {
         struct array            *datas;
 };
 
+/*
+ * render_queue is where to group all render_contents having same pipeline
+ * because changing pipeline during rendering is expensive
+ */
 struct render_queue {
         struct list_head        content_list;
         struct list_head        stage_head;
         struct shader           *pipeline;
 };
 
+/*
+ * render_stage holds a group of render_queues to render
+ * stencil_queue_list renders all it's content to stencil buffer
+ */
 struct render_stage {
         struct list_head        renderer_head;
         struct list_head        stencil_queue_list;
         struct list_head        content_queue_list;
 };
 
+/*
+ * render_pass interface for renderer
+ */
 struct render_pass {
 #if     GFX == OGL
         u32     id;
@@ -311,10 +342,15 @@ struct shadow_render_pass {
         struct texture          *map;
 };
 
+/*
+ * each renderer render to one application pass
+ * it is useful when application needs several passes like shadow
+ */
 struct renderer {
         struct list_head        stage_list;
         struct render_pass      *pass;
         union vec4              *color;
+        struct list_head        chain_head;
 };
 
 #endif

@@ -29,7 +29,7 @@ void branch_z_free(struct branch_z *p)
 void branch_z_add(struct branch_z *parent, struct branch_z *child)
 {
         if(!parent || !child) return;
-        
+
         list_del(&child->branch_head);
         list_add_tail(&child->branch_head, &parent->branch_list);
 }

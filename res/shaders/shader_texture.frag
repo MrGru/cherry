@@ -23,5 +23,7 @@ uniform sampler2D       image[8];
 
 void main()
 {
-        out_pixel = pixel_color * get_pixel(image[int(pixel_texid)], pixel_coord);
+        vec4 pixel = get_pixel(image[int(pixel_texid)], pixel_coord);
+        // if(pixel.a < 0.35) discard;
+        out_pixel = pixel_color * pixel;
 }

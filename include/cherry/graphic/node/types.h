@@ -24,6 +24,7 @@ struct branch_transform {
         union vec3              position;
         union vec3              scale;
         union vec4              quat;
+        union vec3              size;
 
         union mat4              last_transform;
 
@@ -74,6 +75,12 @@ struct twig_texid {
         u16                     offset_to_node;
 };
 
+/*
+ * node_tree is useful to render 2d graph
+ *
+ * it can maintain a tree having different textures
+ * but consume only one drawcall
+ */
 struct node_tree {
         struct list_head                node_head;
 
@@ -83,6 +90,8 @@ struct node_tree {
         struct list_head                texroot;
         struct list_head                texrange;
         struct list_head                texid;
+
+        struct list_head                life_head;
 };
 
 #endif

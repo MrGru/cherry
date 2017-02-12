@@ -213,6 +213,7 @@ struct renderer *renderer_alloc()
 {
         struct renderer *p = smalloc(sizeof(struct renderer));
         INIT_LIST_HEAD(&p->stage_list);
+        INIT_LIST_HEAD(&p->chain_head);
         p->color = smalloc(sizeof(union vec4));
         *p->color = vec4((float[4]){0, 0, 0, 1});
         p->pass = NULL;
@@ -243,5 +244,6 @@ void renderer_free(struct renderer *p)
         }
         if(p->color) sfree(p->color);
         if(p->pass) p->pass->del(p->pass);
+        list_del(&p->chain_head);
         sfree(p);
 }

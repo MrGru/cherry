@@ -11,20 +11,24 @@
 #include <cherry/graphic/node/node_tree.h>
 #include <cherry/graphic/node/branch.h>
 #include <cherry/graphic/node/twig.h>
+#include <cherry/list.h>
+#include <cherry/graphic/camera.h>
 
 struct node_tree *nt1 = NULL;
 struct node_tree *nt2 = NULL;
+struct node_tree *nt3 = NULL;
 
 struct game *game_alloc()
 {
         struct game *p  = smalloc(sizeof(struct game));
-        p->renderers    = array_alloc(sizeof(struct renderer *), ORDERED);
+        INIT_LIST_HEAD(&p->renderer_list);
+        INIT_LIST_HEAD(&p->node_tree_list);
         p->frame        = 0;
 
         struct renderer *r = renderer_alloc();
         r->pass = render_pass_main_alloc();
-        renderer_set_color(r, NULL);
-        array_push(p->renderers, &r);
+        renderer_set_color(r, &(union vec4){1, 0, 0.3, 1});
+        list_add_tail(&r->chain_head, &p->renderer_list);
 
         struct render_stage *stage = render_stage_alloc(r);
 
@@ -60,12 +64,17 @@ struct game *game_alloc()
                 array_free(buffers[i]);
         }
         struct shader_uniform *project_uniform  = shader_uniform_alloc();
-        struct shader_uniform *view_uniform     = shader_uniform_alloc();
         shader_set_uniform(s, SHADER_COLOR_PROJECT, project_uniform);
-        shader_set_uniform(s, SHADER_COLOR_VIEW, view_uniform);
 
-        shader_uniform_update(project_uniform, mat4_identity.m, sizeof(mat4_identity));
-        shader_uniform_update(view_uniform, mat4_identity.m, sizeof(mat4_identity));
+        union mat4 project = mat4_new_ortho(-video_width/2,
+                video_width/2, -video_height/2, video_height/2, 1, 10);
+        p->cam = camera_alloc(mat4_new_look_at(
+                0, 0, 1,
+                0, 0, 0,
+                0, 1, 0
+        ));
+        shader_set_uniform(s, SHADER_COLOR_VIEW, p->cam->view_uniform);
+        shader_uniform_update(project_uniform, project.m, sizeof(project));
 
         {
                 nt1 = node_tree_alloc(node_alloc(content));
@@ -75,6 +84,7 @@ struct game *game_alloc()
                 node_tree_set_twig_texroot(nt1, twig_texroot_alloc(5));
                 node_tree_set_twig_texrange(nt1, twig_texrange_alloc(6));
                 node_tree_set_twig_texid(nt1, twig_texid_alloc(7));
+                list_add_tail(&nt1->life_head, &p->node_tree_list);
         }
         {
                 nt2 = node_tree_alloc(node_alloc(content));
@@ -84,13 +94,33 @@ struct game *game_alloc()
                 node_tree_set_twig_texroot(nt2, twig_texroot_alloc(5));
                 node_tree_set_twig_texrange(nt2, twig_texrange_alloc(6));
                 node_tree_set_twig_texid(nt2, twig_texid_alloc(7));
+                list_add_tail(&nt2->life_head, &p->node_tree_list);
         }
+        {
+                nt3 = node_tree_alloc(node_alloc(content));
+                node_tree_set_branch_z(nt3, branch_z_alloc(1));
+                node_tree_set_branch_transform(nt3, branch_transform_alloc(2));
+                node_tree_set_branch_color(nt3, branch_color_alloc(3));
+                node_tree_set_twig_texroot(nt3, twig_texroot_alloc(5));
+                node_tree_set_twig_texrange(nt3, twig_texrange_alloc(6));
+                node_tree_set_twig_texid(nt3, twig_texid_alloc(7));
+                list_add_tail(&nt3->life_head, &p->node_tree_list);
+        }
+
         node_tree_add_node_tree(nt1, nt2);
+        node_tree_add_node_tree(nt1, nt3);
 
         node_tree_set_texid(nt1, 1);
         node_tree_set_texid(nt2, 0);
+        node_tree_set_texid(nt3, 0);
+        node_tree_set_size(nt1, vec3((float[3]){620, 372, 0}));
+        node_tree_set_size(nt2, vec3((float[3]){523, 391, 0}));
+        node_tree_set_size(nt3, vec3((float[3]){523, 391, 0}));
 
-        node_tree_set_scale(nt2, vec3((float[3]){0.5, 0.5, 0.5}));
+        node_tree_set_position(nt3, vec3((float[3]){100, 0, 0}));
+        node_tree_set_position(nt2, vec3((float[3]){-100, -100, 0}));
+        node_tree_set_color(nt2, vec4((float[4]){1, 1, 1, 0.5}));
+        // node_tree_set_color(nt3, vec4((float[4]){1, 1, 1, 1}));
 
         /* recalculate transform */
         union mat4 m = mat4_identity;
@@ -105,23 +135,13 @@ struct game *game_alloc()
         branch_z_traverse(node_tree_get_branch_z(nt1), &z);
 
         render_content_set_texture(content, 1, texture_alloc_file("res/images/wolf.jpg"));
-        render_content_set_texture(content, 0, texture_alloc_file("res/images/test.png"));
+        render_content_set_texture(content, 0, texture_alloc_file("res/images/text.png"));
 
         return p;
 }
 
-float angle = 0;
-union vec3 pos = {0, 0, 0};
-
 void game_update(struct game *p)
 {
-        if(nt2) {
-                angle += 1;
-                union vec4 quat = quat_angle_axis(DEG_TO_RAD(angle), (float[3]){0, 0, 1});
-                node_tree_set_rotation(nt2, quat);
-                pos.x += 0.001;
-                node_tree_set_position(nt1, pos);
-        }
         union mat4 m = mat4_identity;
         branch_transform_traverse(node_tree_get_branch_transform(nt1), m);
 }
@@ -129,9 +149,11 @@ void game_update(struct game *p)
 void game_render(struct game *p)
 {
         /* process all renderers */
-        struct renderer **r;
-        array_for_each(r, p->renderers) {
-                renderer_render(*r, p->frame);
+        struct list_head *head;
+        list_for_each(head, &p->renderer_list) {
+                struct renderer *renderer = (struct renderer *)
+                        ((void *)head - offsetof(struct renderer, chain_head));
+                renderer_render(renderer, p->frame);
         }
         /* increase frame by 1 */
         p->frame++;
@@ -140,10 +162,17 @@ void game_render(struct game *p)
 
 void game_free(struct game *p)
 {
-        if(nt1 && nt2) {
-                node_tree_free(nt1);
-                node_tree_free(nt2);
+        struct list_head *head;
+        list_while_not_singular(head, &p->node_tree_list) {
+                struct node_tree *nt = (struct node_tree *)
+                        ((void *)head - offsetof(struct node_tree, life_head));
+                node_tree_free(nt);
         }
-        array_deep_free(p->renderers, struct renderer *, renderer_free);
+        list_while_not_singular(head, &p->renderer_list) {
+                struct renderer *renderer = (struct renderer *)
+                        ((void *)head - offsetof(struct renderer, chain_head));
+                renderer_free(renderer);
+        }
+        camera_free(p->cam);
         sfree(p);
 }

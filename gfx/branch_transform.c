@@ -11,6 +11,7 @@ struct branch_transform *branch_transform_alloc(u8 bid)
         p->update                       = 1;
         p->position                     = vec3((float[3]){0, 0, 0});
         p->scale                        = vec3((float[3]){1, 1, 1});
+        p->size                         = vec3((float[3]){1, 1, 1});
         p->quat                         = quat_identity;
         INIT_LIST_HEAD(&p->tree_head);
         INIT_LIST_HEAD(&p->branch_list);
@@ -54,6 +55,8 @@ void branch_transform_traverse(struct branch_transform *p, union mat4 cm)
                 transform = mat4_mul(cm, transform);
 
                 p->last_transform = transform;
+
+                transform = mat4_scale(transform, p->size);
 
                 if(!list_singular(&p->tree_head)) {
                         struct list_head *head = p->tree_head.next;
