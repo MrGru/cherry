@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2017 Manh Tran
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
 #include <cherry/memory.h>
 #include <cherry/array.h>
 #include <cherry/bytes.h>
@@ -50,7 +63,7 @@ void shader_uniform_update(struct shader_uniform *p, void *bytes, u32 len)
 void shader_uniform_submit(struct shader_uniform *p)
 {
         if(p->data->len == 0) return;
-        
+
         struct shader_uniform_index **index;
         array_for_each(index, p->indice) {
                 struct shader *pipeline = (*index)->pipeline;

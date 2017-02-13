@@ -1,5 +1,15 @@
 /*
- * graphic types definition
+ * Copyright (C) 2017 Manh Tran
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 #ifndef __CHERRY_GRAPHIC_TYPES_H__
 #define __CHERRY_GRAPHIC_TYPES_H__
@@ -17,6 +27,15 @@ enum {
 };
 
 /*
+ * @BUFFER_PINNED : buffer's data is allocated in device/gpu memory
+ * @BUFFER_SHARED : buffer's data is allocated in main memory
+ */
+enum {
+        BUFFER_PINNED,
+        BUFFER_SHARED
+};
+
+/*
  * @ref         : buffer may be shared among objects
  * @type        : buffer type
  *
@@ -31,6 +50,7 @@ struct device_buffer {
         i16     ref;
         u8      type;
         u16     item_size;
+        u8      location;
 #if   GFX == OGL
         u32     id;
 #elif GFX == MTL

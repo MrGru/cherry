@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2017 Manh Tran
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
 #import <cherry/graphic/graphic.h>
 
 #if GFX == MTL
@@ -10,17 +23,18 @@
  */
 static NSMutableArray *buffer_house = nil;
 
-struct device_buffer *device_buffer_alloc(u8 type, u16 item_size)
+struct device_buffer *device_buffer_alloc(u8 type, u16 item_size, u8 location)
 {
         if(buffer_house == nil) {
 		buffer_house = [NSMutableArray array];
 	}
         struct device_buffer *p = smalloc(sizeof(struct device_buffer));
-        p->ptr  = NULL;
-        p->type = type;
-        p->size = 0;
-        p->ref  = 0;
-        p->item_size = item_size;
+        p->ptr                  = NULL;
+        p->type                 = type;
+        p->size                 = 0;
+        p->ref                  = 0;
+        p->item_size            = item_size;
+        p->location             = location;
         return p;
 }
 

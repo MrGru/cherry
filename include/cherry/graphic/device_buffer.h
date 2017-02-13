@@ -1,5 +1,15 @@
 /*
- * device buffer definitions
+ * Copyright (C) 2017 Manh Tran
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 #ifndef __CHERRY_GRAPHIC_DEVICE_BUFFER_H__
 #define __CHERRY_GRAPHIC_DEVICE_BUFFER_H__
@@ -8,8 +18,19 @@
 
 /*
  * allocate new device buffer
+ *
+ * location should be BUFFER_PINNED if buffer is not changed
+ * or changed a little time during it's life time
+ *
+ * location should be BUFFER_SHARED if buffer is changed almost
+ * every frame
+ *
+ * BUFFER_PINNED may take longer time to update data but gpu can access
+ * buffer directly to draw
+ * BUFFER_SHARED may take less time to update data but gpu has to use DMA
+ * to access buffer to draw
  */
-struct device_buffer *device_buffer_alloc(u8 type, u16 item_size);
+struct device_buffer *device_buffer_alloc(u8 type, u16 item_size, u8 location);
 
 #if GFX == OGL
 GLenum device_buffer_target(struct device_buffer *p);

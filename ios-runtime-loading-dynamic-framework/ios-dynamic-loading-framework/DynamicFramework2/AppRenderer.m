@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2017 Manh Tran
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
 #import "AppRenderer.h"
 #import "AppViewController.h"
 #import "AppView.h"
@@ -30,19 +43,19 @@ static const long kInFlightCommandBuffers = BUFFERS;
 - (void)configure:(AppView *)view
 {
     _device = view.device;
-    
+
     shared_mtl_device = view.device;
-    
+
     // setup view with drawable formats
     view.depthPixelFormat   = MTLPixelFormatDepth32Float;
     view.stencilPixelFormat = MTLPixelFormatInvalid;
     view.sampleCount        = 1;
-    
+
     // create a new command queue
     _commandQueue = [_device newCommandQueue];
-    
+
     shared_mtl_library = [_device newDefaultLibrary];
-    
+
     shared_mtl_main_pass = view.renderPassDescriptor;
     game = game_alloc();
 }
@@ -52,22 +65,22 @@ static const long kInFlightCommandBuffers = BUFFERS;
 - (void)render:(AppView *)view
 {
     if(!game) return;
-    
+
     dispatch_semaphore_wait(_inflight_semaphore, DISPATCH_TIME_FOREVER);
-    
+
     id <MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
     shared_mtl_command_buffer = commandBuffer;
     shared_mtl_main_pass = view.renderPassDescriptor;
-    
+
     game_render(game);
     [commandBuffer presentDrawable:view.currentDrawable];
-    
+
 
     __block dispatch_semaphore_t block_sema = _inflight_semaphore;
     [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer) {
         dispatch_semaphore_signal(block_sema);
     }];
-    
+
     [commandBuffer commit];
 }
 
@@ -83,13 +96,13 @@ static const long kInFlightCommandBuffers = BUFFERS;
 - (void)update:(AppViewController *)controller
 {
     if(!game) return;
-    
+
     game_update(game);
 }
 
 - (void)viewController:(AppViewController *)controller willPause:(BOOL)pause
 {
-    
+
 }
 
 -(void)destroyGame
@@ -97,7 +110,7 @@ static const long kInFlightCommandBuffers = BUFFERS;
     if(game) {
         game_free(game);
         game = NULL;
-        
+
         cache_free();
         dim_memory();
     }

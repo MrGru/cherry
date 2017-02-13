@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2017 Manh Tran
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
 #include <cherry/graphic/graphic.h>
 
 #if GFX == OGL
@@ -20,13 +33,28 @@ GLenum device_buffer_target(struct device_buffer *p)
         return target;
 }
 
-struct device_buffer *device_buffer_alloc(u8 type, u16 item_size)
+static inline GLenum device_buffer_location(struct device_buffer *p)
+{
+        GLenum target;
+        switch (p->location) {
+                case BUFFER_PINNED:
+                        target = GL_STATIC_DRAW;
+                        break;
+                case BUFFER_SHARED:
+                        target = GL_DYNAMIC_DRAW;
+                        break;
+        }
+        return target;
+}
+
+struct device_buffer *device_buffer_alloc(u8 type, u16 item_size, u8 location)
 {
         struct device_buffer *p = smalloc(sizeof(struct device_buffer));
         glGenBuffers(1, &p->id);
-        p->ref  = 0;
-        p->type = type;
-        p->item_size = item_size;
+        p->ref                  = 0;
+        p->type                 = type;
+        p->item_size            = item_size;
+        p->location             = location;
         return p;
 }
 
@@ -34,7 +62,7 @@ void device_buffer_fill(struct device_buffer *p, void *bytes, u32 size)
 {
         GLenum target = device_buffer_target(p);
         glBindBuffer(target, p->id);
-        glBufferData(target, size, bytes, GL_STATIC_DRAW);
+        glBufferData(target, size, bytes, device_buffer_location(p));
 }
 
 void device_buffer_sub(struct device_buffer *p, u32 offset, void *bytes, u32 size)

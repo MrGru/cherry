@@ -1,9 +1,15 @@
 /*
- Copyright (C) 2015 Apple Inc. All Rights Reserved.
- See LICENSE.txt for this sample’s licensing information
- 
- Abstract:
- lighting shader for Basic Metal 3D
+ * Copyright (C) 2017 Manh Tran
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 #include <metal_stdlib>
@@ -82,7 +88,7 @@ vertex ColorInOut vertex_cube(constant vertex_t* vertex_array [[ buffer(0) ]],
                               )
 {
     ColorInOut out;
-    
+
     float4x4 model = trans[iid];
     float4 color = colors[iid].color;
     float4x4 proj = uniform.proj;
@@ -95,7 +101,7 @@ vertex ColorInOut vertex_cube(constant vertex_t* vertex_array [[ buffer(0) ]],
     out.fragPos = float3(model * in_position);
     out.normal = float3(vertex_array[vid].normal);
     out.color = color;
-    
+
     return out;
 }
 
@@ -130,7 +136,6 @@ fragment float4 fragment_cube(ColorInOut in [[stage_in]]
     float3 viewDir = normalize(uniform.view_position - in.fragPos);
     float3 result = float3(0, 0, 0);
     result += CalcPointLight(uniform.plights[0], norm, in.fragPos, viewDir);
-    
+
     return in.color * float4(result, 1.0);
 };
-

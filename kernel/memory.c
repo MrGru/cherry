@@ -1,8 +1,18 @@
 /*
- * memory implementation
+ * Copyright (C) 2017 Manh Tran
  *
  * quick approach for allocation and free memory
  * single thread - need implementation for concurrent
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 #include <cherry/memory.h>
 #include <cherry/pool.h>
@@ -14,14 +24,20 @@
 
 #define MEM_PAGE 4096
 
+#ifndef MEM_DEBUG
+        #define MEM_DEBUG 0
+#endif
+
 /*
  * object head need reference to total objects shared for application
  * in order to dim_memory to work
  */
 struct mem_block_head {
-        struct pool_head head;
-        u8      used;
-        int *count;
+        struct pool_head        head;
+#if MEM_DEBUG == 1
+        u8                      used;
+#endif
+        int                     *count;
 };
 
 /*
@@ -100,7 +116,9 @@ static inline void __expand(size_t size, int id)
         back_i(i, n) {
                 struct mem_block_head *head = (struct mem_block_head *)(p + i * size);
                 head->count = count;
+#if MEM_DEBUG == 1
                 head->used = 0;
+#endif
                 pool_add(&head->head, &blocks[id].head);
         }
 
@@ -120,7 +138,9 @@ static inline void __expand_large(size_t size, int id)
         struct mem_block_head *head = (struct mem_block_head *)p;
         head->count = malloc(sizeof(int));
         *head->count = 0;
+#if MEM_DEBUG == 1
         head->used = 0;
+#endif
         pool_add(&head->head, &blocks[id].head);
 
         /* expand track list */
@@ -146,7 +166,9 @@ static inline void *__smalloc(size_t size)
                 }
         }
         struct mem_block_head * p = (struct mem_block_head *)pool_get(&blocks[id].head);
+#if MEM_DEBUG == 1
         p->used = 1;
+#endif
         (*p->count)++;
         return p + 1;
 }
@@ -179,10 +201,12 @@ void sfree(void *ptr)
 {
         struct mem_block_head *p = (struct mem_block_head *)ptr - 1;
         (*p->count)--;
+#if MEM_DEBUG == 1
         if(!p->used) {
-                printf("???\n");
+                debug("error: double free pointer!\n");
         }
         p->used = 0;
+#endif
         struct pool_head *b = &p->head;
         pool_add(b, b->pprev);
 }

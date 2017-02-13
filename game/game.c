@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2017 Manh Tran
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
 #include <cherry/game/game.h>
 #include <cherry/memory.h>
 #include <cherry/array.h>
@@ -41,17 +54,30 @@ struct game *game_alloc()
         i16 i;
         for_i(i, BUFFERS) {
                 buffers[i] = array_alloc(sizeof(struct device_buffer *), ORDERED);
-                array_push(buffers[i], &(struct device_buffer *){buffer_quad_alloc()});
-                array_push(buffers[i], &(struct device_buffer *){buffer_z_alloc(900)});
-                array_push(buffers[i], &(struct device_buffer *){buffer_transform_alloc(900)});
-                array_push(buffers[i], &(struct device_buffer *){buffer_color_alloc(900)});
-                array_push(buffers[i], &(struct device_buffer *){buffer_texid_alloc(900)});
+                array_push(buffers[i], &(struct device_buffer *){
+                        buffer_quad_alloc(BUFFER_PINNED)
+                });
+                array_push(buffers[i], &(struct device_buffer *){
+                        buffer_z_alloc(900, BUFFER_PINNED)
+                });
+                array_push(buffers[i], &(struct device_buffer *){
+                        buffer_transform_alloc(900, BUFFER_PINNED)});
+                array_push(buffers[i], &(struct device_buffer *){
+                        buffer_color_alloc(900, BUFFER_PINNED)
+                });
+                array_push(buffers[i], &(struct device_buffer *){
+                        buffer_texid_alloc(900, BUFFER_PINNED)
+                });
                 u8 j;
                 for_i(j, 3) {
-                        array_push(buffers[i], &(struct device_buffer *){buffer_texcoord_alloc(900)});
+                        array_push(buffers[i], &(struct device_buffer *){
+                                buffer_texcoord_alloc(900, BUFFER_PINNED)
+                        });
                 }
                 for_i(j, 3) {
-                        array_push(buffers[i], &(struct device_buffer *){buffer_vertex_alloc(900)});
+                        array_push(buffers[i], &(struct device_buffer *){
+                                buffer_vertex_alloc(900, BUFFER_PINNED)
+                        });
                 }
         }
 
