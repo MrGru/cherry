@@ -28,23 +28,55 @@ struct branch_z {
         u16                     offset_to_node;
 };
 
+struct branch_transform_queue {
+        struct list_head        list;
+        struct branch_transform *root;
+        u8                      full;
+};
+
+/*
+ * branch_transform_queue only keep list of branchs knowing
+ * which sub branchs would be updated by child_updater_list;
+ * because there may be many branchs be updating have same parent
+ * so branch_transform_queue.list tend to be small; when a branch
+ * is shaked it will remove all sub branchs from branch_transform_queue.list,
+ * try to append it's parent to list if no super parent is updated.
+ * so instead of traverse from root to update transform tree, we only
+ * need to traverse branch_transform_queue.list and we know exactly the
+ * branchs are shaked.
+ * I choose this approach because I think transform tree will have low depth
+ * and branch_transform_queue.list is small.
+ *
+ * @updater_head only belong to child_updater_list and we traverse from
+ * child_updater_list, not do anything more with updater_head so when a branch
+ * need remove all sub branchs be updating, we only need reinit their sub branch's
+ * child_updater_list; updater_head may keep pointer to parent's update list although
+ * parent is not in branch_transform_queue.list
+ */
 struct branch_transform {
-        struct list_head        tree_head;
+        struct list_head                tree_head;
 
-        struct list_head        branch_list;
-        struct list_head        branch_head;
+        struct list_head                branch_list;
+        struct list_head                branch_head;
+        struct branch_transform         *parent;
 
-        union vec3              position;
-        union vec3              scale;
-        union vec4              quat;
-        union vec3              size;
+        struct list_head                child_updater_list;
+        struct list_head                updater_head;
 
-        union mat4              last_transform;
+        struct list_head                update_queue_head;
+        struct branch_transform_queue   *update_queue;
 
-        u8                      bid;
-        u16                     offset_to_node;
+        union vec3                      position;
+        union vec3                      scale;
+        union vec4                      quat;
+        union vec3                      size;
 
-        u8                      update;
+        union mat4                      last_transform;
+
+        u8                              bid;
+        u16                             offset_to_node;
+
+        u8                              update;
 };
 
 struct branch_color {
@@ -103,6 +135,12 @@ struct node_tree {
         struct list_head                texid;
         struct list_head                texcoord;
         struct list_head                vertex;
+
+        struct list_head                life_head;
+};
+
+struct node_single {
+        struct list_head                node_head;
 
         struct list_head                life_head;
 };

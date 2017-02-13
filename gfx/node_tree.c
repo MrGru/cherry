@@ -245,8 +245,8 @@ void node_tree_set_position(struct node_tree *p, union vec3 v)
                 struct list_head *head = p->transform.next;
                 struct branch_transform *ob = (struct branch_transform *)
                         ((void *)head - offsetof(struct branch_transform, tree_head));
-                ob->update = 1;
                 ob->position = v;
+                branch_transform_shake(ob);
         }
 }
 
@@ -256,7 +256,7 @@ void node_tree_set_size(struct node_tree *p, union vec3 size)
                 struct list_head *head = p->transform.next;
                 struct branch_transform *ob = (struct branch_transform *)
                         ((void *)head - offsetof(struct branch_transform, tree_head));
-                ob->update = 1;
+                branch_transform_shake(ob);
                 ob->size = size;
         }
 }
@@ -267,7 +267,7 @@ void node_tree_set_scale(struct node_tree *p, union vec3 v)
                 struct list_head *head = p->transform.next;
                 struct branch_transform *ob = (struct branch_transform *)
                         ((void *)head - offsetof(struct branch_transform, tree_head));
-                ob->update = 1;
+                branch_transform_shake(ob);
                 ob->scale = v;
         }
 }
@@ -278,7 +278,7 @@ void node_tree_set_rotation(struct node_tree *p, union vec4 quat)
                 struct list_head *head = p->transform.next;
                 struct branch_transform *ob = (struct branch_transform *)
                         ((void *)head - offsetof(struct branch_transform, tree_head));
-                ob->update = 1;
+                branch_transform_shake(ob);
                 ob->quat = quat;
         }
 }

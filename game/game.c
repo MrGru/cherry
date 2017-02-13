@@ -37,6 +37,9 @@ struct game *game_alloc()
         struct game *p  = smalloc(sizeof(struct game));
         INIT_LIST_HEAD(&p->renderer_list);
         INIT_LIST_HEAD(&p->node_tree_list);
+        INIT_LIST_HEAD(&p->update_queue.list);
+        p->update_queue.root = NULL;
+        p->update_queue.full = 0;
         p->frame        = 0;
 
         struct renderer *r = renderer_alloc();
@@ -102,7 +105,7 @@ struct game *game_alloc()
         {
                 nt1 = node_tree_alloc(node_alloc(content));
                 node_tree_set_branch_z(nt1, branch_z_alloc(1));
-                node_tree_set_branch_transform(nt1, branch_transform_alloc(2));
+                node_tree_set_branch_transform(nt1, branch_transform_alloc(2, &p->update_queue));
                 node_tree_set_branch_color(nt1, branch_color_alloc(3));
                 node_tree_set_twig_texid(nt1, twig_texid_alloc(4));
                 u8 cbid[3] = {5, 6, 7};
@@ -128,7 +131,7 @@ struct game *game_alloc()
         {
                 nt2 = node_tree_alloc(node_alloc(content));
                 node_tree_set_branch_z(nt2, branch_z_alloc(1));
-                node_tree_set_branch_transform(nt2, branch_transform_alloc(2));
+                node_tree_set_branch_transform(nt2, branch_transform_alloc(2, &p->update_queue));
                 node_tree_set_branch_color(nt2, branch_color_alloc(3));
                 node_tree_set_twig_texid(nt2, twig_texid_alloc(4));
                 u8 cbid[3] = {5, 6, 7};
@@ -154,7 +157,7 @@ struct game *game_alloc()
         {
                 nt3 = node_tree_alloc(node_alloc(content));
                 node_tree_set_branch_z(nt3, branch_z_alloc(1));
-                node_tree_set_branch_transform(nt3, branch_transform_alloc(2));
+                node_tree_set_branch_transform(nt3, branch_transform_alloc(2, &p->update_queue));
                 node_tree_set_branch_color(nt3, branch_color_alloc(3));
                 node_tree_set_twig_texid(nt3, twig_texid_alloc(4));
                 u8 cbid[3] = {5, 6, 7};
@@ -211,8 +214,32 @@ struct game *game_alloc()
 
 void game_update(struct game *p)
 {
-        union mat4 m = mat4_identity;
-        branch_transform_traverse(node_tree_get_branch_transform(nt1), m);
+        union vec3 *pos = node_tree_get_position(nt2);
+        node_tree_set_position(nt2, vec3_add(*pos, (union vec3){1, 0, 0}));
+
+        pos = node_tree_get_position(nt1);
+        node_tree_set_position(nt1, vec3_add(*pos, (union vec3){1, 0, 0}));
+
+        if(p->update_queue.full) {
+                union mat4 m = mat4_identity;
+                branch_transform_traverse(p->update_queue.root, m);
+                p->update_queue.root = NULL;
+                p->update_queue.full = 0;
+        } else {
+                struct list_head *head, *next;
+                list_for_each_safe(head, next, &p->update_queue.list) {
+                        struct branch_transform *b = (struct branch_transform *)
+                                ((void *)head - offsetof(struct branch_transform, update_queue_head));
+                        struct list_head *bhead, *bnext;
+                        list_for_each_safe(bhead, bnext, &b->child_updater_list) {
+                                struct branch_transform *bc = (struct branch_transform *)
+                                        ((void *)bhead - offsetof(struct branch_transform, updater_head));
+                                branch_transform_traverse(bc, b->last_transform);
+                        }
+                        INIT_LIST_HEAD(&b->child_updater_list);
+                        list_del(head);
+                }
+        }
 }
 
 void game_render(struct game *p)

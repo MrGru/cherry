@@ -17,7 +17,7 @@
 #include <cherry/math/math.h>
 #include <cherry/memory.h>
 
-struct branch_transform *branch_transform_alloc(u8 bid)
+struct branch_transform *branch_transform_alloc(u8 bid, struct branch_transform_queue *queue)
 {
         struct branch_transform *p      = smalloc(sizeof(struct branch_transform));
         p->bid                          = bid;
@@ -26,9 +26,14 @@ struct branch_transform *branch_transform_alloc(u8 bid)
         p->scale                        = vec3((float[3]){1, 1, 1});
         p->size                         = vec3((float[3]){1, 1, 1});
         p->quat                         = quat_identity;
+        p->parent = NULL;
+        p->update_queue = queue;
         INIT_LIST_HEAD(&p->tree_head);
         INIT_LIST_HEAD(&p->branch_list);
         INIT_LIST_HEAD(&p->branch_head);
+        INIT_LIST_HEAD(&p->child_updater_list);
+        INIT_LIST_HEAD(&p->updater_head);
+        INIT_LIST_HEAD(&p->update_queue_head);
         return p;
 }
 
@@ -51,11 +56,67 @@ void branch_transform_add(struct branch_transform *parent, struct branch_transfo
 
         list_del(&child->branch_head);
         list_add_tail(&child->branch_head, &parent->branch_list);
+        child->parent = parent;
 }
 
 void branch_transform_del(struct branch_transform *p)
 {
         list_del(&p->branch_head);
+        p->parent = NULL;
+}
+
+void branch_transform_shake(struct branch_transform *p)
+{
+        if(p->update) return;
+
+        p->update = 1;
+        u8 attached = 0;
+
+        /*
+         * remove all sub branchs from queue
+         * p->update_queue->list will be small, I believe it
+         */
+        struct list_head *head, *next;
+        list_for_each_safe(head, next, &p->update_queue->list) {
+                struct branch_transform *b = (struct branch_transform *)
+                        ((void *)head - offsetof(struct branch_transform, update_queue_head));
+                if(b == p) {
+                        INIT_LIST_HEAD(&p->child_updater_list);
+                        list_del(&p->update_queue_head);
+                        struct branch_transform *parent = p->parent;
+                        if(parent) {
+                                list_add_tail(&p->updater_head, &parent->child_updater_list);
+                                list_add_tail(&parent->update_queue_head, &p->update_queue->list);
+                        } else {
+                                p->update_queue->full = 1;
+                                p->update_queue->root = p;
+                        }
+                        attached = 1;
+                } else {
+                        struct branch_transform *parent = b->parent;
+                        while(parent) {
+                                if(parent->update) {
+                                        INIT_LIST_HEAD(&b->child_updater_list);
+                                        list_del(&b->update_queue_head);
+                                        break;
+                                }
+                        }
+                }
+        }
+
+        /*
+         * try add branch to parent update list 
+         */
+        if(!attached) {
+                struct branch_transform *parent = p->parent;
+                if(parent) {
+                        list_add_tail(&p->updater_head, &parent->child_updater_list);
+                        list_add_tail(&parent->update_queue_head, &p->update_queue->list);
+                } else {
+                        p->update_queue->full = 1;
+                        p->update_queue->root = p;
+                }
+        }
 }
 
 void branch_transform_traverse(struct branch_transform *p, union mat4 cm)

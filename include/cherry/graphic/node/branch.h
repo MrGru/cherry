@@ -32,13 +32,15 @@ void branch_z_traverse(struct branch_z *p, float *cz);
 /*
  * branch transform definitions
  */
-struct branch_transform *branch_transform_alloc(u8 bid);
+struct branch_transform *branch_transform_alloc(u8 bid, struct branch_transform_queue *queue);
 
 void branch_transform_free(struct branch_transform *p);
 
 void branch_transform_add(struct branch_transform *parent, struct branch_transform *child);
 
 void branch_transform_del(struct branch_transform *p);
+
+void branch_transform_shake(struct branch_transform *p);
 
 void branch_transform_traverse(struct branch_transform *p, union mat4 cm);
 
