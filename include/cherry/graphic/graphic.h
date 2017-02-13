@@ -58,6 +58,20 @@
                 #include <OpenGL/glu.h>
                 #include <OpenGL/glext.h>
                 #include <GLUT/glut.h>
+        #elif OS == DROID
+                #define GL_GLEXT_PROTOTYPES
+                #include <GLES2/gl2.h>
+                #include <GLES2/gl2ext.h>
+
+                #define glGenVertexArrays glGenVertexArraysOES
+                #define glBindVertexArray glBindVertexArrayOES
+                #define glDeleteVertexArrays glDeleteVertexArraysOES
+
+                #define glMapBuffer glMapBufferOES
+                #define glUnmapBuffer glUnmapBufferOES
+
+                #define glDrawArraysInstanced glDrawArraysInstancedEXT
+                #define glVertexAttribDivisor glVertexAttribDivisorEXT
         #else
                 #include <GL/glut.h>
                 #include <GLES3/gl3.h>

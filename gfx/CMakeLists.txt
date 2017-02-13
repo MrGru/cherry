@@ -9,7 +9,15 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         set(MACOSX TRUE)
 endif()
 
-if(MACOSX)
+if(ANDROID)
+        include_directories(../android_include)
+        link_directories(../android_lib)
+
+        set(PROJECT_LINK_LIBS kernel m pthread SDL2 SDL2_image)
+
+        file(GLOB_RECURSE SOURCES "*.c")
+        
+elseif(MACOSX)
 
         if(${USER_BUILD_MAC_OS} MATCHES “true”)
                 link_directories(/usr/local/lib)
@@ -37,7 +45,6 @@ else() #linux
         set(PROJECT_LINK_LIBS kernel m pthread GL GLU glut SDL2 SDL2_image)
 
         file(GLOB_RECURSE SOURCES "*.c")
-
 endif()
 
 

@@ -5,9 +5,6 @@
 #include <cherry/graphic/texture.h>
 #include <cherry/stdio.h>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-
 static i32 main_pass_id = -1;
 
 static void store_main_pass()

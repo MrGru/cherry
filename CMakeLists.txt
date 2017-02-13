@@ -29,6 +29,8 @@ include_directories(include)
 
 if(${USER_BUILD_IOS} MATCHES "true")
 
+elseif(${USER_BUILD_ANDROID} MATCHES "true")
+
 else()
 
         add_executable(cherry main.c)
