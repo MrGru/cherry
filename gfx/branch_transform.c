@@ -42,7 +42,7 @@ void branch_transform_free(struct branch_transform *p)
         list_del(&p->tree_head);
         list_del(&p->branch_head);
         if(p->parent) {
-                if(!list_singular(&p->parent->update_queue_head)) {
+                if(!list_singular(&p->parent->update_queue_head) && p->update) {
                         list_del(&p->updater_head);
                 }
         }
@@ -88,7 +88,7 @@ void branch_transform_shake(struct branch_transform *p)
                         ((void *)head - offsetof(struct branch_transform, update_queue_head));
                 if(b == p) {
                         INIT_LIST_HEAD(&p->child_updater_list);
-                        list_del(&p->update_queue_head);
+                        list_del_init(&p->update_queue_head);
                         struct branch_transform *parent = p->parent;
                         if(parent) {
                                 list_add_tail(&p->updater_head, &parent->child_updater_list);
@@ -103,7 +103,7 @@ void branch_transform_shake(struct branch_transform *p)
                         while(parent) {
                                 if(parent->update) {
                                         INIT_LIST_HEAD(&b->child_updater_list);
-                                        list_del(&b->update_queue_head);
+                                        list_del_init(&b->update_queue_head);
                                         break;
                                 }
                         }

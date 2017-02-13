@@ -58,6 +58,12 @@ static inline void list_del(struct list_head *head)
         __list_del(head->prev, head->next);
 }
 
+static inline void list_del_init(struct list_head *head)
+{
+        __list_del(head->prev, head->next);
+        INIT_LIST_HEAD(head);
+}
+
 static inline int list_singular(struct list_head *head)
 {
         return head == head->next;

@@ -237,7 +237,7 @@ void game_update(struct game *p)
                                 branch_transform_traverse(bc, b->last_transform);
                         }
                         INIT_LIST_HEAD(&b->child_updater_list);
-                        list_del(head);
+                        list_del_init(head);
                 }
         }
 }
