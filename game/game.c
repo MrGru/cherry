@@ -217,8 +217,8 @@ void game_update(struct game *p)
         union vec3 *pos = node_tree_get_position(nt2);
         node_tree_set_position(nt2, vec3_add(*pos, (union vec3){1, 0, 0}));
 
-        pos = node_tree_get_position(nt1);
-        node_tree_set_position(nt1, vec3_add(*pos, (union vec3){1, 0, 0}));
+        // pos = node_tree_get_position(nt1);
+        // node_tree_set_position(nt1, vec3_add(*pos, (union vec3){1, 0, 0}));
 
         if(p->update_queue.full) {
                 union mat4 m = mat4_identity;

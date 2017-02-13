@@ -41,6 +41,12 @@ void branch_transform_free(struct branch_transform *p)
 {
         list_del(&p->tree_head);
         list_del(&p->branch_head);
+        list_del(&p->update_queue_head);
+        if(p->parent) {
+                if(!list_singular(&p->parent->update_queue_head)) {
+                        list_del(&p->updater_head);
+                }
+        }
         struct list_head *head;
         list_while_not_singular(head, &p->branch_list) {
                 struct branch_transform *b = (struct branch_transform *)
@@ -105,7 +111,7 @@ void branch_transform_shake(struct branch_transform *p)
         }
 
         /*
-         * try add branch to parent update list 
+         * try add branch to parent update list
          */
         if(!attached) {
                 struct branch_transform *parent = p->parent;
