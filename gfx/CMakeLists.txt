@@ -11,12 +11,21 @@ endif()
 
 if(ANDROID)
         include_directories(../android_include)
-        link_directories(../android_lib)
+
+        if(${ANDROID_ABI} MATCHES "armeabi-v7a")
+                link_directories(../android_lib/armv7)
+        elseif(${ANDROID_ABI} MATCHES "armeabi")
+                link_directories(../android_lib/arm)
+        elseif(${ANDROID_ABI} MATCHES "x86")
+                link_directories(../android_lib/x86)
+        elseif(${ANDROID_ABI} MATCHES "x86_64")
+                link_directories(../android_lib/x86_64)
+        endif()
 
         set(PROJECT_LINK_LIBS kernel m pthread SDL2 SDL2_image)
 
         file(GLOB_RECURSE SOURCES "*.c")
-        
+
 elseif(MACOSX)
 
         if(${USER_BUILD_MAC_OS} MATCHES “true”)
