@@ -41,18 +41,18 @@ void branch_transform_free(struct branch_transform *p)
 {
         list_del(&p->tree_head);
         list_del(&p->branch_head);
-        list_del(&p->update_queue_head);
-        struct list_head *head, *next;
-        list_for_each_safe(head, next, &p->child_updater_list) {
-                struct branch_transform *b = (struct branch_transform *)
-                        ((void *)head - offsetof(struct branch_transform, updater_head));
-                list_del(&b->updater_head);
+        if(p->parent) {
+                if(!list_singular(&p->parent->update_queue_head)) {
+                        list_del(&p->updater_head);
+                }
         }
+        struct list_head *head;
         list_while_not_singular(head, &p->branch_list) {
                 struct branch_transform *b = (struct branch_transform *)
                         ((void *)head - offsetof(struct branch_transform, branch_head));
                 branch_transform_free(b);
         }
+        list_del(&p->update_queue_head);
         sfree(p);
 }
 
