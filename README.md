@@ -23,3 +23,6 @@ OSX
 - install homebrew
 - install SDL2 via homebrew
 - run make.sh to build and test
+
+ANDROID
+ - developing
