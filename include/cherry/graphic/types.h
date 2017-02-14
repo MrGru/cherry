@@ -293,6 +293,7 @@ struct render_content {
         u16                             vertice;
         u16                             max_instances;
         u16                             current_instances;
+        u8                              depth_test;
 
         struct list_head                node_list;
         struct list_head                pending_updaters;

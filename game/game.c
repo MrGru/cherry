@@ -42,7 +42,7 @@ struct game *game_alloc()
 
         struct renderer *r = renderer_alloc();
         r->pass = render_pass_main_alloc();
-        renderer_set_color(r, &(union vec4){0.3, 0, 1.0, 1});
+        renderer_set_color(r, &(union vec4){0, 0, 0, 1});
         list_add_tail(&r->chain_head, &p->renderer_list);
 
         struct render_stage *stage = render_stage_alloc(r);
@@ -62,7 +62,7 @@ struct game *game_alloc()
                         buffer_z_alloc(900, BUFFER_PINNED)
                 });
                 array_push(buffers[i], &(struct device_buffer *){
-                        buffer_transform_alloc(900, BUFFER_PINNED)});
+                        buffer_transform_alloc(900, BUFFER_SHARED)});
                 array_push(buffers[i], &(struct device_buffer *){
                         buffer_color_alloc(900, BUFFER_PINNED)
                 });
@@ -186,12 +186,14 @@ struct game *game_alloc()
         node_tree_set_texid(nt2, 0);
         node_tree_set_texid(nt3, 0);
         node_tree_set_size(nt1, vec3((float[3]){620 * 2, 372 * 2, 0}));
-        node_tree_set_size(nt2, vec3((float[3]){523, 391, 0}));
-        node_tree_set_size(nt3, vec3((float[3]){523, 391, 0}));
+        // node_tree_set_size(nt2, vec3((float[3]){523, 391, 0}));
+        // node_tree_set_size(nt3, vec3((float[3]){523, 391, 0}));
+        node_tree_set_size(nt2, vec3((float[3]){310, 419, 0}));
+        node_tree_set_size(nt3, vec3((float[3]){310, 419, 0}));
 
         node_tree_set_position(nt3, vec3((float[3]){100, 0, 0}));
-        node_tree_set_position(nt2, vec3((float[3]){-100, -100, 0}));
-        node_tree_set_color(nt2, vec4((float[4]){1, 0, 1, 0.5}));
+        node_tree_set_position(nt2, vec3((float[3]){50, -50, 0}));
+        // node_tree_set_color(nt2, vec4((float[4]){1, 0, 1, 0.5}));
 
         /* recalculate transform */
         union mat4 m = mat4_identity;
@@ -206,7 +208,7 @@ struct game *game_alloc()
         branch_z_traverse(node_tree_get_branch_z(nt1), &z);
 
         render_content_set_texture(content, 1, texture_alloc_file("res/images/wolf.jpg"));
-        render_content_set_texture(content, 0, texture_alloc_file("res/images/text.png"));
+        render_content_set_texture(content, 0, texture_alloc_file("res/images/girl.png"));
 
         return p;
 }
@@ -214,7 +216,7 @@ struct game *game_alloc()
 void game_update(struct game *p)
 {
         union vec3 *pos = node_tree_get_position(nt2);
-        node_tree_set_position(nt2, vec3_add(*pos, (union vec3){1, 0, 0}));
+        node_tree_set_position(nt2, vec3_add(*pos, (union vec3){0.1, 0, 0}));
 
         branch_transform_queue_traverse(p->update_queue);
 }

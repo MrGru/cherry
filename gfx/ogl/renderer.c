@@ -23,6 +23,8 @@
 #include <cherry/graphic/device_buffer.h>
 #include <cherry/graphic/texture.h>
 
+static u8 depth_testing = 0;
+
 static inline void begin_stencil()
 {
         glEnable(GL_STENCIL_TEST);
@@ -94,6 +96,17 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                 }
                 /* bind vao and draw */
                 if(content->current_instances) {
+                        if(content->depth_test) {
+                                if(!depth_testing) {
+                                        glEnable(GL_DEPTH_TEST);
+                                        depth_testing = 1;
+                                }
+                        } else {
+                                if(depth_testing) {
+                                        glDisable(GL_DEPTH_TEST);
+                                        depth_testing = 0;
+                                }
+                        }
                         glBindVertexArray(content->groups[frame]->id);
                         glDrawArraysInstanced(GL_TRIANGLES, 0, content->vertice,
                                 content->current_instances);
@@ -118,7 +131,6 @@ void renderer_render(struct renderer *p, u8 frame)
         if(current_pass != p->pass) {
                 glBindFramebuffer(GL_FRAMEBUFFER, p->pass->id);
                 current_pass = p->pass;
-                glEnable(GL_DEPTH_TEST);
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         }

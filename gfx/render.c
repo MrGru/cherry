@@ -65,6 +65,7 @@ struct render_content *render_content_alloc(struct render_queue *queue,
         p->vertice              = vertice;
         p->max_instances        = max_instances;
         p->current_instances    = 0;
+        p->depth_test           = 0;
         INIT_LIST_HEAD(&p->node_list);
         INIT_LIST_HEAD(&p->pending_updaters);
         return p;

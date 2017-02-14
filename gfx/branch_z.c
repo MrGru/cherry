@@ -54,6 +54,8 @@ void branch_z_del(struct branch_z *p)
 
 void branch_z_traverse(struct branch_z *p, float *cz)
 {
+        if(!p) return;
+        
         *cz -= 0.00001f;
         p->z = *cz;
         if(!list_singular(&p->tree_head)) {
