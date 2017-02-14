@@ -95,10 +95,8 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                 /* bind vao and draw */
                 if(content->current_instances) {
                         glBindVertexArray(content->groups[frame]->id);
-                        // glDrawArraysInstanced(GL_TRIANGLES, 0, content->vertice,
-                                // content->current_instances);
-                        glDrawArraysInstancedBaseInstance(GL_TRIANGLES, 0, content->vertice,
-                                content->current_instances-1, 1);
+                        glDrawArraysInstanced(GL_TRIANGLES, 0, content->vertice,
+                                content->current_instances);
                 }
         }
 }
