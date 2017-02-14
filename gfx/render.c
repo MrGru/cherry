@@ -41,7 +41,7 @@ void render_queue_free(struct render_queue *queue)
                 render_content_free(c);
         }
         /* detach and deallocate */
-        list_del(&queue->stage_head);
+        list_del_init(&queue->stage_head);
         sfree(queue);
 }
 
@@ -97,7 +97,7 @@ void render_content_free(struct render_content *content)
                 node_free(n);
         }
         /* detach and deallocate */
-        list_del(&content->queue_head);
+        list_del_init(&content->queue_head);
         sfree(content);
 }
 
@@ -161,6 +161,41 @@ void node_set_data(struct node *p, u8 index, void *bytes, u32 len)
         }
 }
 
+void __node_set_data_self(struct node *p, u8 index, void *bytes, u32 len)
+{
+        struct node_data *d = array_get(p->datas, struct node_data *, index);
+        if(d->frames == 0) {
+                array_push(p->pending_datas, &d);
+                node_data_set(d, index, bytes, len);
+        }
+
+        if(list_singular(&p->updater_head)) {
+                list_add_tail(&p->updater_head, &p->host->pending_updaters);
+        }
+}
+
+static inline void __node_submit_data(struct node *p)
+{
+        struct node_data **data;
+        array_for_each(data, p->datas) {
+                if((*data)->data->len) {
+                        __node_set_data_self(p, (*data)->buffer_id,
+                                (*data)->data->ptr, (*data)->data->len);
+                }
+        }
+}
+
+void node_swap(struct node *p1, struct node *p2)
+{
+        if(p1->host == p2->host) {
+                __node_submit_data(p1);
+                __node_submit_data(p2);
+                u16 i = p1->content_index;
+                p1->content_index = p2->content_index;
+                p2->content_index = i;
+        }
+}
+
 void node_free(struct node *p)
 {
         /*
@@ -172,21 +207,15 @@ void node_free(struct node *p)
                 struct node *tail = (struct node *)
                         ((void*)p->host->node_list.prev - offsetof(struct node, content_head));
                 if(tail != p) {
-                        struct node_data **data;
-                        array_for_each(data, tail->datas) {
-                                if((*data)->data->len) {
-                                        node_set_data(tail, (*data)->buffer_id,
-                                                (*data)->data->ptr, (*data)->data->len);
-                                }
-                        }
+                        __node_submit_data(tail);
                         tail->content_index = p->content_index;
                 }
-                list_del(&p->content_head);
+                list_del_init(&p->content_head);
                 p->host->current_instances--;
         }
-        list_del(&p->updater_head);
+        list_del_init(&p->updater_head);
         /* detach from user */
-        list_del(&p->user_head);
+        list_del_init(&p->user_head);
 
         /* clear data */
         array_free(p->pending_datas);
@@ -220,7 +249,7 @@ void render_stage_free(struct render_stage *p)
                 render_queue_free(queue);
         }
         /* detach and deallocate */
-        list_del(&p->renderer_head);
+        list_del_init(&p->renderer_head);
         sfree(p);
 }
 
@@ -259,6 +288,6 @@ void renderer_free(struct renderer *p)
         }
         if(p->color) sfree(p->color);
         if(p->pass) p->pass->del(p->pass);
-        list_del(&p->chain_head);
+        list_del_init(&p->chain_head);
         sfree(p);
 }

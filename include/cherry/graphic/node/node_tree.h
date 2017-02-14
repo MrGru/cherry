@@ -48,6 +48,8 @@ struct branch_transform *node_tree_get_branch_transform(struct node_tree *p);
 
 struct branch_color *node_tree_get_branch_color(struct node_tree *p);
 
+struct node *node_tree_get_node(struct node_tree *p);
+
 /*
  * node_tree manipulate datas
  */

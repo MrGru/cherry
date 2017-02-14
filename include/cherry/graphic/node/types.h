@@ -38,7 +38,7 @@ struct branch_transform_queue {
  * branch_transform_queue only keep list of branchs knowing
  * which sub branchs would be updated by child_updater_list;
  * because there may be many branchs be updating have same parent
- * so branch_transform_queue.list tend to be small; when a branch
+ * so branch_transform_queue.list tends to be small; when a branch
  * is shaked it will remove all sub branchs from branch_transform_queue.list,
  * try to append it's parent to list if no super parent is updated.
  * so instead of traverse from root to update transform tree, we only

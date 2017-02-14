@@ -16,6 +16,12 @@
 
 #include <cherry/graphic/node/types.h>
 
+struct branch_transform_queue *branch_transform_queue_alloc();
+
+void branch_transform_queue_traverse(struct branch_transform_queue *p);
+
+void branch_transform_queue_free(struct branch_transform_queue *p);
+
 /*
  * branch z definitions
  */

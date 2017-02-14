@@ -20,7 +20,7 @@
 struct game {
         struct list_head                renderer_list;
         struct list_head                node_tree_list;
-        struct branch_transform_queue   update_queue;
+        struct branch_transform_queue   *update_queue;
         struct camera                   *cam;
         u8                              frame;
 };

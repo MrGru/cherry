@@ -52,7 +52,7 @@ void branch_color_add(struct branch_color *parent, struct branch_color *child)
 
 void branch_color_del(struct branch_color *p)
 {
-        list_del(&p->branch_head);
+        list_del_init(&p->branch_head);
 }
 
 void branch_color_traverse(struct branch_color *p, union vec4 cc)

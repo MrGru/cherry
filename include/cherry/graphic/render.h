@@ -51,6 +51,11 @@ struct node *node_alloc(struct render_content *host);
 void node_set_data(struct node *p, u8 index, void *bytes, u32 len);
 
 /*
+ * swap node order in content
+ */
+void node_swap(struct node *p1, struct node *p2);
+
+/*
  * detach p and all it's children from host, current tree and deallocate it
  */
 void node_free(struct node *p);

@@ -17,6 +17,45 @@
 #include <cherry/math/math.h>
 #include <cherry/memory.h>
 
+struct branch_transform_queue *branch_transform_queue_alloc()
+{
+        struct branch_transform_queue *p = smalloc(sizeof(struct branch_transform_queue));
+        INIT_LIST_HEAD(&p->list);
+        p->root = NULL;
+        p->full = 0;
+        return p;
+}
+
+void branch_transform_queue_traverse(struct branch_transform_queue *p)
+{
+        if(p->full) {
+                union mat4 m = mat4_identity;
+                branch_transform_traverse(p->root, m);
+                p->root = NULL;
+                p->full = 0;
+        } else {
+                struct list_head *head, *next;
+                list_for_each_safe(head, next, &p->list) {
+                        struct branch_transform *b = (struct branch_transform *)
+                                ((void *)head - offsetof(struct branch_transform, update_queue_head));
+                        struct list_head *bhead, *bnext;
+                        list_for_each_safe(bhead, bnext, &b->child_updater_list) {
+                                struct branch_transform *bc = (struct branch_transform *)
+                                        ((void *)bhead - offsetof(struct branch_transform, updater_head));
+                                branch_transform_traverse(bc, b->last_transform);
+                        }
+                        INIT_LIST_HEAD(&b->child_updater_list);
+                        list_del_init(head);
+                }
+        }
+}
+
+void branch_transform_queue_free(struct branch_transform_queue *p)
+{
+        branch_transform_queue_traverse(p);
+        sfree(p);
+}
+
 struct branch_transform *branch_transform_alloc(u8 bid, struct branch_transform_queue *queue)
 {
         struct branch_transform *p      = smalloc(sizeof(struct branch_transform));
@@ -67,7 +106,7 @@ void branch_transform_add(struct branch_transform *parent, struct branch_transfo
 
 void branch_transform_del(struct branch_transform *p)
 {
-        list_del(&p->branch_head);
+        list_del_init(&p->branch_head);
         p->parent = NULL;
 }
 
@@ -77,6 +116,8 @@ void branch_transform_shake(struct branch_transform *p)
 
         p->update = 1;
         u8 attached = 0;
+
+        if(p->update_queue->full) return;
 
         /*
          * remove all sub branchs from queue

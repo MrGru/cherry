@@ -361,3 +361,15 @@ union vec4 *node_tree_get_rotation(struct node_tree *p)
         }
         return NULL;
 }
+
+
+struct node *node_tree_get_node(struct node_tree *p)
+{
+        if(!list_singular(&p->node_head)) {
+                struct list_head *head = p->node_head.next;
+                struct node *node = (struct node *)
+                        ((void *)head - offsetof(struct node, user_head));
+                return node;
+        }
+        return NULL;
+}
