@@ -216,9 +216,11 @@ struct game *game_alloc()
 
 void game_update(struct game *p)
 {
-        union vec3 *pos = node_tree_get_position(nt2);
-        node_tree_set_position(nt2, vec3_add(*pos, (union vec3){0.1, 0, 0}));
+        // union vec3 *pos = node_tree_get_position(nt2);
+        // node_tree_set_position(nt2, vec3_add(*pos, (union vec3){0.1, 0, 0}));
 
+        // camera_move_around(p->cam, (union vec3){0.5, 0, 0});
+        
         branch_transform_queue_traverse(p->update_queue);
 }
 

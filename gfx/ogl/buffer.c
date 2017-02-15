@@ -35,6 +35,11 @@ GLenum device_buffer_target(struct device_buffer *p)
         return target;
 }
 
+/*
+ * in OpenGL
+ * @GL_STATIC_DRAW means memory is allocated in device memory (vram)
+ * @GL_DYNAMIC_DRAW means memory is allocated in host memory (ram)
+ */
 static inline GLenum device_buffer_location(struct device_buffer *p)
 {
         GLenum target;
@@ -82,6 +87,16 @@ void device_buffer_fill(struct device_buffer *p, void *bytes, u32 size)
         glBufferData(target, size, bytes, device_buffer_location(p));
 }
 
+/*
+ * currently when I developing Cherry I use triple bufferings so
+ * I think no need to apply a fence for updating buffer data
+ *
+ * I think glMapBufferRange is best performance in most cases especially
+ * when device buffer's memory is allocated in RAM (buffer type is @BUFFER_PINNED)
+ *
+ * If there are some problems then try to increase BUFFERS to higher or implement
+ * client/server fence due to memory bandwith
+ */
 void device_buffer_sub(struct device_buffer *p, u32 offset, void *bytes, u32 size)
 {
         GLenum target = device_buffer_target(p);
@@ -117,6 +132,7 @@ void device_buffer_group_add(struct device_buffer_group *g, struct device_buffer
         b->ref++;
         array_push(g->buffers, &b);
 }
+
 
 void device_buffer_group_bind_construct(struct device_buffer_group *p)
 {
