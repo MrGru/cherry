@@ -27,12 +27,12 @@ enum {
 };
 
 /*
- * @BUFFER_PINNED : buffer's data is allocated in device/gpu memory
- * @BUFFER_SHARED : buffer's data is allocated in main memory
+ * @BUFFER_DEVICE : buffer's data is allocated in device/gpu memory
+ * @BUFFER_PINNED : buffer's data is allocated in main memory
  */
 enum {
-        BUFFER_PINNED,
-        BUFFER_SHARED
+        BUFFER_DEVICE,
+        BUFFER_PINNED
 };
 
 /*

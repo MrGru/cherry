@@ -37,10 +37,10 @@ static inline GLenum device_buffer_location(struct device_buffer *p)
 {
         GLenum target;
         switch (p->location) {
-                case BUFFER_PINNED:
+                case BUFFER_DEVICE:
                         target = GL_STATIC_DRAW;
                         break;
-                case BUFFER_SHARED:
+                case BUFFER_PINNED:
                         target = GL_DYNAMIC_DRAW;
                         break;
         }
@@ -69,7 +69,12 @@ void device_buffer_sub(struct device_buffer *p, u32 offset, void *bytes, u32 siz
 {
         GLenum target = device_buffer_target(p);
         glBindBuffer(target, p->id);
-        glBufferSubData(target, offset, size, bytes);
+        void *ptr = glMapBufferRange(target, offset, size, GL_MAP_WRITE_BIT
+                | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+        smemcpy(ptr, bytes, size);
+        glUnmapBuffer(target);
+        // glBindBuffer(target, p->id);
+        // glBufferSubData(target, offset, size, bytes);
 }
 
 void device_buffer_free(struct device_buffer *p)

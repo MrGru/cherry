@@ -15,15 +15,15 @@
 #define __CHERRY_GRAPHIC_BUFFER_BUFFER_COLLECTION_H__
 
 /*
- * location should be BUFFER_PINNED if buffer is not changed
+ * location should be BUFFER_DEVICE if buffer is not changed
  * or changed a little time during it's life time
  *
- * location should be BUFFER_SHARED if buffer is changed almost
+ * location should be BUFFER_PINNED if buffer is changed almost
  * every frame
  *
- * BUFFER_PINNED may take longer time to update data but gpu can access
+ * BUFFER_DEVICE may take longer time to update data but gpu can access
  * buffer directly to draw
- * BUFFER_SHARED may take less time to update data but gpu has to use DMA
+ * BUFFER_PINNED may take less time to update data but gpu has to use DMA
  * to access buffer to draw
  */
 #include <cherry/graphic/buffer/types.h>

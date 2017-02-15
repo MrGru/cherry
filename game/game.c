@@ -52,37 +52,38 @@ struct game *game_alloc()
         struct render_queue *queue = render_queue_alloc(&stage->content_queue_list, s);
 
         struct array *buffers[BUFFERS];
+        u16 buffer_size = 10000;
         i16 i;
         for_i(i, BUFFERS) {
                 buffers[i] = array_alloc(sizeof(struct device_buffer *), ORDERED);
                 array_push(buffers[i], &(struct device_buffer *){
-                        buffer_quad_alloc(BUFFER_PINNED)
+                        buffer_quad_alloc(BUFFER_DEVICE)
                 });
                 array_push(buffers[i], &(struct device_buffer *){
-                        buffer_z_alloc(900, BUFFER_PINNED)
+                        buffer_z_alloc(buffer_size, BUFFER_DEVICE)
                 });
                 array_push(buffers[i], &(struct device_buffer *){
-                        buffer_transform_alloc(900, BUFFER_SHARED)});
+                        buffer_transform_alloc(buffer_size, BUFFER_PINNED)});
                 array_push(buffers[i], &(struct device_buffer *){
-                        buffer_color_alloc(900, BUFFER_PINNED)
+                        buffer_color_alloc(buffer_size, BUFFER_DEVICE)
                 });
                 array_push(buffers[i], &(struct device_buffer *){
-                        buffer_texid_alloc(900, BUFFER_PINNED)
+                        buffer_texid_alloc(buffer_size, BUFFER_DEVICE)
                 });
                 u8 j;
                 for_i(j, 3) {
                         array_push(buffers[i], &(struct device_buffer *){
-                                buffer_texcoord_alloc(900, BUFFER_PINNED)
+                                buffer_texcoord_alloc(buffer_size, BUFFER_DEVICE)
                         });
                 }
                 for_i(j, 3) {
                         array_push(buffers[i], &(struct device_buffer *){
-                                buffer_vertex_alloc(900, BUFFER_PINNED)
+                                buffer_vertex_alloc(buffer_size, BUFFER_DEVICE)
                         });
                 }
         }
 
-        struct render_content *content = render_content_alloc(queue, buffers, 6, 900);
+        struct render_content *content = render_content_alloc(queue, buffers, 6, buffer_size);
 
         for_i(i, BUFFERS) {
                 array_free(buffers[i]);
