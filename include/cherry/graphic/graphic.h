@@ -51,16 +51,23 @@
                 #include <OpenGLES/ES2/gl.h>
                 #include <OpenGLES/ES2/glext.h>
 
-                #define glGenVertexArrays       glGenVertexArraysOES
-                #define glBindVertexArray       glBindVertexArrayOES
-                #define glDeleteVertexArrays    glDeleteVertexArraysOES
+                #define glGenVertexArrays               glGenVertexArraysOES
+                #define glBindVertexArray               glBindVertexArrayOES
+                #define glDeleteVertexArrays            glDeleteVertexArraysOES
 
-                #define glMapBuffer             glMapBufferOES
-                #define glUnmapBuffer           glUnmapBufferOES
-                #define glMapBufferRange        glMapBufferRangeEXT
+                #define glMapBuffer                     glMapBufferOES
+                #define glUnmapBuffer                   glUnmapBufferOES
+                #define glMapBufferRange                glMapBufferRangeEXT
 
-                #define glDrawArraysInstanced   glDrawArraysInstancedEXT
-                #define glVertexAttribDivisor   glVertexAttribDivisorEXT
+                #define GL_MAP_WRITE_BIT                GL_MAP_WRITE_BIT_EXT
+                #define GL_MAP_READ_BIT                 GL_MAP_READ_BIT_EXT
+                #define GL_MAP_INVALIDATE_RANGE_BIT     GL_MAP_INVALIDATE_RANGE_BIT_EXT
+                #define GL_MAP_INVALIDATE_BUFFER_BIT    GL_MAP_INVALIDATE_BUFFER_BIT_EXT
+                #define GL_MAP_FLUSH_EXPLICIT_BIT       GL_MAP_FLUSH_EXPLICIT_BIT_EXT
+                #define GL_MAP_UNSYNCHRONIZED_BIT       GL_MAP_UNSYNCHRONIZED_BIT_EXT
+
+                #define glDrawArraysInstanced           glDrawArraysInstancedEXT
+                #define glVertexAttribDivisor           glVertexAttribDivisorEXT
         #elif OS == OSX
                 #define __gl_h_
                 #define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
