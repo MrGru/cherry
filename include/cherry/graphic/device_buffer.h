@@ -34,6 +34,8 @@ struct device_buffer *device_buffer_alloc(u8 type, u16 item_size, u8 location);
 
 #if GFX == OGL
 GLenum device_buffer_target(struct device_buffer *p);
+
+void device_buffer_bind(struct device_buffer *p);
 #endif
 
 /*
@@ -66,6 +68,11 @@ struct device_buffer_group *device_buffer_group_alloc();
  * retain buffer b and push it to group g
  */
 void device_buffer_group_add(struct device_buffer_group *g, struct device_buffer *b);
+
+#if GFX == OGL
+void device_buffer_group_bind_construct(struct device_buffer_group *p);
+void device_buffer_group_bind_draw(struct device_buffer_group *p);
+#endif
 
 /*
  * deallocate device buffer group

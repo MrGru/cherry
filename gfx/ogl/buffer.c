@@ -19,6 +19,8 @@
 #include <cherry/array.h>
 #include <cherry/graphic/device_buffer.h>
 
+u32 current_bind_buffer = 0;
+
 GLenum device_buffer_target(struct device_buffer *p)
 {
         GLenum target;
@@ -47,6 +49,16 @@ static inline GLenum device_buffer_location(struct device_buffer *p)
         return target;
 }
 
+static inline void __device_buffer_bind(struct device_buffer *p)
+{
+        if(p->id != current_bind_buffer) {
+                current_bind_buffer = p->id;
+                GLenum target = device_buffer_target(p);
+                glBindBuffer(target, p->id);
+        }
+}
+
+
 struct device_buffer *device_buffer_alloc(u8 type, u16 item_size, u8 location)
 {
         struct device_buffer *p = smalloc(sizeof(struct device_buffer));
@@ -58,23 +70,26 @@ struct device_buffer *device_buffer_alloc(u8 type, u16 item_size, u8 location)
         return p;
 }
 
+void device_buffer_bind(struct device_buffer *p)
+{
+        __device_buffer_bind(p);
+}
+
 void device_buffer_fill(struct device_buffer *p, void *bytes, u32 size)
 {
         GLenum target = device_buffer_target(p);
-        glBindBuffer(target, p->id);
+        __device_buffer_bind(p);
         glBufferData(target, size, bytes, device_buffer_location(p));
 }
 
 void device_buffer_sub(struct device_buffer *p, u32 offset, void *bytes, u32 size)
 {
         GLenum target = device_buffer_target(p);
-        glBindBuffer(target, p->id);
+        __device_buffer_bind(p);
         void *ptr = glMapBufferRange(target, offset, size, GL_MAP_WRITE_BIT
                 | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
         smemcpy(ptr, bytes, size);
         glUnmapBuffer(target);
-        // glBindBuffer(target, p->id);
-        // glBufferSubData(target, offset, size, bytes);
 }
 
 void device_buffer_free(struct device_buffer *p)
@@ -101,6 +116,17 @@ void device_buffer_group_add(struct device_buffer_group *g, struct device_buffer
 {
         b->ref++;
         array_push(g->buffers, &b);
+}
+
+void device_buffer_group_bind_construct(struct device_buffer_group *p)
+{
+        current_bind_buffer = 0;
+        glBindVertexArray(p ? p->id : 0);
+}
+
+void device_buffer_group_bind_draw(struct device_buffer_group *p)
+{
+        glBindVertexArray(p ? p->id : 0);
 }
 
 /*

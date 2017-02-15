@@ -35,6 +35,10 @@ enum {
         BUFFER_PINNED
 };
 
+#if GFX == OGL
+extern u32 current_bind_buffer;
+#endif
+
 /*
  * @ref         : buffer may be shared among objects
  * @type        : buffer type

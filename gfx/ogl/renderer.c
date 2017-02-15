@@ -107,7 +107,7 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                                         depth_testing = 0;
                                 }
                         }
-                        glBindVertexArray(content->groups[frame]->id);
+                        device_buffer_group_bind_draw(content->groups[frame]);
                         glDrawArraysInstanced(GL_TRIANGLES, 0, content->vertice,
                                 content->current_instances);
                 }

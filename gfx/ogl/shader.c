@@ -246,13 +246,13 @@ void shader_update_uniform(struct shader *p, u8 frame)
 
 void shader_setup_group(struct shader *p, struct device_buffer_group *g)
 {
-        glBindVertexArray(g->id);
+        device_buffer_group_bind_construct(g);
         i16 i;
         for_i(i, p->descriptor->buffers->len) {
                 struct shader_buffer_descriptor *sbd = array_get(p->descriptor->buffers,
                         struct shader_buffer_descriptor *, i);
                 struct device_buffer *db = array_get(g->buffers, struct device_buffer *, i);
-                glBindBuffer(device_buffer_target(db), db->id);
+                device_buffer_bind(db);
                 struct shader_attribute_descriptor **sad;
                 array_for_each(sad, sbd->attributes) {
                         GLint attr = glGetAttribLocation(p->id, (*sad)->name->ptr);
@@ -318,7 +318,7 @@ void shader_setup_group(struct shader *p, struct device_buffer_group *g)
                         }
                 }
         }
-        glBindVertexArray(0);
+        device_buffer_group_bind_construct(NULL);
 }
 
 #endif
