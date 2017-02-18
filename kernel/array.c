@@ -15,6 +15,11 @@
 #include <cherry/memory.h>
 #include <string.h>
 
+static inline void __array_reserve(struct array *p, u16 len)
+{
+        p->ptr = srealloc(p->ptr, len * p->item_size);
+}
+
 struct array *array_alloc(u16 item_size, u8 ordered)
 {
         struct array *p = smalloc(sizeof(struct array));
@@ -46,7 +51,7 @@ void array_force_len(struct array *p, u16 len)
 
 void array_push(struct array *p, void *d)
 {
-        array_reserve(p, p->len + 1);
+        __array_reserve(p, p->len + 1);
         smemcpy(p->ptr + p->len * p->item_size, d, p->item_size);
         p->len += 1;
         p->end = (size_t)p->ptr + p->item_size * p->len;

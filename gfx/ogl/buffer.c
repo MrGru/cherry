@@ -88,14 +88,14 @@ void device_buffer_fill(struct device_buffer *p, void *bytes, u32 size)
 }
 
 /*
- * currently when I developing Cherry I use triple bufferings so
- * I think no need to apply a fence for updating buffer data
+ * @GL_MAP_UNSYNCHRONIZED_BIT is used because when I developing Cherry I use
+ * triple bufferings so I think no need to apply a fence for updating buffer data
  *
  * I think glMapBufferRange is best performance in most cases especially
  * when device buffer's memory is allocated in RAM (buffer type is @BUFFER_PINNED)
  *
- * If there are some problems then try to increase BUFFERS to higher or implement
- * client/server fence due to memory bandwith
+ * If there are some problems then try to increase BUFFERS (cherry/graphic/graphic.h)
+ * to higher or implement client/server fence due to memory bandwith
  */
 void device_buffer_sub(struct device_buffer *p, u32 offset, void *bytes, u32 size)
 {

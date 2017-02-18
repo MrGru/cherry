@@ -11,26 +11,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_STRING_H__
-#define __CHERRY_STRING_H__
+#ifndef __CHERRY_CTYPE_H__
+#define __CHERRY_CTYPE_H__
 
-#include <cherry/types.h>
-#include <string.h>
-
-struct string *string_alloc(size_t len);
-
-struct string *string_alloc_chars(char *s, size_t len);
-
-void string_free(struct string *p);
-
-void string_reserve(struct string *p, size_t size);
-
-void string_cat(struct string *p, char *src, size_t src_len);
-
-void string_cat_int(struct string *p, int number);
-
-void string_replace(struct string *p, char *search, char *replace);
-
-u8 string_contain(struct string *p, char *search);
+#include <ctype.h>
 
 #endif

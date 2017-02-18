@@ -52,7 +52,7 @@ struct game *game_alloc()
         struct render_queue *queue = render_queue_alloc(&stage->content_queue_list, s);
 
         struct array *buffers[BUFFERS];
-        u16 buffer_size = 10000;
+        u16 buffer_size = 900;
         i16 i;
         for_i(i, BUFFERS) {
                 buffers[i] = array_alloc(sizeof(struct device_buffer *), ORDERED);
@@ -220,7 +220,7 @@ void game_update(struct game *p)
         // node_tree_set_position(nt2, vec3_add(*pos, (union vec3){0.1, 0, 0}));
 
         // camera_move_around(p->cam, (union vec3){0.5, 0, 0});
-        
+
         branch_transform_queue_traverse(p->update_queue);
 }
 

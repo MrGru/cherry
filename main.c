@@ -16,6 +16,9 @@
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_image.h>
 #include <cherry/game/game.h>
+#include <cherry/string.h>
+#include <cherry/stdio.h>
+#include <cherry/xml/xml.h>
 
 int main(int args, char **argv)
 {
@@ -37,6 +40,9 @@ int main(int args, char **argv)
         }
         video_width = width;
         video_height = height;
+
+        struct xml_element *host = xml_parse("res/models/gem_1.dae");
+        xml_free(host);
 
         SDL_Init(SDL_INIT_VIDEO);
         IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
