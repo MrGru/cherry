@@ -83,7 +83,7 @@ struct game *game_alloc()
                 }
         }
 
-        struct render_content *content = render_content_alloc(queue, buffers, 6, buffer_size);
+        struct render_content *content = render_content_alloc(queue, buffers, 6, buffer_size, 1);
 
         for_i(i, BUFFERS) {
                 array_free(buffers[i]);

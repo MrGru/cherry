@@ -81,16 +81,32 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                         struct node_data **data;
                         i16 data_index;
                         array_for_each_index(data, data_index, node->pending_datas) {
-                                (*data)->frames--;
+                                // (*data)->frames--;
                                 struct device_buffer *buffer = array_get(content->groups[frame]->buffers,
                                         struct device_buffer *, (*data)->buffer_id);
-                                device_buffer_sub(buffer, node->content_index * (*data)->data->len,
-                                        (*data)->data->ptr, (*data)->data->len);
-                                if((*data)->frames == 0) {
+                                struct list_head *segment_head, *segment_head_next;
+                                list_for_each_safe(segment_head, segment_head_next, &(*data)->segments) {
+                                        struct node_data_segment *seg = (struct node_data_segment *)
+                                                ((void *)segment_head - offsetof(struct node_data_segment, head));
+                                        seg->frames--;
+                                        device_buffer_sub(buffer, node->content_index * (*data)->data->len + seg->start,
+                                                (*data)->data->ptr + seg->start, seg->end - seg->start + 1);
+                                        if(seg->frames == 0) {
+                                                list_del_init(segment_head);
+                                        }
+                                }
+                                if(list_singular(&(*data)->segments)) {
                                         array_remove(node->pending_datas, data_index);
                                         data_index--;
                                         data--;
                                 }
+                                // device_buffer_sub(buffer, node->content_index * (*data)->data->len,
+                                //         (*data)->data->ptr, (*data)->data->len);
+                                // if((*data)->frames == 0) {
+                                //         array_remove(node->pending_datas, data_index);
+                                //         data_index--;
+                                //         data--;
+                                // }
                         }
                         if(node->pending_datas->len == 0) list_del_init(updater);
                 }
@@ -109,7 +125,7 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                         }
                         device_buffer_group_bind_draw(content->groups[frame]);
                         glDrawArraysInstanced(GL_TRIANGLES, 0, content->vertice,
-                                content->current_instances);
+                                content->current_instances * content->instance_multiple);
                 }
         }
 }

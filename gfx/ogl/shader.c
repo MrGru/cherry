@@ -89,7 +89,6 @@ struct shader *shader_alloc(char *vert, char *frag, struct shader_descriptor *de
  */
 void shader_free(struct shader *p)
 {
-        if(p->descriptor) shader_descriptor_free(p->descriptor);
         if(p->id) {
                 /* clear current_shader for other shaders to use */
                 if(p == current_shader) {

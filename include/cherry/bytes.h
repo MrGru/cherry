@@ -36,4 +36,6 @@ void bytes_reserve(struct bytes *p, u32 size);
  */
 void bytes_cat(struct bytes *p, void *s, u32 size);
 
+void bytes_sub(struct bytes *p, u32 offset, void *s, u32 size);
+
 #endif

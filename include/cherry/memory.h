@@ -15,6 +15,7 @@
 #define __CHERRY_MEMORY_H__
 
 #include <stddef.h>
+#include <string.h>
 
 /*
  * allocate new block from memory pool
@@ -45,6 +46,11 @@ void  smemcpy(void *dst, void *src, size_t length);
  * return 1 if different
  */
 int   smemcmp(void *p1, void *p2, size_t length);
+
+static inline void smemset(void *p, int val, size_t length)
+{
+        memset(p, val, length);
+}
 
 /*
  * remove all blocks unused in memory pool

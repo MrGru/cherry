@@ -11,21 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GRAPHIC_SHADER_SHADER_COLLECTION_H__
-#define __CHERRY_GRAPHIC_SHADER_SHADER_COLLECTION_H__
+#ifndef __CHERRY_GRAPHIC_SHADER_DESCRIPTOR_COLLECTION_H__
+#define __CHERRY_GRAPHIC_SHADER_DESCRIPTOR_COLLECTION_H__
 
 #include <cherry/graphic/shader/types.h>
 
-/*
- * get shader color from cache
- */
-struct shader *shader_color_alloc();
+struct shader_descriptor *descriptor_2d_texture_get();
 
-/*
- * get shader texture from cache
- */
-struct shader *shader_texture_alloc();
-
-struct shader *shader_3d_color_alloc();
+struct shader_descriptor *descriptor_3d_color_get(u16 triangles_per_object);
 
 #endif

@@ -16,6 +16,21 @@
 
 #include <cherry/graphic/node/types.h>
 
+/*
+ * twig vertex 3d
+ */
+struct twig_3d_vertex *twig_3d_vertex_alloc(u8 bid[3]);
+
+void twig_3d_vertex_free(struct twig_3d_vertex *p);
+
+void twig_3d_vertex_fill(struct twig_3d_vertex *p, void *v1, void *v2, void *v3, u32 len);
+void twig_3d_vertex_set_segment_v1(struct twig_3d_vertex *p, struct node_data_segment *seg, void *bytes, u32 len);
+void twig_3d_vertex_set_segment_v2(struct twig_3d_vertex *p, struct node_data_segment *seg, void *bytes, u32 len);
+void twig_3d_vertex_set_segment_v3(struct twig_3d_vertex *p, struct node_data_segment *seg, void *bytes, u32 len);
+
+/*
+ * twig vertex 2d
+ */
 struct twig_vertex *twig_vertex_alloc(u8 bid[3]);
 
 void twig_vertex_free(struct twig_vertex *p);

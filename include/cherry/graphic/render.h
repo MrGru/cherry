@@ -30,14 +30,23 @@ void render_queue_free(struct render_queue *queue);
  * content groups are built from queue's pipeline and mesh's buffers
  */
 struct render_content *render_content_alloc(struct render_queue *queue,
-        struct array *buffers[BUFFERS], u16 vertice, u16 max_instances);
+        struct array *buffers[BUFFERS], u16 vertice, u16 max_instances, u16 instance_multiple);
 
 void render_content_set_texture(struct render_content *content, u16 index, struct texture *t);
 
 void render_content_free(struct render_content *content);
 
+/*
+ * node data segment
+ */
+struct node_data_segment *node_data_segment_alloc();
+
+void node_data_segment_free(struct node_data_segment *p);
+
+/*
+ * node data
+ */
 struct node_data *node_data_alloc();
-void node_data_set(struct node_data *p, u8 bid, void *bytes, u32 len);
 void node_data_free(struct node_data *p);
 
 /*
@@ -49,6 +58,8 @@ struct node *node_alloc(struct render_content *host);
  * change node instance data of index-th buffer in host
  */
 void node_set_data(struct node *p, u8 index, void *bytes, u32 len);
+
+void node_set_data_segment(struct node *p, u8 index, struct node_data_segment *seg, void *bytes, u32 len);
 
 /*
  * swap node order in content

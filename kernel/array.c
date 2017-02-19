@@ -69,7 +69,7 @@ void array_copy(struct array *p, u16 index, void *o)
 
 void array_zero(struct array *p)
 {
-        if(p->ptr) memset(p->ptr, 0, p->len * p->item_size);
+        if(p->ptr) smemset(p->ptr, 0, p->len * p->item_size);
 }
 
 void array_remove(struct array *p, u16 index)

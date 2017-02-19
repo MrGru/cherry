@@ -297,6 +297,7 @@ struct render_content {
         u16                             vertice;
         u16                             max_instances;
         u16                             current_instances;
+        u16                             instance_multiple;
         u8                              depth_test;
 
         struct list_head                node_list;
@@ -307,10 +308,19 @@ struct render_content {
  * each node will have permission to manipulate a small part
  * of render_content's buffers
  */
+struct node_data_segment {
+        struct list_head        head;
+        u8                      frames;
+        u16                     start;
+        u16                     end;
+};
+
 struct node_data {
-        u8              frames;
-        u8              buffer_id;
-        struct bytes    *data;
+        // u8              frames;
+        u8                              buffer_id;
+        struct bytes                    *data;
+        struct list_head                segments;
+        struct node_data_segment        *fill_segment;
 };
 
 struct node {

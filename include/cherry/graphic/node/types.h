@@ -127,22 +127,36 @@ struct twig_vertex {
  * but consume only one drawcall
  */
 struct node_tree {
-        struct list_head                node_head;
+        struct list_head        node_head;
 
-        struct list_head                z;
-        struct list_head                transform;
-        struct list_head                color;
-        struct list_head                texid;
-        struct list_head                texcoord;
-        struct list_head                vertex;
+        struct list_head        z;
+        struct list_head        transform;
+        struct list_head        color;
+        struct list_head        texid;
+        struct list_head        texcoord;
+        struct list_head        vertex;
 
-        struct list_head                life_head;
+        struct list_head        life_head;
 };
 
-struct node_single {
-        struct list_head                node_head;
+/*
+ * node 3d color
+ */
+struct twig_3d_vertex {
+        struct list_head        tree_head;
 
-        struct list_head                life_head;
+        u8                      bid[3];
+        u16                     offset_to_node;
+};
+
+struct node_3d_color {
+        struct list_head        node_head;
+
+        struct list_head        transform;
+        struct list_head        color;
+        struct list_head        vertex;
+
+        struct list_head        life_head;
 };
 
 #endif

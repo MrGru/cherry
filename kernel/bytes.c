@@ -39,3 +39,8 @@ void bytes_cat(struct bytes *p, void *s, u32 size)
         smemcpy(p->ptr + p->len, s, size);
         p->len += size;
 }
+
+void bytes_sub(struct bytes *p, u32 offset, void *s, u32 size)
+{
+        smemcpy(p->ptr + offset, s, size);
+}

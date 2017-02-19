@@ -109,7 +109,6 @@ struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *de
  */
 void shader_free(struct shader *p)
 {
-        if(p->descriptor) shader_descriptor_free(p->descriptor);
         if(p->ptr) {
                 [shader_house removeObject:(__bridge id _Nonnull)(p->ptr)];
 		p->ptr = NULL;

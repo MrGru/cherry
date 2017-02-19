@@ -16,8 +16,54 @@
 #include <cherry/memory.h>
 #include <cherry/math/types.h>
 
+struct device_buffer *buffer_transform_alloc(u16 instances, u8 location)
+{
+        void *data = smalloc(sizeof(union mat4) * instances);
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
+                sizeof(union mat4), location);
+        device_buffer_fill(buffer, data, sizeof(union mat4) * instances);
+        sfree(data);
+        return buffer;
+}
+
+struct device_buffer *buffer_color_alloc(u16 instances, u8 location)
+{
+        void *data = smalloc(sizeof(union vec4) * instances);
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
+                sizeof(union vec4), location);
+        device_buffer_fill(buffer, data, sizeof(union vec4) * instances);
+        sfree(data);
+        return buffer;
+}
+
 /*
- * vertex id
+ * 3d buffers collection
+ */
+static float triangle[3] = {
+        0.01,
+        1.01,
+        2.01
+};
+struct device_buffer *buffer_triangle_alloc(u8 location)
+{
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE, 0, location);
+        device_buffer_fill(buffer, triangle, sizeof(triangle));
+        return buffer;
+}
+
+struct device_buffer *buffer_3d_vertex_alloc(u16 instances, u8 location)
+{
+        void *data = smalloc(sizeof(union vec3) * instances);
+        smemset(data, 0, sizeof(union vec3) * instances);
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
+                sizeof(union vec3), location);
+        device_buffer_fill(buffer, data, sizeof(union vec3) * instances);
+        sfree(data);
+        return buffer;
+}
+
+/*
+ * 2d buffers collection
  */
 static float quad[6] = {
         0.01,
@@ -72,26 +118,6 @@ struct device_buffer *buffer_texid_alloc(u16 instances, u8 location)
         struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
                 sizeof(float), location);
         device_buffer_fill(buffer, data, sizeof(float) * instances);
-        sfree(data);
-        return buffer;
-}
-
-struct device_buffer *buffer_transform_alloc(u16 instances, u8 location)
-{
-        void *data = smalloc(sizeof(union mat4) * instances);
-        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
-                sizeof(union mat4), location);
-        device_buffer_fill(buffer, data, sizeof(union mat4) * instances);
-        sfree(data);
-        return buffer;
-}
-
-struct device_buffer *buffer_color_alloc(u16 instances, u8 location)
-{
-        void *data = smalloc(sizeof(union vec4) * instances);
-        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
-                sizeof(union vec4), location);
-        device_buffer_fill(buffer, data, sizeof(union vec4) * instances);
         sfree(data);
         return buffer;
 }

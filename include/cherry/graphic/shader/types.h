@@ -45,4 +45,17 @@ struct shader_texture_uniform {
         union mat4 view;
 };
 
+/*
+ * shader 3d color uniforms
+ */
+ enum {
+         SHADER_3D_COLOR_PROJECT,
+         SHADER_3D_COLOR_VIEW
+ };
+
+ struct shader_3d_color_uniform {
+         union mat4 project;
+         union mat4 view;
+ };
+
 #endif
