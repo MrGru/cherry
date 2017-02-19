@@ -100,13 +100,6 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                                         data_index--;
                                         data--;
                                 }
-                                // device_buffer_sub(buffer, node->content_index * (*data)->data->len,
-                                //         (*data)->data->ptr, (*data)->data->len);
-                                // if((*data)->frames == 0) {
-                                //         array_remove(node->pending_datas, data_index);
-                                //         data_index--;
-                                //         data--;
-                                // }
                         }
                         if(node->pending_datas->len == 0) list_del_init(updater);
                 }

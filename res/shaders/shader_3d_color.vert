@@ -54,8 +54,8 @@ void main()
          * group vertice
          */
         vertice[0]      = vertex_1;
-        vertice[1]      = vertex_1;
-        vertice[2]      = vertex_2;
+        vertice[1]      = vertex_2;
+        vertice[2]      = vertex_3;
 
         /*
          * working for 2d rendering so pos.z = 0

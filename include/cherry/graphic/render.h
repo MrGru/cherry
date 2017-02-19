@@ -30,7 +30,7 @@ void render_queue_free(struct render_queue *queue);
  * content groups are built from queue's pipeline and mesh's buffers
  */
 struct render_content *render_content_alloc(struct render_queue *queue,
-        struct array *buffers[BUFFERS], u16 vertice, u16 max_instances, u16 instance_multiple);
+        struct array *buffers[BUFFERS], u32 vertice, u32 max_instances, u32 instance_multiple);
 
 void render_content_set_texture(struct render_content *content, u16 index, struct texture *t);
 

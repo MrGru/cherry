@@ -60,7 +60,7 @@ struct branch_transform *branch_transform_alloc(u8 bid, struct branch_transform_
 {
         struct branch_transform *p      = smalloc(sizeof(struct branch_transform));
         p->bid                          = bid;
-        p->update                       = 1;
+        p->update                       = 0;
         p->position                     = vec3((float[3]){0, 0, 0});
         p->scale                        = vec3((float[3]){1, 1, 1});
         p->size                         = vec3((float[3]){1, 1, 1});

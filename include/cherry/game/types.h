@@ -20,9 +20,38 @@
 struct game {
         struct list_head                renderer_list;
         struct list_head                node_tree_list;
+        struct list_head                node_3d_color_list;
+
         struct branch_transform_queue   *update_queue;
-        struct camera                   *cam;
+        struct branch_transform_queue   *n3d_update_queue;
+
+        struct render_content           *ui_content;
+        struct render_content           *game_content;
+
+        struct camera                   *ui_cam;
+        struct camera                   *game_cam;
+
+        struct shader_uniform           *ui_projection_uniform;
+        struct shader_uniform           *game_projection_uniform;
+
+        struct node_tree                *ui_root;
+        struct node_3d_color            *n3d_color_root;
+
         u8                              frame;
+};
+
+struct ui_sprite_param {
+        u8              texid;
+        union vec3      size;
+        union vec2      texcoord[6];
+};
+
+struct n3d_color_param {
+        union vec3      size;
+        union vec3      *v1;
+        union vec3      *v2;
+        union vec3      *v3;
+        u32             vlen;
 };
 
 #endif

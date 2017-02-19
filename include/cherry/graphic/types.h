@@ -294,10 +294,10 @@ struct render_content {
         struct list_head                queue_head;
         struct device_buffer_group      *groups[BUFFERS];
         struct array                    *textures;
-        u16                             vertice;
-        u16                             max_instances;
-        u16                             current_instances;
-        u16                             instance_multiple;
+        u32                             vertice;
+        u32                             max_instances;
+        u32                             current_instances;
+        u32                             instance_multiple;
         u8                              depth_test;
 
         struct list_head                node_list;
@@ -311,12 +311,11 @@ struct render_content {
 struct node_data_segment {
         struct list_head        head;
         u8                      frames;
-        u16                     start;
-        u16                     end;
+        u32                     start;
+        u32                     end;
 };
 
 struct node_data {
-        // u8              frames;
         u8                              buffer_id;
         struct bytes                    *data;
         struct list_head                segments;
@@ -325,7 +324,7 @@ struct node_data {
 
 struct node {
         struct list_head        content_head;
-        u16                     content_index;
+        u32                     content_index;
         struct render_content   *host;
 
         struct list_head        updater_head;

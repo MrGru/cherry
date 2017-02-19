@@ -26,4 +26,8 @@ void game_free(struct game *p);
 
 void game_resize(struct game *p, int width, int height);
 
+struct node_tree *game_ui_sprite_alloc(struct game *p, struct ui_sprite_param *param);
+
+struct node_3d_color *game_n3d_color_alloc(struct game *p, struct n3d_color_param *param);
+
 #endif

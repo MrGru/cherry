@@ -63,7 +63,7 @@ struct shader *shader_3d_color_alloc()
         } else {
                 return instance;
         }
-        struct shader_descriptor *des = descriptor_3d_color_get(2);
+        struct shader_descriptor *des = descriptor_3d_color_get(1);
 
         /* vert */
         struct string *vert = get_vert();

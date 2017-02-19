@@ -281,7 +281,9 @@ void shader_setup_group(struct shader *p, struct device_buffer_group *g)
                           case ATTRIBUTE_MAT4:
                                 glVertexAttribPointer(attr, 4, GL_FLOAT, GL_FALSE,
                                         sbd->vertex_size, (void*)((*sad)->offset * sizeof(GLfloat)));
-                                if(sbd->instanced) glVertexAttribDivisor(attr, sbd->divisor);
+                                if(sbd->instanced) {
+                                        glVertexAttribDivisor(attr, sbd->divisor);
+                                }
                                 for_i_from(k, 1, 4) {
                                         attr++;
                                         glEnableVertexAttribArray(attr);

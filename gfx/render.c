@@ -46,7 +46,7 @@ void render_queue_free(struct render_queue *queue)
 }
 
 struct render_content *render_content_alloc(struct render_queue *queue,
-        struct array *buffers[BUFFERS], u16 vertice, u16 max_instances, u16 instance_multiple)
+        struct array *buffers[BUFFERS], u32 vertice, u32 max_instances, u32 instance_multiple)
 {
         struct render_content *p = smalloc(sizeof(struct render_content));
         list_add_tail(&p->queue_head, &queue->content_list);
@@ -248,7 +248,7 @@ void node_swap(struct node *p1, struct node *p2)
         if(p1->host == p2->host) {
                 __node_submit_data(p1);
                 __node_submit_data(p2);
-                u16 i = p1->content_index;
+                u32 i = p1->content_index;
                 p1->content_index = p2->content_index;
                 p2->content_index = i;
         }

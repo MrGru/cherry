@@ -18,6 +18,6 @@
 
 struct shader_descriptor *descriptor_2d_texture_get();
 
-struct shader_descriptor *descriptor_3d_color_get(u16 triangles_per_object);
+struct shader_descriptor *descriptor_3d_color_get(u32 triangles_per_object);
 
 #endif

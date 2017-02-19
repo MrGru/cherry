@@ -94,7 +94,7 @@ static void __descriptor_3d_color_free()
         map_deep_free(descriptor_3d_color_map, struct shader_descriptor *, shader_descriptor_free);
 }
 
-struct shader_descriptor *descriptor_3d_color_get(u16 triangles_per_object)
+struct shader_descriptor *descriptor_3d_color_get(u32 triangles_per_object)
 {
         if( ! descriptor_3d_color_map) {
                 descriptor_3d_color_map = map_alloc(sizeof(struct shader_descriptor *));
