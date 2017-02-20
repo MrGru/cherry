@@ -26,6 +26,6 @@ struct shader *shader_color_alloc();
  */
 struct shader *shader_texture_alloc();
 
-struct shader *shader_3d_color_alloc();
+struct shader *shader_3d_color_alloc(u8 direction_lights, u8 point_lights, u8 spot_lights);
 
 #endif

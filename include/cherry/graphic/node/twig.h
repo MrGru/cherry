@@ -29,6 +29,18 @@ void twig_3d_vertex_set_segment_v2(struct twig_3d_vertex *p, struct node_data_se
 void twig_3d_vertex_set_segment_v3(struct twig_3d_vertex *p, struct node_data_segment *seg, void *bytes, u32 len);
 
 /*
+ * twig normal 3d
+ */
+ struct twig_3d_normal *twig_3d_normal_alloc(u8 bid[3]);
+
+ void twig_3d_normal_free(struct twig_3d_normal *p);
+
+ void twig_3d_normal_fill(struct twig_3d_normal *p, void *n1, void *n2, void *n3, u32 len);
+ void twig_3d_normal_set_segment_v1(struct twig_3d_normal *p, struct node_data_segment *seg, void *bytes, u32 len);
+ void twig_3d_normal_set_segment_v2(struct twig_3d_normal *p, struct node_data_segment *seg, void *bytes, u32 len);
+ void twig_3d_normal_set_segment_v3(struct twig_3d_normal *p, struct node_data_segment *seg, void *bytes, u32 len);
+
+/*
  * twig vertex 2d
  */
 struct twig_vertex *twig_vertex_alloc(u8 bid[3]);

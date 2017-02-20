@@ -16,6 +16,7 @@
 
 #include <cherry/graphic/types.h>
 #include <cherry/graphic/node/types.h>
+#include <cherry/graphic/light/types.h>
 
 struct game {
         struct list_head                renderer_list;
@@ -37,6 +38,8 @@ struct game {
         struct node_tree                *ui_root;
         struct node_3d_color            *n3d_color_root;
 
+        struct point_light              *world_light;
+
         u8                              frame;
 };
 
@@ -51,6 +54,9 @@ struct n3d_color_param {
         union vec3      *v1;
         union vec3      *v2;
         union vec3      *v3;
+        union vec3      *n1;
+        union vec3      *n2;
+        union vec3      *n3;
         u32             vlen;
 };
 

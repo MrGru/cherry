@@ -133,5 +133,16 @@ struct shader_descriptor *descriptor_3d_color_get(u32 triangles_per_object)
         ADD_VERTEX("vertex_3")
 
 #undef ADD_VERTEX
+#define ADD_NORMAL(name)                                                        \
+        sbd = shader_buffer_descriptor_alloc(3 * sizeof(float), 1, 1);          \
+        sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC3, 0, name);       \
+        array_push(sbd->attributes, &sad);                                      \
+        array_push(des->buffers, &sbd);
+
+        ADD_NORMAL("normal_1")
+        ADD_NORMAL("normal_2")
+        ADD_NORMAL("normal_3")
+
+#undef ADD_NORMAL
         return des;
 }

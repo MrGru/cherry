@@ -31,6 +31,8 @@ void node_3d_color_set_branch_color(struct node_3d_color *p, struct branch_color
 
 void node_3d_color_set_twig_3d_vertex(struct node_3d_color *p, struct twig_3d_vertex *b);
 
+void node_3d_color_set_twig_3d_normal(struct node_3d_color *p, struct twig_3d_normal *b);
+
 struct branch_transform *node_3d_color_get_branch_transform(struct node_3d_color *p);
 
 struct branch_color *node_3d_color_get_branch_color(struct node_3d_color *p);
@@ -52,6 +54,11 @@ void node_3d_color_fill_vertex(struct node_3d_color *p, void *v1, void *v2, void
 void node_3d_color_set_vertex_1(struct node_3d_color *p, struct node_data_segment *seg, void *bytes, u32 len);
 void node_3d_color_set_vertex_2(struct node_3d_color *p, struct node_data_segment *seg, void *bytes, u32 len);
 void node_3d_color_set_vertex_3(struct node_3d_color *p, struct node_data_segment *seg, void *bytes, u32 len);
+
+void node_3d_color_fill_normal(struct node_3d_color *p, void *v1, void *v2, void *v3, u32 len);
+void node_3d_color_set_normal_1(struct node_3d_color *p, struct node_data_segment *seg, void *bytes, u32 len);
+void node_3d_color_set_normal_2(struct node_3d_color *p, struct node_data_segment *seg, void *bytes, u32 len);
+void node_3d_color_set_normal_3(struct node_3d_color *p, struct node_data_segment *seg, void *bytes, u32 len);
 
 void node_3d_color_set_color(struct node_3d_color *p, union vec4 color);
 

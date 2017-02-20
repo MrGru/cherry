@@ -16,7 +16,7 @@
 #include <cherry/memory.h>
 #include <cherry/math/types.h>
 
-struct device_buffer *buffer_transform_alloc(u16 instances, u8 location)
+struct device_buffer *buffer_transform_alloc(u32 instances, u8 location)
 {
         void *data = smalloc(sizeof(union mat4) * instances);
         struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
@@ -26,7 +26,7 @@ struct device_buffer *buffer_transform_alloc(u16 instances, u8 location)
         return buffer;
 }
 
-struct device_buffer *buffer_color_alloc(u16 instances, u8 location)
+struct device_buffer *buffer_color_alloc(u32 instances, u8 location)
 {
         void *data = smalloc(sizeof(union vec4) * instances);
         struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
@@ -51,7 +51,18 @@ struct device_buffer *buffer_triangle_alloc(u8 location)
         return buffer;
 }
 
-struct device_buffer *buffer_3d_vertex_alloc(u16 instances, u8 location)
+struct device_buffer *buffer_3d_vertex_alloc(u32 instances, u8 location)
+{
+        void *data = smalloc(sizeof(union vec3) * instances);
+        smemset(data, 0, sizeof(union vec3) * instances);
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
+                sizeof(union vec3), location);
+        device_buffer_fill(buffer, data, sizeof(union vec3) * instances);
+        sfree(data);
+        return buffer;
+}
+
+struct device_buffer *buffer_3d_normal_alloc(u32 instances, u8 location)
 {
         void *data = smalloc(sizeof(union vec3) * instances);
         smemset(data, 0, sizeof(union vec3) * instances);
@@ -82,7 +93,7 @@ struct device_buffer *buffer_quad_alloc(u8 location)
         return buffer;
 }
 
-struct device_buffer *buffer_vertex_alloc(u16 instances, u8 location)
+struct device_buffer *buffer_vertex_alloc(u32 instances, u8 location)
 {
         void *data = smalloc(sizeof(union vec4) * instances);
         struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
@@ -92,7 +103,7 @@ struct device_buffer *buffer_vertex_alloc(u16 instances, u8 location)
         return buffer;
 }
 
-struct device_buffer *buffer_texcoord_alloc(u16 instances, u8 location)
+struct device_buffer *buffer_texcoord_alloc(u32 instances, u8 location)
 {
         void *data = smalloc(sizeof(union vec4) * instances);
         struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
@@ -102,7 +113,7 @@ struct device_buffer *buffer_texcoord_alloc(u16 instances, u8 location)
         return buffer;
 }
 
-struct device_buffer *buffer_z_alloc(u16 instances, u8 location)
+struct device_buffer *buffer_z_alloc(u32 instances, u8 location)
 {
         void *data = smalloc(sizeof(float) * instances);
         struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
@@ -112,7 +123,7 @@ struct device_buffer *buffer_z_alloc(u16 instances, u8 location)
         return buffer;
 }
 
-struct device_buffer *buffer_texid_alloc(u16 instances, u8 location)
+struct device_buffer *buffer_texid_alloc(u32 instances, u8 location)
 {
         void *data = smalloc(sizeof(float) * instances);
         struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,

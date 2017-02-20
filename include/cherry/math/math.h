@@ -21,6 +21,7 @@
 #include <cherry/math/mat3.h>
 #include <cherry/math/mat4.h>
 #include <cherry/math/quat.h>
+#include <cherry/stdlib.h>
 
 #ifndef MIN
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -41,5 +42,16 @@
 #ifndef EPSILON
 #define EPSILON 0.0000000016
 #endif
+
+
+static inline float rand_rf(float min, float max)
+{
+        return ((max - min) * MIN(0.999f,((float)rand()/(float)(RAND_MAX)))) + min;
+}
+
+static inline int rand_ri(int min, int max)
+{
+        return (int)((max - min) * MIN(0.999f,((float)rand() / (float)RAND_MAX))) + min;
+}
 
 #endif

@@ -61,6 +61,16 @@ static inline void detach_vertex(struct node_3d_color *p)
         }
 }
 
+static inline void detach_normal(struct node_3d_color *p)
+{
+        if( ! list_singular(&p->normal)) {
+                struct list_head *head = p->normal.next;
+                struct twig_3d_normal *ob = (struct twig_3d_normal *)
+                        ((void *)head - offsetof(struct twig_3d_normal, tree_head));
+                twig_3d_normal_free(ob);
+        }
+}
+
 static inline void __node_3d_set_node(struct node_3d_color *p, struct node *n)
 {
         /* detach previous node and push it back to pool */
@@ -78,6 +88,7 @@ struct node_3d_color *node_3d_color_alloc(struct node *n)
         INIT_LIST_HEAD(&p->transform);
         INIT_LIST_HEAD(&p->color);
         INIT_LIST_HEAD(&p->vertex);
+        INIT_LIST_HEAD(&p->normal);
         INIT_LIST_HEAD(&p->life_head);
         __node_3d_set_node(p, n);
         return p;
@@ -89,6 +100,7 @@ void node_3d_color_free(struct node_3d_color *p)
         detach_transform(p);
         detach_color(p);
         detach_vertex(p);
+        detach_normal(p);
         list_del(&p->life_head);
         sfree(p);
 }
@@ -130,6 +142,15 @@ void node_3d_color_set_twig_3d_vertex(struct node_3d_color *p, struct twig_3d_ve
         list_add_tail(&b->tree_head, &p->vertex);
         b->offset_to_node = offsetof(struct node_3d_color, vertex);
 }
+
+void node_3d_color_set_twig_3d_normal(struct node_3d_color *p, struct twig_3d_normal *b)
+{
+        detach_normal(p);
+        list_del(&b->tree_head);
+        list_add_tail(&b->tree_head, &p->normal);
+        b->offset_to_node = offsetof(struct node_3d_color, normal);
+}
+
 
 struct branch_transform *node_3d_color_get_branch_transform(struct node_3d_color *p)
 {
@@ -248,6 +269,46 @@ void node_3d_color_set_vertex_3(struct node_3d_color *p, struct node_data_segmen
                 struct twig_3d_vertex *ob = (struct twig_3d_vertex *)
                         ((void *)head - offsetof(struct twig_3d_vertex, tree_head));
                 twig_3d_vertex_set_segment_v3(ob, seg, bytes, len);
+        }
+}
+
+void node_3d_color_fill_normal(struct node_3d_color *p, void *v1, void *v2, void *v3, u32 len)
+{
+        if( ! list_singular(&p->normal)) {
+                struct list_head *head = p->normal.next;
+                struct twig_3d_normal *ob = (struct twig_3d_normal *)
+                        ((void *)head - offsetof(struct twig_3d_normal, tree_head));
+                twig_3d_normal_fill(ob, v1, v2, v3, len);
+        }
+}
+
+void node_3d_color_set_normal_1(struct node_3d_color *p, struct node_data_segment *seg, void *bytes, u32 len)
+{
+        if( ! list_singular(&p->normal)) {
+                struct list_head *head = p->normal.next;
+                struct twig_3d_normal *ob = (struct twig_3d_normal *)
+                        ((void *)head - offsetof(struct twig_3d_normal, tree_head));
+                twig_3d_normal_set_segment_v1(ob, seg, bytes, len);
+        }
+}
+
+void node_3d_color_set_normal_2(struct node_3d_color *p, struct node_data_segment *seg, void *bytes, u32 len)
+{
+        if( ! list_singular(&p->normal)) {
+                struct list_head *head = p->normal.next;
+                struct twig_3d_normal *ob = (struct twig_3d_normal *)
+                        ((void *)head - offsetof(struct twig_3d_normal, tree_head));
+                twig_3d_normal_set_segment_v2(ob, seg, bytes, len);
+        }
+}
+
+void node_3d_color_set_normal_3(struct node_3d_color *p, struct node_data_segment *seg, void *bytes, u32 len)
+{
+        if( ! list_singular(&p->normal)) {
+                struct list_head *head = p->normal.next;
+                struct twig_3d_normal *ob = (struct twig_3d_normal *)
+                        ((void *)head - offsetof(struct twig_3d_normal, tree_head));
+                twig_3d_normal_set_segment_v3(ob, seg, bytes, len);
         }
 }
 

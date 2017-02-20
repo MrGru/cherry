@@ -28,6 +28,10 @@
 #include <cherry/graphic/node/twig.h>
 #include <cherry/list.h>
 #include <cherry/graphic/camera.h>
+#include <cherry/graphic/dae/dae_mesh.h>
+#include <cherry/graphic/light/light.h>
+
+#define GAME_TRIANGLES_PER_OBJECT 100
 
 /*
  * create ui content
@@ -74,7 +78,7 @@ static inline void __game_create_ui_content(struct game *p, struct render_queue 
         p->ui_content = content;
 }
 
-struct node_tree *game_ui_sprite_alloc(struct game *p, struct ui_sprite_param *param)
+struct node_tree *__game_ui_sprite_alloc(struct game *p, struct ui_sprite_param *param)
 {
         struct node_tree *n = node_tree_alloc(node_alloc(p->ui_content));
         node_tree_set_branch_z(n, branch_z_alloc(1));
@@ -112,7 +116,7 @@ struct node_tree *game_ui_sprite_alloc(struct game *p, struct ui_sprite_param *p
 static inline void __game_create_game_content(struct game *p, struct render_queue *queue)
 {
         struct array *buffers[BUFFERS];
-        u32 triangles_per_object = 100;
+        u32 triangles_per_object = GAME_TRIANGLES_PER_OBJECT;
         u32 instances = 300;
         i16 i;
         for_i(i, BUFFERS) {
@@ -128,7 +132,12 @@ static inline void __game_create_game_content(struct game *p, struct render_queu
                 u8 j;
                 for_i(j, 3) {
                         array_push(buffers[i], &(struct device_buffer *){
-                                buffer_vertex_alloc(instances * triangles_per_object, BUFFER_PINNED)
+                                buffer_3d_vertex_alloc(instances * triangles_per_object, BUFFER_PINNED)
+                        });
+                }
+                for_i(j, 3) {
+                        array_push(buffers[i], &(struct device_buffer *){
+                                buffer_3d_normal_alloc(instances * triangles_per_object, BUFFER_PINNED)
                         });
                 }
         }
@@ -141,16 +150,19 @@ static inline void __game_create_game_content(struct game *p, struct render_queu
         p->game_content = content;
 }
 
-struct node_3d_color *game_n3d_color_alloc(struct game *p, struct n3d_color_param *param)
+struct node_3d_color *__game_n3d_color_alloc(struct game *p, struct n3d_color_param *param)
 {
         struct node_3d_color *n = node_3d_color_alloc(node_alloc(p->game_content));
         node_3d_color_set_branch_transform(n, branch_transform_alloc(1, p->n3d_update_queue));
         node_3d_color_set_branch_color(n, branch_color_alloc(2));
         u8 vbid[3] = {3, 4, 5};
         node_3d_color_set_twig_3d_vertex(n, twig_3d_vertex_alloc(vbid));
+        u8 nbid[3] = {6, 7, 8};
+        node_3d_color_set_twig_3d_normal(n, twig_3d_normal_alloc(nbid));
         list_add_tail(&n->life_head, &p->node_3d_color_list);
 
         node_3d_color_fill_vertex(n, param->v1, param->v2, param->v3, param->vlen);
+        node_3d_color_fill_normal(n, param->n1, param->n2, param->n3, param->vlen);
 
         node_3d_color_set_size(n, param->size);
         node_3d_color_set_position(n, vec3((float[3]){0, 0, 0}));
@@ -158,8 +170,74 @@ struct node_3d_color *game_n3d_color_alloc(struct game *p, struct n3d_color_para
         return n;
 }
 
+struct node_3d_color *__game_gem_alloc(struct game *p, struct dae_mesh *mesh)
+{
+        struct n3d_color_param n3d_param;
+        n3d_param.size = vec3((float[3]){100, 100, 100});
+        u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
+        array_reserve(mesh->vertex_1, p->game_content->instance_multiple);
+        array_reserve(mesh->vertex_2, p->game_content->instance_multiple);
+        array_reserve(mesh->vertex_3, p->game_content->instance_multiple);
+        array_reserve(mesh->normal_1, p->game_content->instance_multiple);
+        array_reserve(mesh->normal_2, p->game_content->instance_multiple);
+        array_reserve(mesh->normal_3, p->game_content->instance_multiple);
+#define APPEND_POINT(arr)                                               \
+        while (arr->len < p->game_content->instance_multiple) { \
+                union vec3 p = (union vec3){0, 0, 0};           \
+                array_push(arr, &p);                            \
+        }
+
+        APPEND_POINT(mesh->vertex_1);
+        APPEND_POINT(mesh->vertex_2);
+        APPEND_POINT(mesh->vertex_3);
+        APPEND_POINT(mesh->normal_1);
+        APPEND_POINT(mesh->normal_2);
+        APPEND_POINT(mesh->normal_3);
+#undef APPEND_POINT
+
+        n3d_param.vlen  = vsize;
+        n3d_param.v1    = mesh->vertex_1->ptr;
+        n3d_param.v2    = mesh->vertex_2->ptr;
+        n3d_param.v3    = mesh->vertex_3->ptr;
+        n3d_param.n1    = mesh->normal_1->ptr;
+        n3d_param.n2    = mesh->normal_2->ptr;
+        n3d_param.n3    = mesh->normal_3->ptr;
+        struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
+
+        return n3d;
+}
+
+struct node_3d_color *__game_empty_node_alloc(struct game *p)
+{
+        struct n3d_color_param n3d_param;
+        n3d_param.size = vec3((float[3]){1, 1, 1});
+        u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
+        n3d_param.v1 = smalloc(vsize);
+        n3d_param.v2 = smalloc(vsize);
+        n3d_param.v3 = smalloc(vsize);
+        n3d_param.n1 = smalloc(vsize);
+        n3d_param.n2 = smalloc(vsize);
+        n3d_param.n3 = smalloc(vsize);
+        smemset(n3d_param.v1, 0, vsize);
+        smemset(n3d_param.v2, 0, vsize);
+        smemset(n3d_param.v3, 0, vsize);
+        smemset(n3d_param.n1, 0, vsize);
+        smemset(n3d_param.n2, 0, vsize);
+        smemset(n3d_param.n3, 0, vsize);
+        n3d_param.vlen = vsize;
+        struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
+        sfree(n3d_param.v1);
+        sfree(n3d_param.v2);
+        sfree(n3d_param.v3);
+        sfree(n3d_param.n1);
+        sfree(n3d_param.n2);
+        sfree(n3d_param.n3);
+        return n3d;
+}
+
 struct game *game_alloc()
 {
+        int i, j;
         struct game *p  = smalloc(sizeof(struct game));
         INIT_LIST_HEAD(&p->renderer_list);
         INIT_LIST_HEAD(&p->node_tree_list);
@@ -178,73 +256,64 @@ struct game *game_alloc()
          */
         struct render_stage *stage = render_stage_alloc(r);
 
-        struct shader *s3d_color = shader_3d_color_alloc();
-        s3d_color->descriptor = descriptor_3d_color_get(100);
+        struct shader *s3d_color = shader_3d_color_alloc(0, 1, 0);
+        s3d_color->descriptor = descriptor_3d_color_get(GAME_TRIANGLES_PER_OBJECT);
         struct render_queue *s3d_queue = render_queue_alloc(&stage->content_queue_list, s3d_color);
         __game_create_game_content(p, s3d_queue);
         p->game_projection_uniform = shader_uniform_alloc();
         shader_set_uniform(s3d_color, SHADER_3D_COLOR_PROJECT, p->game_projection_uniform);
 
+        struct point_light *pl = point_light_alloc();
+	point_light_set_position(pl, vec3((float[3]){0, 200, 1000}));
+	point_light_set_constant(pl, 1.0f);
+	point_light_set_linear(pl, 0.00014f);
+	point_light_set_quadratic(pl, 0.00000001f);
+	point_light_set_ambient(pl, vec3((float[3]){0.5, 0.5, 0.5}));
+	point_light_set_diffuse(pl, vec3((float[3]){0.5, 0.5, 0.5}));
+	point_light_set_specular(pl, vec3((float[3]){0.2, 0.2, 0.2}));
+
+        shader_set_uniform(s3d_color, SHADER_3D_COLOR_POINT_LIGHT_0_POSITION, pl->u_position);
+        shader_set_uniform(s3d_color, SHADER_3D_COLOR_POINT_LIGHT_0_CONSTANT, pl->u_constant);
+        shader_set_uniform(s3d_color, SHADER_3D_COLOR_POINT_LIGHT_0_LINEAR, pl->u_linear);
+        shader_set_uniform(s3d_color, SHADER_3D_COLOR_POINT_LIGHT_0_QUADRATIC, pl->u_quadratic);
+        shader_set_uniform(s3d_color, SHADER_3D_COLOR_POINT_LIGHT_0_AMBIENT, pl->u_ambient);
+        shader_set_uniform(s3d_color, SHADER_3D_COLOR_POINT_LIGHT_0_DIFFUSE, pl->u_diffuse);
+        shader_set_uniform(s3d_color, SHADER_3D_COLOR_POINT_LIGHT_0_SPECULAR, pl->u_specular);
+
+        p->world_light = pl;
+
         p->game_cam = camera_alloc(mat4_new_look_at(
-                0, 0, 1000,
+                0, 0, 4000,
                 0, 0, 0,
                 0, 1, 0
         ));
         shader_set_uniform(s3d_color, SHADER_3D_COLOR_VIEW, p->game_cam->view_uniform);
+        shader_set_uniform(s3d_color, SHADER_3D_COLOR_VIEW_POSITION, p->game_cam->position_uniform);
         union mat4 project = mat4_new_perspective(DEG_TO_RAD(45.0f), video_width * 1.0f / video_height, 1.0f, 10000.0f);
         shader_uniform_update(p->game_projection_uniform, project.m, sizeof(project));
 
-        struct node_3d_color *n1, *n2;
-        {
-                struct n3d_color_param n3d_param;
-                n3d_param.size = vec3((float[3]){100, 100, 1});
-                u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
-                n3d_param.v1 = smalloc(vsize);
-                n3d_param.v2 = smalloc(vsize);
-                n3d_param.v3 = smalloc(vsize);
-                smemset(n3d_param.v1, 0, vsize);
-                smemset(n3d_param.v2, 0, vsize);
-                smemset(n3d_param.v3, 0, vsize);
-                n3d_param.vlen = vsize;
-                n3d_param.v1[0] = vec3((float[3]){-0.5,  0.5, 0});
-                n3d_param.v2[0] = vec3((float[3]){-0.5, -0.5, 0});
-                n3d_param.v3[0] = vec3((float[3]){ 0.5, -0.5, 0});
-                n3d_param.v1[1] = vec3((float[3]){-0.5,  0.5, 0});
-                n3d_param.v2[1] = vec3((float[3]){ 0.5,  0.5, 0});
-                n3d_param.v3[1] = vec3((float[3]){ 0.5, -0.5, 0});
-                struct node_3d_color *n3d = game_n3d_color_alloc(p, &n3d_param);
-                sfree(n3d_param.v1);
-                sfree(n3d_param.v2);
-                sfree(n3d_param.v3);
-                n1 = n3d;
-        }
-        {
-                struct n3d_color_param n3d_param;
-                n3d_param.size = vec3((float[3]){100, 100, 1});
-                u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
-                n3d_param.v1 = smalloc(vsize);
-                n3d_param.v2 = smalloc(vsize);
-                n3d_param.v3 = smalloc(vsize);
-                smemset(n3d_param.v1, 0, vsize);
-                smemset(n3d_param.v2, 0, vsize);
-                smemset(n3d_param.v3, 0, vsize);
-                n3d_param.vlen = vsize;
-                n3d_param.v1[0] = vec3((float[3]){-0.5,  0.5, 0});
-                n3d_param.v2[0] = vec3((float[3]){-0.5, -0.5, 0});
-                n3d_param.v3[0] = vec3((float[3]){ 0.5, -0.5, 0});
-                n3d_param.v1[1] = vec3((float[3]){-0.5,  0.5, 0});
-                n3d_param.v2[1] = vec3((float[3]){ 0.5,  0.5, 0});
-                n3d_param.v3[1] = vec3((float[3]){ 0.5, -0.5, 0});
-                struct node_3d_color *n3d = game_n3d_color_alloc(p, &n3d_param);
-                sfree(n3d_param.v1);
-                sfree(n3d_param.v2);
-                sfree(n3d_param.v3);
-                n2 = n3d;
-        }
-        node_3d_color_add_node_3d_color(n1, n2);
+        camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(-10), (float[3]){1, 0, 0}));
 
-        node_3d_color_set_position(n2, vec3((float[3]){100, 0, 0}));
-        node_3d_color_set_color(n2, vec4((float[4]){1, 0, 0, 1}));
+        struct dae_mesh *mesh = dae_mesh_alloc("res/models/gem_1.dae");
+        struct node_3d_color *n1 = __game_empty_node_alloc(p);
+        union vec4 color[6] = {
+                (union vec4){255 / 255.0f, 67 / 255.0f, 120 / 255.0f, 1},
+                (union vec4){255 / 255.0f, 67 / 255.0f, 255 / 255.0f, 1},
+                (union vec4){172 / 255.0f, 67 / 255.0f, 255 / 255.0f, 1},
+                (union vec4){67 / 255.0f, 255 / 255.0f, 156 / 255.0f, 1},
+                (union vec4){234 / 255.0f, 255 / 255.0f, 67 / 255.0f, 1},
+                (union vec4){255 / 255.0f, 141 / 255.0f, 67 / 255.0f, 1},
+        };
+        for_i(i, 9) {
+                for_i(j, 9) {
+                        struct node_3d_color *n2 = __game_gem_alloc(p, mesh);
+                        node_3d_color_add_node_3d_color(n1, n2);
+                        node_3d_color_set_position(n2, (union vec3){(i - 4) * 200, (j - 4) * 200, 0});
+                        node_3d_color_set_color(n2, color[rand_ri(0, 6)]);
+                }
+        }
+
+        dae_mesh_free(mesh);
 
         /* recalculate color tree */
         union vec4 v = vec4((float[4]){1, 1, 1, 1});
@@ -331,10 +400,7 @@ struct game *game_alloc()
 
 void game_update(struct game *p)
 {
-        // union vec3 *pos = node_tree_get_position(nt2);
-        // node_tree_set_position(nt2, vec3_add(*pos, (union vec3){0.1, 0, 0}));
-
-        // camera_move_around(p->cam, (union vec3){0.5, 0, 0});
+        camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(1), (float[3]){1, 0, 0}));
 
         branch_transform_queue_traverse(p->update_queue);
         branch_transform_queue_traverse(p->n3d_update_queue);
@@ -384,6 +450,7 @@ void game_free(struct game *p)
         }
         branch_transform_queue_free(p->update_queue);
         branch_transform_queue_free(p->n3d_update_queue);
+        point_light_free(p->world_light);
         camera_free(p->ui_cam);
         camera_free(p->game_cam);
         sfree(p);

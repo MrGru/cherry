@@ -11,19 +11,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GAME_GAME_H__
-#define __CHERRY_GAME_GAME_H__
+#ifndef __CHERRY_STDLIB_H__
+#define __CHERRY_STDLIB_H__
 
-#include <cherry/game/types.h>
-
-struct game *game_alloc();
-
-void game_update(struct game *p);
-
-void game_render(struct game *p);
-
-void game_free(struct game *p);
-
-void game_resize(struct game *p, int width, int height);
+#include <stdlib.h>
 
 #endif

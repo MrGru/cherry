@@ -11,19 +11,19 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GAME_GAME_H__
-#define __CHERRY_GAME_GAME_H__
+#ifndef __CHERRY_GRAPHIC_DAE_TYPES_H__
+#define __CHERRY_GRAPHIC_DAE_TYPES_H__
 
-#include <cherry/game/types.h>
+#include <cherry/graphic/types.h>
 
-struct game *game_alloc();
+struct dae_mesh {
+        struct array    *vertex_1;
+        struct array    *vertex_2;
+        struct array    *vertex_3;
 
-void game_update(struct game *p);
-
-void game_render(struct game *p);
-
-void game_free(struct game *p);
-
-void game_resize(struct game *p, int width, int height);
+        struct array    *normal_1;
+        struct array    *normal_2;
+        struct array    *normal_3;
+};
 
 #endif

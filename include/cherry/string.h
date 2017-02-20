@@ -27,6 +27,11 @@ void string_reserve(struct string *p, size_t size);
 
 void string_cat(struct string *p, char *src, size_t src_len);
 
+static inline void string_cat_string(struct string *p, struct string *q)
+{
+        string_cat(p, q->ptr, q->len);
+}
+
 void string_cat_int(struct string *p, int number);
 
 void string_replace(struct string *p, char *search, char *replace);
