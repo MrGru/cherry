@@ -110,7 +110,7 @@ struct shader *shader_color_alloc()
         u8 i;
         struct shader_color_uniform scu;
         for_i(i, BUFFERS) {
-                instance->uniforms[i] = device_buffer_alloc(BUFFER_VERTICE, 0);
+                instance->uniforms[i] = device_buffer_alloc(BUFFER_VERTICE, 0, BUFFER_PINNED);
                 device_buffer_fill(instance->uniforms[i], &scu, sizeof(scu));
         }
 #endif
