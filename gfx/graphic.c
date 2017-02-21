@@ -12,7 +12,16 @@
  * GNU General Public License for more details.
  */
 #include <cherry/graphic/graphic.h>
+#include <cherry/math/math.h>
 
 int video_width                 = 800;
 int video_height                = 480;
 int shadow_width                = 1024;
+
+float pack_rgb_to_float(int r, int g, int b)
+{
+        r = MAX(MIN(r - 128, 127), -127);
+        g = MAX(MIN(g - 128, 127), -127);
+        b = MAX(MIN(b - 128, 127), -127);
+        return (float)((r << 16) + (g << 8) + (b));
+}

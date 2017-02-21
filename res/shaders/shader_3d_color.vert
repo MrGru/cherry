@@ -37,12 +37,14 @@ input vec3      vertex_3;
 input vec3      normal_1;
 input vec3      normal_2;
 input vec3      normal_3;
+input vec3      vertex_color;
 
 /*
- * combine vertex_i, normal_i into array to access from vid
+ * combine vertex_i, normal_i, vertex_color into array to access from vid
  */
 vec3            vertice[3];
 vec3            normals[3];
+highp int       vertex_colors[3];
 
 /*
  * pixel_color used to adjust fragment color
@@ -54,142 +56,18 @@ output vec3     pixel_frag_pos;
 uniform mat4    project;
 uniform mat4    view;
 
-mat4 matrix4_inverse(mat4 matrix)
+/*
+ * see @pack_rgb_to_float in gfx/graphic.c for more information
+ */
+vec4 decodeFloatColor(highp int val)
 {
-        mat4 inv;
-        float det;
-
-        inv[0].x = matrix[1].y  * matrix[2].z * matrix[3].w -
-                matrix[1].y  * matrix[2].w * matrix[3].z -
-                matrix[2].y  * matrix[1].z  * matrix[3].w +
-                matrix[2].y  * matrix[1].w  * matrix[3].z +
-                matrix[3].y * matrix[1].z  * matrix[2].w -
-                matrix[3].y * matrix[1].w  * matrix[2].z;
-
-        inv[1].x = -matrix[1].x  * matrix[2].z * matrix[3].w +
-                matrix[1].x  * matrix[2].w * matrix[3].z +
-                matrix[2].x  * matrix[1].z  * matrix[3].w -
-                matrix[2].x  * matrix[1].w  * matrix[3].z -
-                matrix[3].x * matrix[1].z  * matrix[2].w +
-                matrix[3].x * matrix[1].w  * matrix[2].z;
-
-        inv[2].x = matrix[1].x  * matrix[2].y * matrix[3].w -
-                matrix[1].x  * matrix[2].w * matrix[3].y -
-                matrix[2].x  * matrix[1].y * matrix[3].w +
-                matrix[2].x  * matrix[1].w * matrix[3].y +
-                matrix[3].x * matrix[1].y * matrix[2].w -
-                matrix[3].x * matrix[1].w * matrix[2].y;
-
-        inv[3].x =  -matrix[1].x  * matrix[2].y * matrix[3].z +
-                matrix[1].x  * matrix[2].z * matrix[3].y +
-                matrix[2].x  * matrix[1].y * matrix[3].z -
-                matrix[2].x  * matrix[1].z * matrix[3].y -
-                matrix[3].x * matrix[1].y * matrix[2].z +
-                matrix[3].x * matrix[1].z * matrix[2].y;
-
-        inv[0].y = -matrix[0].y  * matrix[2].z * matrix[3].w +
-              matrix[0].y  * matrix[2].w * matrix[3].z +
-              matrix[2].y  * matrix[0].z * matrix[3].w -
-              matrix[2].y  * matrix[0].w * matrix[3].z -
-              matrix[3].y * matrix[0].z * matrix[2].w +
-              matrix[3].y * matrix[0].w * matrix[2].z;
-
-        inv[1].y =  matrix[0].x  * matrix[2].z * matrix[3].w -
-              matrix[0].x  * matrix[2].w * matrix[3].z -
-              matrix[2].x  * matrix[0].z * matrix[3].w +
-              matrix[2].x  * matrix[0].w * matrix[3].z +
-              matrix[3].x * matrix[0].z * matrix[2].w -
-              matrix[3].x * matrix[0].w * matrix[2].z;
-
-        inv[2].y = -matrix[0].x  * matrix[2].y * matrix[3].w +
-              matrix[0].x  * matrix[2].w * matrix[3].y +
-              matrix[2].x  * matrix[0].y * matrix[3].w -
-              matrix[2].x  * matrix[0].w * matrix[3].y -
-              matrix[3].x * matrix[0].y * matrix[2].w +
-              matrix[3].x * matrix[0].w * matrix[2].y;
-
-        inv[3].y = matrix[0].x  * matrix[2].y * matrix[3].z -
-              matrix[0].x  * matrix[2].z * matrix[3].y -
-              matrix[2].x  * matrix[0].y * matrix[3].z +
-              matrix[2].x  * matrix[0].z * matrix[3].y +
-              matrix[3].x * matrix[0].y * matrix[2].z -
-              matrix[3].x * matrix[0].z * matrix[2].y;
-
-        inv[0].z =  matrix[0].y  * matrix[1].z * matrix[3].w -
-              matrix[0].y  * matrix[1].w * matrix[3].z -
-              matrix[1].y  * matrix[0].z * matrix[3].w +
-              matrix[1].y  * matrix[0].w * matrix[3].z +
-              matrix[3].y * matrix[0].z * matrix[1].w -
-              matrix[3].y * matrix[0].w * matrix[1].z;
-
-        inv[1].z = -matrix[0].x  * matrix[1].z * matrix[3].w +
-              matrix[0].x  * matrix[1].w * matrix[3].z +
-              matrix[1].x  * matrix[0].z * matrix[3].w -
-              matrix[1].x  * matrix[0].w * matrix[3].z -
-              matrix[3].x * matrix[0].z * matrix[1].w +
-              matrix[3].x * matrix[0].w * matrix[1].z;
-
-        inv[2].z = matrix[0].x  * matrix[1].y * matrix[3].w -
-              matrix[0].x  * matrix[1].w * matrix[3].y -
-              matrix[1].x  * matrix[0].y * matrix[3].w +
-              matrix[1].x  * matrix[0].w * matrix[3].y +
-              matrix[3].x * matrix[0].y * matrix[1].w -
-              matrix[3].x * matrix[0].w * matrix[1].y;
-
-        inv[3].z =  -matrix[0].x  * matrix[1].y * matrix[3].z +
-                matrix[0].x  * matrix[1].z * matrix[3].y +
-                matrix[1].x  * matrix[0].y * matrix[3].z -
-                matrix[1].x  * matrix[0].z * matrix[3].y -
-                matrix[3].x * matrix[0].y * matrix[1].z +
-                matrix[3].x * matrix[0].z * matrix[1].y;
-
-        inv[0].w = -matrix[0].y * matrix[1].z * matrix[2].w +
-              matrix[0].y * matrix[1].w * matrix[2].z +
-              matrix[1].y * matrix[0].z * matrix[2].w -
-              matrix[1].y * matrix[0].w * matrix[2].z -
-              matrix[2].y * matrix[0].z * matrix[1].w +
-              matrix[2].y * matrix[0].w * matrix[1].z;
-
-        inv[1].w =  matrix[0].x * matrix[1].z * matrix[2].w -
-              matrix[0].x * matrix[1].w * matrix[2].z -
-              matrix[1].x * matrix[0].z * matrix[2].w +
-              matrix[1].x * matrix[0].w * matrix[2].z +
-              matrix[2].x * matrix[0].z * matrix[1].w -
-              matrix[2].x * matrix[0].w * matrix[1].z;
-
-        inv[2].w =  -matrix[0].x * matrix[1].y * matrix[2].w +
-                matrix[0].x * matrix[1].w * matrix[2].y +
-                matrix[1].x * matrix[0].y * matrix[2].w -
-                matrix[1].x * matrix[0].w * matrix[2].y -
-                matrix[2].x * matrix[0].y * matrix[1].w +
-                matrix[2].x * matrix[0].w * matrix[1].y;
-
-        inv[3].w = matrix[0].x * matrix[1].y * matrix[2].z -
-              matrix[0].x * matrix[1].z * matrix[2].y -
-              matrix[1].x * matrix[0].y * matrix[2].z +
-              matrix[1].x * matrix[0].z * matrix[2].y +
-              matrix[2].x * matrix[0].y * matrix[1].z -
-              matrix[2].x * matrix[0].z * matrix[1].y;
-
-        det = matrix[0].x * inv[0].x + matrix[0].y * inv[1].x + matrix[0].z * inv[2].x + matrix[0].w * inv[3].x;
-
-        det = clamp(det, 0.0000001, 999999.0);
-
-        det = 1.0 / det;
-
-        inv = inv * det;
-
-        return inv;
-}
-
-
-mat4 matrix4_transpose(mat4 matrix)
-{
-        mat4 m = mat4(matrix[0].x, matrix[1].x, matrix[2].x, matrix[3].x,
-                matrix[0].y, matrix[1].y, matrix[2].y, matrix[3].y,
-                matrix[0].z, matrix[1].z, matrix[2].z, matrix[3].z,
-                matrix[0].w, matrix[1].w, matrix[2].w, matrix[3].w);
-        return m;
+        vec4 c;
+        c.r = float(val / 65536 + 128);
+        c.g = float((val * 65536) / 16777216 + 128);
+        c.b = float((val * 16777216) / 16777216 + 128);
+        c.a = 255.0;
+        c /= 255.0;
+        return c;
 }
 
 void main()
@@ -197,30 +75,37 @@ void main()
         /*
          * group vertice
          */
-        vertice[0]      = vertex_1;
-        vertice[1]      = vertex_2;
-        vertice[2]      = vertex_3;
+        vertice[0]              = vertex_1;
+        vertice[1]              = vertex_2;
+        vertice[2]              = vertex_3;
 
         /*
          * group normal
          */
-        normals[0]      = normal_1;
-        normals[1]      = normal_2;
-        normals[2]      = normal_3;
+        normals[0]              = normal_1;
+        normals[1]              = normal_2;
+        normals[2]              = normal_3;
+        /*
+         * group vertex_colors
+         */
+        vertex_colors[0]        = int(vertex_color.r);
+        vertex_colors[1]        = int(vertex_color.g);
+        vertex_colors[2]        = int(vertex_color.b);
 
         /*
          * working for 2d rendering so pos.z = 0
          */
-        vec3 pos        = vertice[int(vid)];
-        gl_Position     = project * view * transform * vec4(pos, 1.0);
+        vec3 pos                = vertice[int(vid)];
+        gl_Position             = project * view * transform * vec4(pos, 1.0);
 
         /*
          * pass pixel parameters
          */
-        pixel_normal    = normals[int(vid)];
+        pixel_normal            = normals[int(vid)];
         /* use this normal calculation below in case vertex is scaled
-         * pixel_normal    = mat3(matrix4_transpose(matrix4_inverse(transform))) * normals[int(vid)]; 
+         * matrix4_transpose and matrix4_inverse found in temp_functions
+         * pixel_normal    = mat3(matrix4_transpose(matrix4_inverse(transform))) * normals[int(vid)];
          */
-        pixel_frag_pos  = vec3(transform * vec4(pos, 1.0));
-        pixel_color     = color;
+        pixel_frag_pos          = vec3(transform * vec4(pos, 1.0));
+        pixel_color             = color * decodeFloatColor(vertex_colors[int(vid)]);
 }
