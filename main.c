@@ -52,7 +52,7 @@ int main(int args, char **argv)
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-        SDL_Window* window = SDL_CreateWindow("Game", 0, 0, video_width, video_height, SDL_WINDOW_OPENGL);
+        SDL_Window* window = SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, video_width, video_height, SDL_WINDOW_OPENGL);
         SDL_GLContext context = SDL_GL_CreateContext(window);
         SDL_Event windowEvent;
 

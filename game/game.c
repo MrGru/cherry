@@ -173,7 +173,8 @@ struct node_3d_color *__game_n3d_color_alloc(struct game *p, struct n3d_color_pa
 struct node_3d_color *__game_gem_alloc(struct game *p, struct dae_mesh *mesh)
 {
         struct n3d_color_param n3d_param;
-        n3d_param.size = vec3((float[3]){100, 100, 100});
+        float size = 100;
+        n3d_param.size = vec3((float[3]){size, size, size});
         u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
         array_reserve(mesh->vertex_1, p->game_content->instance_multiple);
         array_reserve(mesh->vertex_2, p->game_content->instance_multiple);
@@ -269,6 +270,90 @@ struct node_3d_color *__game_floor_node_alloc(struct game *p)
         return n3d;
 }
 
+struct node_3d_color *__game_cell_alloc(struct game *p, struct dae_mesh *mesh, int row)
+{
+        struct n3d_color_param n3d_param;
+        n3d_param.size = vec3((float[3]){1, 1, 1});
+        u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
+        n3d_param.v1 = smalloc(vsize);
+        n3d_param.v2 = smalloc(vsize);
+        n3d_param.v3 = smalloc(vsize);
+        n3d_param.n1 = smalloc(vsize);
+        n3d_param.n2 = smalloc(vsize);
+        n3d_param.n3 = smalloc(vsize);
+        smemset(n3d_param.v1, 0, vsize);
+        smemset(n3d_param.v2, 0, vsize);
+        smemset(n3d_param.v3, 0, vsize);
+        smemset(n3d_param.n1, 0, vsize);
+        smemset(n3d_param.n2, 0, vsize);
+        smemset(n3d_param.n3, 0, vsize);
+        int i, j;
+        for_i(i, 12) {
+                union vec3 pos = (union vec3){(i - 5) * 200, row * 200, 0};
+                for_i(j, 8) {
+
+                        n3d_param.v1[i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_1, union vec3, j), 100));
+                        n3d_param.v2[i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_2, union vec3, j), 100));
+                        n3d_param.v3[i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_3, union vec3, j), 100));
+
+                        n3d_param.n1[i * 8 + j]    = (union vec3) {0 ,0, 1};
+                        n3d_param.n2[i * 8 + j]    = (union vec3) {0 ,0, 1};
+                        n3d_param.n3[i * 8 + j]    = (union vec3) {0 ,0, 1};
+                }
+        }
+        n3d_param.vlen = vsize;
+        struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
+        sfree(n3d_param.v1);
+        sfree(n3d_param.v2);
+        sfree(n3d_param.v3);
+        sfree(n3d_param.n1);
+        sfree(n3d_param.n2);
+        sfree(n3d_param.n3);
+        return n3d;
+}
+
+struct node_3d_color *__game_plane_alloc(struct game *p, struct dae_mesh *mesh, int row)
+{
+        struct n3d_color_param n3d_param;
+        n3d_param.size = vec3((float[3]){1, 1, 1});
+        u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
+        n3d_param.v1 = smalloc(vsize);
+        n3d_param.v2 = smalloc(vsize);
+        n3d_param.v3 = smalloc(vsize);
+        n3d_param.n1 = smalloc(vsize);
+        n3d_param.n2 = smalloc(vsize);
+        n3d_param.n3 = smalloc(vsize);
+        smemset(n3d_param.v1, 0, vsize);
+        smemset(n3d_param.v2, 0, vsize);
+        smemset(n3d_param.v3, 0, vsize);
+        smemset(n3d_param.n1, 0, vsize);
+        smemset(n3d_param.n2, 0, vsize);
+        smemset(n3d_param.n3, 0, vsize);
+        int i, j;
+        for_i(i, 12) {
+                union vec3 pos = (union vec3){(i - 5) * 200, row * 200, 0};
+                for_i(j, 8) {
+
+                        n3d_param.v1[i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_1, union vec3, j), 87));
+                        n3d_param.v2[i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_2, union vec3, j), 87));
+                        n3d_param.v3[i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_3, union vec3, j), 87));
+
+                        n3d_param.n1[i * 8 + j]    = (union vec3) {0 ,0, 1};
+                        n3d_param.n2[i * 8 + j]    = (union vec3) {0 ,0, 1};
+                        n3d_param.n3[i * 8 + j]    = (union vec3) {0 ,0, 1};
+                }
+        }
+        n3d_param.vlen = vsize;
+        struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
+        sfree(n3d_param.v1);
+        sfree(n3d_param.v2);
+        sfree(n3d_param.v3);
+        sfree(n3d_param.n1);
+        sfree(n3d_param.n2);
+        sfree(n3d_param.n3);
+        return n3d;
+}
+
 struct game *game_alloc()
 {
         int i, j;
@@ -341,6 +426,7 @@ struct game *game_alloc()
                 (union vec4){234 / 255.0f, 255 / 255.0f, 67 / 255.0f, 1},
                 (union vec4){255 / 255.0f, 141 / 255.0f, 67 / 255.0f, 1},
         };
+
         for_i(i, 9) {
                 for_i(j, 9) {
                         int mesh_type   = rand_ri(0, mesh_types);
@@ -362,11 +448,31 @@ struct game *game_alloc()
         for_i(i, mesh_types) {
                 dae_mesh_free(mesh[i]);
         }
+
         {
                 struct node_3d_color *n2 = __game_floor_node_alloc(p);
                 node_3d_color_add_node_3d_color(n1, n2);
                 node_3d_color_set_position(n2, (union vec3){0, 0, -100});
                 node_3d_color_set_color(n2, (union vec4){0.0, 0.0, 0.0, 0.7});
+        }
+        {
+                struct dae_mesh *pipe = dae_mesh_alloc("res/models/cell_1.dae");
+                for_i_from(i, -12, 15) {
+                        struct node_3d_color *n2 = __game_cell_alloc(p, pipe, i);
+                        node_3d_color_add_node_3d_color(n1, n2);
+                        node_3d_color_set_color(n2, (union vec4){1, 1, 1, 0.05});
+                }
+                dae_mesh_free(pipe);
+        }
+
+        {
+                struct dae_mesh *pipe = dae_mesh_alloc("res/models/plane_1.dae");
+                for_i_from(i, -12, 15) {
+                        struct node_3d_color *n2 = __game_plane_alloc(p, pipe, i);
+                        node_3d_color_add_node_3d_color(n1, n2);
+                        node_3d_color_set_color(n2, (union vec4){1, 1, 1, 0.05});
+                }
+                dae_mesh_free(pipe);
         }
 
         /* recalculate color tree */
