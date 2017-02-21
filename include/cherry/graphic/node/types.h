@@ -120,6 +120,13 @@ struct twig_vertex {
         u16                     offset_to_node;
 };
 
+struct twig_vertex_color {
+        struct list_head        tree_head;
+
+        u8                      bid;
+        u16                     offset_to_node;
+};
+
 /*
  * node_tree is useful to render 2d graph
  *
@@ -163,6 +170,7 @@ struct node_3d_color {
         struct list_head        color;
         struct list_head        vertex;
         struct list_head        normal;
+        struct list_head        vertex_color;
 
         struct list_head        life_head;
 };

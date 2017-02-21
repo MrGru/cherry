@@ -51,12 +51,14 @@ struct ui_sprite_param {
 
 struct n3d_color_param {
         union vec3      size;
+
         union vec3      *v1;
         union vec3      *v2;
         union vec3      *v3;
         union vec3      *n1;
         union vec3      *n2;
         union vec3      *n3;
+        union vec3      *color;
         u32             vlen;
 };
 

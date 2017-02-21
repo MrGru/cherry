@@ -22,6 +22,11 @@ static inline union vec4 vec4(float *v)
         return (union vec4){v[0], v[1], v[2], v[3]};
 }
 
+static inline union vec4 vec4_neg(union vec4 p1)
+{
+        return (union vec4){-p1.x, -p1.y, -p1.z, -p1.w};
+}
+
 static inline union vec4 vec4_add(union vec4 p1, union vec4 p2)
 {
         return (union vec4){p1.x + p2.x, p1.y + p2.y, p1.z + p2.z, p1.w + p2.w};

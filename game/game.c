@@ -91,22 +91,28 @@ struct node_tree *__game_ui_sprite_alloc(struct game *p, struct ui_sprite_param 
         node_tree_set_twig_vertex(n, twig_vertex_alloc(vbid));
         list_add_tail(&n->life_head, &p->node_tree_list);
 
+        /*
+         * we must fill all buffers datas that node reserved
+         */
+        /* fill texcoord buffer */
         u8 i;
         for_i(i, 6) {
                 node_tree_set_texcoord(n, i, param->texcoord[i], i == 5);
         }
-
+        /* fill vertex buffer */
         node_tree_set_vertex(n, 0, vec2((float[2]){-0.5,  0.5}), 0);
         node_tree_set_vertex(n, 1, vec2((float[2]){-0.5, -0.5}), 0);
         node_tree_set_vertex(n, 2, vec2((float[2]){ 0.5, -0.5}), 0);
         node_tree_set_vertex(n, 3, vec2((float[2]){-0.5,  0.5}), 0);
         node_tree_set_vertex(n, 4, vec2((float[2]){ 0.5,  0.5}), 0);
         node_tree_set_vertex(n, 5, vec2((float[2]){ 0.5, -0.5}), 1);
-
+        /* fill texid buffer */
         node_tree_set_texid(n, param->texid);
+        /* fill transform buffer */
         node_tree_set_size(n, param->size);
         node_tree_set_position(n, vec3((float[3]){0, 0, 0}));
-
+        /* fill color buffer */
+        node_tree_set_color(n, (union vec4){1, 1, 1, 1});
         return n;
 }
 
@@ -140,6 +146,9 @@ static inline void __game_create_game_content(struct game *p, struct render_queu
                                 buffer_3d_normal_alloc(instances * triangles_per_object, BUFFER_PINNED)
                         });
                 }
+                array_push(buffers[i], &(struct device_buffer *){
+                        buffer_vertex_color_alloc(instances * triangles_per_object, BUFFER_PINNED)
+                });
         }
 
         struct render_content *content = render_content_alloc(queue, buffers, 3, instances, triangles_per_object);
@@ -159,13 +168,23 @@ struct node_3d_color *__game_n3d_color_alloc(struct game *p, struct n3d_color_pa
         node_3d_color_set_twig_3d_vertex(n, twig_3d_vertex_alloc(vbid));
         u8 nbid[3] = {6, 7, 8};
         node_3d_color_set_twig_3d_normal(n, twig_3d_normal_alloc(nbid));
+        node_3d_color_set_twig_vertex_color(n, twig_vertex_color_alloc(9));
         list_add_tail(&n->life_head, &p->node_3d_color_list);
 
+        /*
+         * we must fill all buffers datas that node reserved
+         */
+        /* fill vertex buffer */
         node_3d_color_fill_vertex(n, param->v1, param->v2, param->v3, param->vlen);
+        /* fill normal buffer */
         node_3d_color_fill_normal(n, param->n1, param->n2, param->n3, param->vlen);
-
+        /* fill vertex color buffer */
+        node_3d_color_fill_vertex_color(n, param->color, param->vlen);
+        /* fill transform buffer */
         node_3d_color_set_size(n, param->size);
         node_3d_color_set_position(n, vec3((float[3]){0, 0, 0}));
+        /* fill color buffer */
+        node_3d_color_set_color(n, (union vec4){1, 1, 1, 1});
 
         return n;
 }
@@ -203,8 +222,20 @@ struct node_3d_color *__game_gem_alloc(struct game *p, struct dae_mesh *mesh)
         n3d_param.n1    = mesh->normal_1->ptr;
         n3d_param.n2    = mesh->normal_2->ptr;
         n3d_param.n3    = mesh->normal_3->ptr;
-        struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
+        
+        n3d_param.color = smalloc(vsize);
+        u32 i;
+        union vec3 blank = (union vec3){
+                pack_rgb_to_float(255, 255, 255),
+                pack_rgb_to_float(255, 255, 255),
+                pack_rgb_to_float(255, 255, 255)
+        };
+        for_i(i, p->game_content->instance_multiple) {
+                n3d_param.color[i] = blank;
+        }
 
+        struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
+        sfree(n3d_param.color);
         return n3d;
 }
 
@@ -225,6 +256,18 @@ struct node_3d_color *__game_empty_node_alloc(struct game *p)
         smemset(n3d_param.n1, 0, vsize);
         smemset(n3d_param.n2, 0, vsize);
         smemset(n3d_param.n3, 0, vsize);
+
+        n3d_param.color = smalloc(vsize);
+        u32 i;
+        union vec3 blank = (union vec3){
+                pack_rgb_to_float(255, 255, 255),
+                pack_rgb_to_float(255, 255, 255),
+                pack_rgb_to_float(255, 255, 255)
+        };
+        for_i(i, p->game_content->instance_multiple) {
+                n3d_param.color[i] = blank;
+        }
+
         n3d_param.vlen = vsize;
         struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
         sfree(n3d_param.v1);
@@ -233,6 +276,7 @@ struct node_3d_color *__game_empty_node_alloc(struct game *p)
         sfree(n3d_param.n1);
         sfree(n3d_param.n2);
         sfree(n3d_param.n3);
+        sfree(n3d_param.color);
         return n3d;
 }
 
@@ -260,6 +304,18 @@ struct node_3d_color *__game_floor_node_alloc(struct game *p)
         n3d_param.v2[1] = (union vec3){ 0.5,  0.5, 0.0};
         n3d_param.v3[1] = (union vec3){ 0.5, -0.5, 0.0};
         n3d_param.vlen = vsize;
+
+        n3d_param.color = smalloc(vsize);
+        u32 i;
+        union vec3 blank = (union vec3){
+                pack_rgb_to_float(255, 255, 255),
+                pack_rgb_to_float(255, 255, 255),
+                pack_rgb_to_float(255, 255, 255)
+        };
+        for_i(i, p->game_content->instance_multiple) {
+                n3d_param.color[i] = blank;
+        }
+
         struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
         sfree(n3d_param.v1);
         sfree(n3d_param.v2);
@@ -267,6 +323,7 @@ struct node_3d_color *__game_floor_node_alloc(struct game *p)
         sfree(n3d_param.n1);
         sfree(n3d_param.n2);
         sfree(n3d_param.n3);
+        sfree(n3d_param.color);
         return n3d;
 }
 
@@ -302,6 +359,17 @@ struct node_3d_color *__game_cell_alloc(struct game *p, struct dae_mesh *mesh, i
                 }
         }
         n3d_param.vlen = vsize;
+
+        n3d_param.color = smalloc(vsize);
+        union vec3 blank = (union vec3){
+                pack_rgb_to_float(255, 255, 255),
+                pack_rgb_to_float(255, 255, 255),
+                pack_rgb_to_float(255, 255, 255)
+        };
+        for_i(i, p->game_content->instance_multiple) {
+                n3d_param.color[i] = blank;
+        }
+
         struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
         sfree(n3d_param.v1);
         sfree(n3d_param.v2);
@@ -309,6 +377,7 @@ struct node_3d_color *__game_cell_alloc(struct game *p, struct dae_mesh *mesh, i
         sfree(n3d_param.n1);
         sfree(n3d_param.n2);
         sfree(n3d_param.n3);
+        sfree(n3d_param.color);
         return n3d;
 }
 
@@ -344,6 +413,17 @@ struct node_3d_color *__game_plane_alloc(struct game *p, struct dae_mesh *mesh, 
                 }
         }
         n3d_param.vlen = vsize;
+
+        n3d_param.color = smalloc(vsize);
+        union vec3 blank = (union vec3){
+                pack_rgb_to_float(255, 255, 255),
+                pack_rgb_to_float(255, 255, 255),
+                pack_rgb_to_float(255, 255, 255)
+        };
+        for_i(i, p->game_content->instance_multiple) {
+                n3d_param.color[i] = blank;
+        }
+
         struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
         sfree(n3d_param.v1);
         sfree(n3d_param.v2);
@@ -351,6 +431,7 @@ struct node_3d_color *__game_plane_alloc(struct game *p, struct dae_mesh *mesh, 
         sfree(n3d_param.n1);
         sfree(n3d_param.n2);
         sfree(n3d_param.n3);
+        sfree(n3d_param.color);
         return n3d;
 }
 

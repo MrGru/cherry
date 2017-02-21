@@ -41,6 +41,16 @@ void twig_3d_vertex_set_segment_v3(struct twig_3d_vertex *p, struct node_data_se
  void twig_3d_normal_set_segment_v3(struct twig_3d_normal *p, struct node_data_segment *seg, void *bytes, u32 len);
 
 /*
+ * twig vertex color
+ */
+ struct twig_vertex_color *twig_vertex_color_alloc(u8 bid);
+
+ void twig_vertex_color_free(struct twig_vertex_color *p);
+
+ void twig_vertex_color_fill(struct twig_vertex_color *p, void *v, u32 len);
+ void twig_vertex_color_set_segment(struct twig_vertex_color *p, struct node_data_segment *seg, void *bytes, u32 len);
+
+/*
  * twig vertex 2d
  */
 struct twig_vertex *twig_vertex_alloc(u8 bid[3]);

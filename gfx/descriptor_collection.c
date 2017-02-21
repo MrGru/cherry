@@ -144,5 +144,10 @@ struct shader_descriptor *descriptor_3d_color_get(u32 triangles_per_object)
         ADD_NORMAL("normal_3")
 
 #undef ADD_NORMAL
+        /* vertex color */
+        sbd = shader_buffer_descriptor_alloc(3 * sizeof(float), 1, 1);
+        sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC3, 0, "vertex_color");
+        array_push(sbd->attributes, &sad);
+        array_push(des->buffers, &sbd);
         return des;
 }
