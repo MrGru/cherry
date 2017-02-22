@@ -222,8 +222,8 @@ struct node_3d_color *__game_gem_alloc(struct game *p, struct dae_mesh *mesh)
         n3d_param.n1    = mesh->normal_1->ptr;
         n3d_param.n2    = mesh->normal_2->ptr;
         n3d_param.n3    = mesh->normal_3->ptr;
-        
         n3d_param.color = smalloc(vsize);
+
         u32 i;
         union vec3 blank = (union vec3){
                 pack_rgb_to_float(255, 255, 255),
@@ -641,7 +641,7 @@ struct game *game_alloc()
 
 void game_update(struct game *p)
 {
-        // camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(1), (float[3]){1, 0, 0}));
+        // camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(1), (float[3]){0, 0, 1}));
 
         branch_transform_queue_traverse(p->update_queue);
         branch_transform_queue_traverse(p->n3d_update_queue);
@@ -661,14 +661,26 @@ void game_render(struct game *p)
         p->frame %= BUFFERS;
 }
 
+static inline void __game_resize_game_content(struct game *p)
+{
+        union mat4 project = mat4_new_perspective(DEG_TO_RAD(45.0f), video_width * 1.0f / video_height, 1.0f, 10000.0f);
+        shader_uniform_update(p->game_projection_uniform, project.m, sizeof(project));
+}
+
+static inline void __game_resize_ui_content(struct game *p)
+{
+        union mat4 project = mat4_new_ortho(-video_width/2,
+                video_width/2, -video_height/2, video_height/2, 1, 10);
+        shader_uniform_update(p->ui_projection_uniform, project.m, sizeof(project));
+}
+
 void game_resize(struct game *p, int width, int height)
 {
         video_width = width;
         video_height = height;
 
-        union mat4 project = mat4_new_ortho(-video_width/2,
-                video_width/2, -video_height/2, video_height/2, 1, 10);
-        shader_uniform_update(p->ui_projection_uniform, project.m, sizeof(project));
+        __game_resize_ui_content(p);
+        __game_resize_game_content(p);
 }
 
 void game_free(struct game *p)

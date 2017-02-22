@@ -18,10 +18,65 @@
 #include <cherry/graphic/node/types.h>
 #include <cherry/graphic/light/types.h>
 
+struct element_type {
+        union vec4      color;
+};
+
+extern struct element_type         __gem_1__;
+extern struct element_type         __gem_2__;
+extern struct element_type         __gem_3__;
+extern struct element_type         __gem_4__;
+extern struct element_type         __gem_5__;
+extern struct element_type         __gem_6__;
+/*
+ * expand custom element type here
+ */
+
+/*
+ * game element
+ */
+struct element {
+        struct list_head        life_head;
+        struct list_head        game_head;
+        struct list_head        pend_head;
+
+        struct list_head        path_head;
+
+        struct node_3d_color    *main;
+        struct element_type     *type;
+};
+
+/*
+ * game connect point
+ */
+struct path_point {
+        struct list_head        next_list;
+        struct list_head        next_head_left;
+        struct list_head        next_head_center;
+        struct list_head        next_head_right;
+
+        struct list_head        element;
+
+        union vec3              position;
+};
+
+/*
+ * game connect point including references to 8 neighbors around
+ */
+struct game_point {
+        struct path_point       point;
+
+        struct list_head        neighbor[8];
+        struct list_head        neighbor_head[8];
+};
+
 struct game {
         struct list_head                renderer_list;
         struct list_head                node_tree_list;
         struct list_head                node_3d_color_list;
+        struct list_head                all_gem_list;
+        struct list_head                game_gem_list;
+        struct list_head                pend_gem_list;
 
         struct branch_transform_queue   *update_queue;
         struct branch_transform_queue   *n3d_update_queue;

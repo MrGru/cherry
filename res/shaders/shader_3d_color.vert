@@ -61,11 +61,34 @@ uniform mat4    view;
  */
 vec4 decodeFloatColor(highp int val)
 {
+        /*
+         * value for each channel decoded from val has range [-127, 127] so
+         * we need add 128 to it
+         */
         vec4 c;
+        /*
+         * val / 65536     : shift right val by 16 bit to clear green and blue channel and get red channel
+         */
         c.r = float(val / 65536 + 128);
+        /*
+         * val * 65536     : shift left val by 16 bit to clear red channel
+         * (x) / 16777216  : shift right x by 24 bit to clear blue channel and get green channel
+         */
         c.g = float((val * 65536) / 16777216 + 128);
+        /*
+         * val * 16777216  : shift left val by 24 bit to clear red and green channel
+         * (x) / 16777216  : shift right x by 24 bit to get blue channel
+         */
         c.b = float((val * 16777216) / 16777216 + 128);
+        /*
+         * currently we fill alpha channel by max value 255 because input value
+         * present only RGB color
+         * currently I can only map RGB to 32-bit integer, alpha channel is challenging
+         */
         c.a = 255.0;
+        /*
+         * convert to normalized color
+         */
         c /= 255.0;
         return c;
 }

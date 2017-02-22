@@ -81,7 +81,6 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                         struct node_data **data;
                         i16 data_index;
                         array_for_each_index(data, data_index, node->pending_datas) {
-                                // (*data)->frames--;
                                 struct device_buffer *buffer = array_get(content->groups[frame]->buffers,
                                         struct device_buffer *, (*data)->buffer_id);
                                 struct list_head *segment_head, *segment_head_next;

@@ -20,7 +20,6 @@
 #include <cherry/stdio.h>
 #include <cherry/math/math.h>
 
-
 int main(int args, char **argv)
 {
         /* setup window parameters */
@@ -47,10 +46,13 @@ int main(int args, char **argv)
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        // SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+        // SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
-        SDL_Window* window = SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, video_width, video_height, SDL_WINDOW_OPENGL);
+        SDL_Window* window = SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                video_width, video_height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
         SDL_GLContext context = SDL_GL_CreateContext(window);
         SDL_Event windowEvent;
 
@@ -67,6 +69,13 @@ int main(int args, char **argv)
                         if (windowEvent.type == SDL_QUIT) break;
                         if (windowEvent.type == SDL_KEYUP &&
                                 windowEvent.key.keysym.sym == SDLK_ESCAPE) break;
+                        if(windowEvent.type == SDL_WINDOWEVENT) {
+                                if(windowEvent.window.event == SDL_WINDOWEVENT_RESIZED) {
+                                        SDL_GetWindowSize(window, &video_width, &video_height);
+                                        glViewport(0, 0, video_width, video_height);
+                                        game_resize(game, video_width, video_height);
+                                }
+                        }
                 }
                 game_update(game);
                 game_render(game);
