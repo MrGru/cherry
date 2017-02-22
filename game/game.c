@@ -641,7 +641,7 @@ struct game *game_alloc()
 
 void game_update(struct game *p)
 {
-        // camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(1), (float[3]){0, 0, 1}));
+        camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(0.5), (float[3]){0, 0, 1}));
 
         branch_transform_queue_traverse(p->update_queue);
         branch_transform_queue_traverse(p->n3d_update_queue);
