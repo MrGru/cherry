@@ -450,6 +450,10 @@ struct node_3d_color *__game_plane_alloc(struct game *p, struct dae_mesh *mesh, 
 
 struct game *game_alloc()
 {
+        time_t t;
+        /* Intializes random number generator */
+        srand((unsigned) time(&t));
+
         int i, j;
         struct game *p  = smalloc(sizeof(struct game));
         INIT_LIST_HEAD(&p->renderer_list);
@@ -510,16 +514,17 @@ struct game *game_alloc()
         int mesh_types = 2;
         struct dae_mesh *mesh[2] = {
                 dae_mesh_alloc("res/models/gem_3.dae"),
-                dae_mesh_alloc("res/models/gem_star.dae")
+                dae_mesh_alloc("res/models/gem_3.dae")
+                // dae_mesh_alloc("res/models/gem_star.dae")
         };
         struct node_3d_color *n1 = __game_empty_node_alloc(p);
         union vec4 color[6] = {
-                (union vec4){255 / 255.0f, 67 / 255.0f, 120 / 255.0f, 1},
-                (union vec4){255 / 255.0f, 67 / 255.0f, 255 / 255.0f, 1},
-                (union vec4){172 / 255.0f, 67 / 255.0f, 255 / 255.0f, 1},
-                (union vec4){67 / 255.0f, 255 / 255.0f, 156 / 255.0f, 1},
-                (union vec4){234 / 255.0f, 255 / 255.0f, 67 / 255.0f, 1},
-                (union vec4){255 / 255.0f, 141 / 255.0f, 67 / 255.0f, 1},
+                (union vec4){255 / 255.0f, 0 / 255.0f, 55 / 255.0f, 1}, //RED
+                (union vec4){0 / 255.0f, 120 / 255.0f, 255 / 255.0f, 1}, //BLUE
+                (union vec4){72 / 255.0f, 255 / 255.0f, 0 / 255.0f, 1}, //GREEN
+                (union vec4){255 / 255.0f, 255 / 255.0f, 0 / 255.0f, 1}, //YELLOW
+                (union vec4){182 / 255.0f, 0 / 255.0f, 255 / 255.0f, 1}, //PURPLE
+                (union vec4){255 / 255.0f, 86 / 255.0f, 0 / 255.0f, 1}, //ORANGE
         };
 
         test_node = NULL;
@@ -658,7 +663,7 @@ struct game *game_alloc()
 
 void game_update(struct game *p)
 {
-        // camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(0.5), (float[3]){0, 0, 1}));
+        camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(0.5), (float[3]){0, 0, 1}));
         // union vec4 r = *node_3d_color_get_rotation(test_node);
         // union vec4 q = quat_mul(quat_angle_axis(DEG_TO_RAD(1), (float[3]){1, 0, 0}), r);
         // node_3d_color_set_rotation(test_node, q);
