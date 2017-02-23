@@ -657,13 +657,12 @@ struct game *game_alloc()
 
         render_content_set_texture(p->ui_content, 1, texture_alloc_file("res/images/wolf.jpg"));
         render_content_set_texture(p->ui_content, 0, texture_alloc_file("res/images/girl.png"));
-
         return p;
 }
 
 void game_update(struct game *p)
 {
-        camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(0.5), (float[3]){0, 0, 1}));
+        // camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(0.5), (float[3]){0, 0, 1}));
         // union vec4 r = *node_3d_color_get_rotation(test_node);
         // union vec4 q = quat_mul(quat_angle_axis(DEG_TO_RAD(1), (float[3]){1, 0, 0}), r);
         // node_3d_color_set_rotation(test_node, q);

@@ -66,10 +66,23 @@ struct branch_transform {
         struct list_head                update_queue_head;
         struct branch_transform_queue   *update_queue;
 
-        union vec3                      position;
-        union vec3                      scale;
+        /*
+         * I need position, scale, size to be in uniform size with quat (vec4)
+         * due to operating in action sequence
+         */
+        union {
+                union vec3              position;
+                union vec4              position_expaned;
+        };
+        union {
+                union vec3              scale;
+                union vec4              scale_expaned;
+        };
+        union {
+                union vec3              size;
+                union vec4              size_expaned;
+        };
         union vec4                      quat;
-        union vec3                      size;
 
         union mat4                      last_transform;
 
@@ -173,6 +186,63 @@ struct node_3d_color {
         struct list_head        vertex_color;
 
         struct list_head        life_head;
+};
+
+/*
+ * node action
+ */
+enum {
+        EASE_LINEAR,
+        EASE_QUADRATIC_IN,
+        EASE_QUADRATIC_OUT,
+        EASE_QUADRATIC_IN_OUT,
+        EASE_CUBIC_IN,
+        EASE_CUBIC_OUT,
+        EASE_CUBIC_IN_OUT,
+        EASE_QUARTIC_IN,
+        EASE_QUARTIC_OUT,
+        EASE_QUARTIC_IN_OUT,
+        EASE_QUINTIC_IN,
+        EASE_QUINTIC_OUT,
+        EASE_QUINTIC_IN_OUT,
+        EASE_SINUSOIDAL_IN,
+        EASE_SINUSOIDAL_OUT,
+        EASE_SINUSOIDAL_IN_OUT,
+        EASE_EXPONENTIAL_IN,
+        EASE_EXPONENTIAL_OUT,
+        EASE_EXPONENTIAL_IN_OUT,
+        EASE_CIRCULAR_IN,
+        EASE_CIRCULAR_OUT,
+        EASE_CIRCULAR_IN_OUT
+};
+
+struct action {
+        struct list_head                head;
+        struct list_head                children;
+
+        u8                              ease_type;
+
+        union vec4                      *target;
+        union vec4                      offset;
+        union vec4                      last_amount_offset;
+
+        float                           duration;
+        float                           remain;
+
+        u8                              finish;
+        u8                              child_finish;
+
+        i16                             repeat;
+};
+
+struct action_key {
+        struct list_head                key_head;
+        struct list_head                actions;
+        struct branch_transform         *transform;
+};
+
+struct action_manager {
+        struct list_head                keys;
 };
 
 #endif

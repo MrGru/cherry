@@ -16,6 +16,7 @@
 
 #include <cherry/stdint.h>
 #include <cherry/stddef.h>
+#include <cherry/stdarg.h>
 
 /*
  * @prev : point to previous head

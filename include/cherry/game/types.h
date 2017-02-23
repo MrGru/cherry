@@ -22,19 +22,6 @@
  * game element
  */
 enum {
- ELEMENT_GEM
-};
-
-struct element {
-        struct list_head        path_head;
-
-        u16                     type;
-};
-
-/*
- * game gem
- */
-enum {
         GEM_1_LV_1,
         GEM_2_LV_1,
         GEM_3_LV_1,
@@ -55,12 +42,24 @@ enum {
         GEM_6_LV_3
 };
 
+struct element {
+        struct list_head                path_head;
+
+        u16                             type;
+};
+
+struct dynamic_element {
+        struct element                  elm;
+};
+
+/*
+ * game gem
+ */
+
 struct gem {
-        struct element          element;
+        struct dynamic_element  dyelm;
 
         struct node_3d_color    *node;
-
-        u16                     type;
 };
 
 /*
