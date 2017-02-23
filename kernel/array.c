@@ -39,7 +39,7 @@ void array_free(struct array *p)
 
 void array_reserve(struct array *p, u16 len)
 {
-        p->ptr = srealloc(p->ptr, len * p->item_size);
+        __array_reserve(p, len);
 }
 
 void array_force_len(struct array *p, u16 len)

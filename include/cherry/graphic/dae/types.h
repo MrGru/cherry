@@ -24,6 +24,8 @@ struct dae_mesh {
         struct array    *normal_1;
         struct array    *normal_2;
         struct array    *normal_3;
+
+        struct array    *colors;
 };
 
 #endif

@@ -31,7 +31,17 @@
 #include <cherry/graphic/dae/dae_mesh.h>
 #include <cherry/graphic/light/light.h>
 
+/*
+ * I don't know why instancing only works with divisor less than 256
+ *
+ * currently I set divisor or triangles_per_object is 100
+ *
+ * a model having large number of vertex can separate into several node
+ * or create a new render_content for it own
+ */
 #define GAME_TRIANGLES_PER_OBJECT 100
+
+static struct node_3d_color *test_node;
 
 /*
  * create ui content
@@ -123,7 +133,7 @@ static inline void __game_create_game_content(struct game *p, struct render_queu
 {
         struct array *buffers[BUFFERS];
         u32 triangles_per_object = GAME_TRIANGLES_PER_OBJECT;
-        u32 instances = 300;
+        u32 instances = 1000;
         i16 i;
         for_i(i, BUFFERS) {
                 buffers[i] = array_alloc(sizeof(struct device_buffer *), ORDERED);
@@ -192,17 +202,17 @@ struct node_3d_color *__game_n3d_color_alloc(struct game *p, struct n3d_color_pa
 struct node_3d_color *__game_gem_alloc(struct game *p, struct dae_mesh *mesh)
 {
         struct n3d_color_param n3d_param;
-        float size = 100;
+        float size = 89;
         n3d_param.size = vec3((float[3]){size, size, size});
         u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
-        array_reserve(mesh->vertex_1, p->game_content->instance_multiple);
-        array_reserve(mesh->vertex_2, p->game_content->instance_multiple);
-        array_reserve(mesh->vertex_3, p->game_content->instance_multiple);
-        array_reserve(mesh->normal_1, p->game_content->instance_multiple);
-        array_reserve(mesh->normal_2, p->game_content->instance_multiple);
-        array_reserve(mesh->normal_3, p->game_content->instance_multiple);
+        array_reserve(mesh->vertex_1, p->game_content->instance_multiple * 4);
+        array_reserve(mesh->vertex_2, p->game_content->instance_multiple * 4);
+        array_reserve(mesh->vertex_3, p->game_content->instance_multiple * 4);
+        array_reserve(mesh->normal_1, p->game_content->instance_multiple * 4);
+        array_reserve(mesh->normal_2, p->game_content->instance_multiple * 4);
+        array_reserve(mesh->normal_3, p->game_content->instance_multiple * 4);
 #define APPEND_POINT(arr)                                               \
-        while (arr->len < p->game_content->instance_multiple) { \
+        while (arr->len < p->game_content->instance_multiple * 4) { \
                 union vec3 p = (union vec3){0, 0, 0};           \
                 array_push(arr, &p);                            \
         }
@@ -213,6 +223,7 @@ struct node_3d_color *__game_gem_alloc(struct game *p, struct dae_mesh *mesh)
         APPEND_POINT(mesh->normal_1);
         APPEND_POINT(mesh->normal_2);
         APPEND_POINT(mesh->normal_3);
+        APPEND_POINT(mesh->colors);
 #undef APPEND_POINT
 
         n3d_param.vlen  = vsize;
@@ -222,20 +233,22 @@ struct node_3d_color *__game_gem_alloc(struct game *p, struct dae_mesh *mesh)
         n3d_param.n1    = mesh->normal_1->ptr;
         n3d_param.n2    = mesh->normal_2->ptr;
         n3d_param.n3    = mesh->normal_3->ptr;
-        n3d_param.color = smalloc(vsize);
+        n3d_param.color = mesh->colors->ptr;
 
         u32 i;
-        union vec3 blank = (union vec3){
-                pack_rgb_to_float(255, 255, 255),
-                pack_rgb_to_float(255, 255, 255),
-                pack_rgb_to_float(255, 255, 255)
-        };
-        for_i(i, p->game_content->instance_multiple) {
-                n3d_param.color[i] = blank;
-        }
-
         struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
-        sfree(n3d_param.color);
+        node_3d_color_get_branch_color(n3d)->pass = 1;
+        for_i(i, 3) {
+                n3d_param.v1    = mesh->vertex_1->ptr + (i + 1) * vsize;
+                n3d_param.v2    = mesh->vertex_2->ptr + (i + 1) * vsize;
+                n3d_param.v3    = mesh->vertex_3->ptr + (i + 1) * vsize;
+                n3d_param.n1    = mesh->normal_1->ptr + (i + 1) * vsize;
+                n3d_param.n2    = mesh->normal_2->ptr + (i + 1) * vsize;
+                n3d_param.n3    = mesh->normal_3->ptr + (i + 1) * vsize;
+                n3d_param.color = mesh->colors->ptr   + (i + 1) * vsize;
+                struct node_3d_color *sub = __game_n3d_color_alloc(p, &n3d_param);
+                node_3d_color_add_node_3d_color(n3d, sub);
+        }
         return n3d;
 }
 
@@ -492,11 +505,12 @@ struct game *game_alloc()
         union mat4 project = mat4_new_perspective(DEG_TO_RAD(45.0f), video_width * 1.0f / video_height, 1.0f, 10000.0f);
         shader_uniform_update(p->game_projection_uniform, project.m, sizeof(project));
 
-        camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(-35), (float[3]){1, 0, 0}));
+        camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(-15), (float[3]){1, 0, 0}));
 
-        int mesh_types = 1;
-        struct dae_mesh *mesh[1] = {
-                dae_mesh_alloc("res/models/gem_1.dae")
+        int mesh_types = 2;
+        struct dae_mesh *mesh[2] = {
+                dae_mesh_alloc("res/models/gem_3.dae"),
+                dae_mesh_alloc("res/models/gem_star.dae")
         };
         struct node_3d_color *n1 = __game_empty_node_alloc(p);
         union vec4 color[6] = {
@@ -508,6 +522,7 @@ struct game *game_alloc()
                 (union vec4){255 / 255.0f, 141 / 255.0f, 67 / 255.0f, 1},
         };
 
+        test_node = NULL;
         for_i(i, 9) {
                 for_i(j, 9) {
                         int mesh_type   = rand_ri(0, mesh_types);
@@ -517,6 +532,9 @@ struct game *game_alloc()
                                 node_3d_color_add_node_3d_color(n1, n2);
                                 node_3d_color_set_position(n2, (union vec3){(i - 4) * 200, (j - 4) * 200, 0});
                                 node_3d_color_set_color(n2, color[ct]);
+                                if(!test_node && (i == 4 && j == 4)) {
+                                        test_node = n2;
+                                }
                         }
                         {
                                 struct node_3d_color *n2 = __game_gem_alloc(p, mesh[mesh_type]);
@@ -555,7 +573,6 @@ struct game *game_alloc()
                 }
                 dae_mesh_free(pipe);
         }
-
         /* recalculate color tree */
         union vec4 v = vec4((float[4]){1, 1, 1, 1});
         branch_color_traverse(node_3d_color_get_branch_color(n1), v);
@@ -641,7 +658,11 @@ struct game *game_alloc()
 
 void game_update(struct game *p)
 {
-        camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(0.5), (float[3]){0, 0, 1}));
+        // camera_rotate_around(p->game_cam, quat_angle_axis(DEG_TO_RAD(0.5), (float[3]){0, 0, 1}));
+        // union vec4 r = *node_3d_color_get_rotation(test_node);
+        // union vec4 q = quat_mul(quat_angle_axis(DEG_TO_RAD(1), (float[3]){1, 0, 0}), r);
+        // node_3d_color_set_rotation(test_node, q);
+
 
         branch_transform_queue_traverse(p->update_queue);
         branch_transform_queue_traverse(p->n3d_update_queue);

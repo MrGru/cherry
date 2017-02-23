@@ -18,65 +18,73 @@
 #include <cherry/graphic/node/types.h>
 #include <cherry/graphic/light/types.h>
 
-struct element_type {
-        union vec4      color;
-};
-
-extern struct element_type         __gem_1__;
-extern struct element_type         __gem_2__;
-extern struct element_type         __gem_3__;
-extern struct element_type         __gem_4__;
-extern struct element_type         __gem_5__;
-extern struct element_type         __gem_6__;
-/*
- * expand custom element type here
- */
-
 /*
  * game element
  */
-struct element {
-        struct list_head        life_head;
-        struct list_head        game_head;
-        struct list_head        pend_head;
+enum {
+ ELEMENT_GEM
+};
 
+struct element {
         struct list_head        path_head;
 
-        struct node_3d_color    *main;
-        struct element_type     *type;
+        u16                     type;
+};
+
+/*
+ * game gem
+ */
+enum {
+        GEM_1_LV_1,
+        GEM_2_LV_1,
+        GEM_3_LV_1,
+        GEM_4_LV_1,
+        GEM_5_LV_1,
+        GEM_6_LV_1,
+        GEM_1_LV_2,
+        GEM_2_LV_2,
+        GEM_3_LV_2,
+        GEM_4_LV_2,
+        GEM_5_LV_2,
+        GEM_6_LV_2,
+        GEM_1_LV_3,
+        GEM_2_LV_3,
+        GEM_3_LV_3,
+        GEM_4_LV_3,
+        GEM_5_LV_3,
+        GEM_6_LV_3
+};
+
+struct gem {
+        struct element          element;
+
+        struct node_3d_color    *node;
+
+        u16                     type;
 };
 
 /*
  * game connect point
+ * neighbor :
+ *      0 1 2
+ *      7   3
+ *      6 5 4
  */
 struct path_point {
-        struct list_head        next_list;
-        struct list_head        next_head_left;
-        struct list_head        next_head_center;
-        struct list_head        next_head_right;
-
-        struct list_head        element;
-
-        union vec3              position;
-};
-
-/*
- * game connect point including references to 8 neighbors around
- */
-struct game_point {
-        struct path_point       point;
-
         struct list_head        neighbor[8];
         struct list_head        neighbor_head[8];
+
+        struct list_head        dynamic_element;
+        struct list_head        obstacle_lv1;
+        struct list_head        obstacle_lv2;
+
+        union vec3              position;
 };
 
 struct game {
         struct list_head                renderer_list;
         struct list_head                node_tree_list;
         struct list_head                node_3d_color_list;
-        struct list_head                all_gem_list;
-        struct list_head                game_gem_list;
-        struct list_head                pend_gem_list;
 
         struct branch_transform_queue   *update_queue;
         struct branch_transform_queue   *n3d_update_queue;

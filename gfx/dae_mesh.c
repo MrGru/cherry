@@ -252,21 +252,21 @@ static void __parse_geometry(struct array *result, struct xml_element *xml)
                 __push_vec3_array(mesh->normals, source_normal_float_array->value);
 
                 if(input_texcoord) {
-                struct xml_element* source_texcoord = xml_find_deep(geometry, "source", "id",
-                        xml_find_attribute(input_texcoord, "source")->value->ptr+ 1);
-                struct xml_element* source_texcoord_float_array = xml_find(source_texcoord, "float_array", 0);
-                count = atoi(xml_find_attribute(source_texcoord_float_array, "count")->value->ptr);
-                array_reserve(mesh->uvs, count / 2);
-                __push_vec2_array(mesh->uvs, source_texcoord_float_array->value);
+                        struct xml_element* source_texcoord = xml_find_deep(geometry, "source", "id",
+                                xml_find_attribute(input_texcoord, "source")->value->ptr+ 1);
+                        struct xml_element* source_texcoord_float_array = xml_find(source_texcoord, "float_array", 0);
+                        count = atoi(xml_find_attribute(source_texcoord_float_array, "count")->value->ptr);
+                        array_reserve(mesh->uvs, count / 2);
+                        __push_vec2_array(mesh->uvs, source_texcoord_float_array->value);
                 }
 
                 if(input_color) {
-                struct xml_element* source_color = xml_find_deep(geometry, "source", "id",
-                        xml_find_attribute(input_color, "source")->value->ptr+ 1);
-                struct xml_element* source_color_float_array = xml_find(source_color, "float_array", 0);
-                count = atoi(xml_find_attribute(source_color_float_array, "count")->value->ptr);
-                array_reserve(mesh->colors, count / 3);
-                __push_vec3_array(mesh->colors, source_color_float_array->value);
+                        struct xml_element* source_color = xml_find_deep(geometry, "source", "id",
+                                xml_find_attribute(input_color, "source")->value->ptr+ 1);
+                        struct xml_element* source_color_float_array = xml_find(source_color, "float_array", 0);
+                        count = atoi(xml_find_attribute(source_color_float_array, "count")->value->ptr);
+                        array_reserve(mesh->colors, count / 3);
+                        __push_vec3_array(mesh->colors, source_color_float_array->value);
                 }
 
                 count = atoi(xml_find_attribute(polylist, "count")->value->ptr);
@@ -286,13 +286,14 @@ static void __parse_geometry(struct array *result, struct xml_element *xml)
 
 static inline struct dae_mesh *__dae_mesh_alloc()
 {
-        struct dae_mesh *p = smalloc(sizeof(struct dae_mesh));
-        p->vertex_1 = array_alloc(sizeof(union vec3), ORDERED);
-        p->vertex_2 = array_alloc(sizeof(union vec3), ORDERED);
-        p->vertex_3 = array_alloc(sizeof(union vec3), ORDERED);
-        p->normal_1 = array_alloc(sizeof(union vec3), ORDERED);
-        p->normal_2 = array_alloc(sizeof(union vec3), ORDERED);
-        p->normal_3 = array_alloc(sizeof(union vec3), ORDERED);
+        struct dae_mesh *p      = smalloc(sizeof(struct dae_mesh));
+        p->vertex_1             = array_alloc(sizeof(union vec3), ORDERED);
+        p->vertex_2             = array_alloc(sizeof(union vec3), ORDERED);
+        p->vertex_3             = array_alloc(sizeof(union vec3), ORDERED);
+        p->normal_1             = array_alloc(sizeof(union vec3), ORDERED);
+        p->normal_2             = array_alloc(sizeof(union vec3), ORDERED);
+        p->normal_3             = array_alloc(sizeof(union vec3), ORDERED);
+        p->colors               = array_alloc(sizeof(union vec3), ORDERED);
         return p;
 }
 
@@ -313,6 +314,8 @@ static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m)
         }
 
         int i, step;
+        union vec3 temp_color;
+
         for(i = 0, step = 0; i < m->p->len; i += num_attributes) {
                 /* currently I'm testing only with vertex and normal */
                 int vertex_id   = array_get(m->p, int, i);
@@ -334,6 +337,20 @@ static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m)
                                 array_push(p->normal_3, &nor);
                                 break;
                 }
+                union vec3 cor = (union vec3){1, 1, 1};
+                if(has_color) {
+                        int color_id    = array_get(m->p, int, i + 2);
+                        cor  = array_get(m->colors, union vec3, color_id);
+                }
+                /*
+                 * packed 3 vec3 colors into 1 vec3 color for instancing
+                 */
+                temp_color.v[step] = pack_rgb_to_float((int)(cor.r * 255),
+                        (int)(cor.g * 255), (int)(cor.b * 255));
+                if(step == 2) {
+                        array_push(p->colors, &temp_color);
+                }
+
                 step++;
                 step %= 3;
         }
@@ -364,5 +381,6 @@ void dae_mesh_free(struct dae_mesh *p)
         array_free(p->normal_1);
         array_free(p->normal_2);
         array_free(p->normal_3);
+        array_free(p->colors);
         sfree(p);
 }
