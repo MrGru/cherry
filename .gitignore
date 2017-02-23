@@ -3,4 +3,3 @@ build
 ios_build
 ios_build_metal
 build_android
-res
