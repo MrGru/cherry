@@ -53,6 +53,7 @@ int main(int args, char **argv)
 
         SDL_Window* window = SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                 video_width, video_height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+
         SDL_GLContext context = SDL_GL_CreateContext(window);
         SDL_Event windowEvent;
 

@@ -42,24 +42,28 @@ enum {
         GEM_6_LV_3
 };
 
-struct element {
+struct game_element {
         struct list_head                path_head;
 
         u16                             type;
 };
 
-struct dynamic_element {
-        struct element                  elm;
-};
-
-/*
- * game gem
- */
-
 struct gem {
-        struct dynamic_element  dyelm;
+        struct game_element             elm;
 
-        struct node_3d_color    *node;
+        struct node_3d_color            *node;
+
+        struct node_3d_color            *flipped_node;
+
+        struct action_key               node_move_key;
+        struct action_key               node_choice_key;
+        struct action_key               node_unchoice_key;
+        struct action_key               node_collected_key;
+
+        struct action_key               flipped_node_move_key;
+        struct action_key               flipped_node_choice_key;
+        struct action_key               flipped_node_unchoice_key;
+        struct action_key               flipped_node_collected_key;
 };
 
 /*
@@ -69,17 +73,51 @@ struct gem {
  *      7   3
  *      6 5 4
  */
+struct path_point;
+struct element_deliver;
+
 struct path_point {
-        struct list_head        neighbor[8];
-        struct list_head        neighbor_head[8];
+        struct list_head                request_dyelm_head;
 
-        struct list_head        dynamic_element;
-        struct list_head        obstacle_lv1;
-        struct list_head        obstacle_lv2;
+        struct list_head                neighbor[8];
+        struct list_head                neighbor_head[8];
 
-        union vec3              position;
+        struct list_head                dynamic_element;
+        struct list_head                obstacle_lv1;
+        struct list_head                obstacle_lv2;
+
+        union {
+                union vec3              position;
+                union vec4              position_expaned;
+        };
+
+        struct element_deliver          *deliver;
 };
 
+enum {
+        ELEMENT_DELIVER_PATH_POINT,
+        ELEMENT_DELIVER_POOL
+};
+
+struct element_deliver {
+        u8                                      type;
+        union {
+                /*
+                 * ppoint active when type is ELEMENT_DELIVER_PATH_POINT
+                 */
+                struct path_point               *ppoint;
+                /*
+                 * element pool active when type is ELEMENT_DELIVER_POOL
+                 */
+                struct {
+                        struct list_head        element_list;
+                };
+        };
+};
+
+/*
+ * game context
+ */
 struct game {
         struct list_head                renderer_list;
         struct list_head                node_tree_list;

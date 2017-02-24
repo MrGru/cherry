@@ -41,6 +41,11 @@ void action_manager_add_key(struct action_manager *p, struct action_key * k);
 
 void action_key_add_action(struct action_key *p, struct action * a);
 
+/*
+ * action key
+ */
 void action_key_init(struct action_key *p);
+
+void action_key_clear(struct action_key *p);
 
 #endif

@@ -496,7 +496,10 @@ static void __action_ease_gravity(struct action *p, float delta)
                                         vec4_normalize(vec4_sub(destination, s))));
         if(c < 1) {
                 *p->target      = destination;
-                p->finish       = 1;
+                array_remove(p->directions, 0);
+                array_remove(p->destinations, 0);
+                if(p->directions->len == 0)
+                        p->finish       = 1;
         }
 }
 
@@ -632,7 +635,7 @@ u8 action_update(struct action *p, float delta)
                                 break;
 
                         default:
-                                __action_ease_linear(p, delta);
+                                p->finish = 1;
                                 break;
                 }
         }
@@ -718,13 +721,7 @@ void action_manager_free(struct action_manager *p)
         list_while_not_singular(head, &p->keys) {
                 struct action_key *key = (struct action_key *)
                         ((void *)head - offsetof(struct action_key, key_head));
-                struct list_head *action_head;
-                list_while_not_singular(action_head, &key->actions) {
-                        struct action *a = (struct action *)
-                                ((void *)action_head - offsetof(struct action, head));
-                        action_free(a);
-                }
-                list_del_init(&key->key_head);
+                action_key_clear(key);
         }
         sfree(p);
 }
@@ -745,4 +742,15 @@ void action_key_init(struct action_key *p)
 {
         INIT_LIST_HEAD(&p->key_head);
         INIT_LIST_HEAD(&p->actions);
+}
+
+void action_key_clear(struct action_key *key)
+{
+        struct list_head *action_head;
+        list_while_not_singular(action_head, &key->actions) {
+                struct action *a = (struct action *)
+                        ((void *)action_head - offsetof(struct action, head));
+                action_free(a);
+        }
+        list_del_init(&key->key_head);
 }

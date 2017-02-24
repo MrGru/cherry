@@ -24,8 +24,11 @@
 
 #define MEM_PAGE 4096
 
+/*
+ * I don't know why MEM_DEBUG=0 will cause crash on some linux device
+ */
 #ifndef MEM_DEBUG
-        #define MEM_DEBUG 0
+        #define MEM_DEBUG 1
 #endif
 
 /*

@@ -517,10 +517,8 @@ struct game *game_alloc()
 
         int mesh_types = 2;
         struct dae_mesh *mesh[2] = {
-                // dae_mesh_alloc("res/models/gem_3.dae"),
-                // dae_mesh_alloc("res/models/gem_3.dae")
+                dae_mesh_alloc("res/models/gem_3.dae"),
                 dae_mesh_alloc("res/models/gem_star_2.dae"),
-                dae_mesh_alloc("res/models/gem_star_2.dae")
         };
         struct node_3d_color *n1 = __game_empty_node_alloc(p);
         union vec4 color[6] = {
@@ -535,7 +533,8 @@ struct game *game_alloc()
         test_node = NULL;
         for_i(i, 9) {
                 for_i(j, 9) {
-                        int mesh_type   = rand_ri(0, mesh_types);
+                        int mesh_type   = rand_ri(0, 100);
+                        mesh_type       = mesh_type < 90 ? 0 : 1;
                         int ct          = rand_ri(0, 6);
                         {
                                 struct node_3d_color *n2 = __game_gem_alloc(p, mesh[mesh_type]);
@@ -552,8 +551,6 @@ struct game *game_alloc()
 
                                         struct rotation_vector *rv = rotation_vector_alloc();
                                         rv->rad_vec3 = (union vec4){0, 1, 0, 0};
-                                        struct rotation_vector *rv2 = rotation_vector_alloc();
-                                        rv2->rad_vec3 = (union vec4){0, 1, 0, 0};
                                         struct action *a = action_parallel(
                                                 action_sequence(
                                                         action_alloc_gravity(&rv->rad_vec3,
@@ -593,7 +590,6 @@ struct game *game_alloc()
                                         );
                                         list_add_tail(&a->user_head, &rv->action);
                                         list_add_tail(&rv->head, &test_key.transform->anim_rotations);
-                                        list_add_tail(&rv2->head, &test_key.transform->anim_rotations);
                                         action_key_add_action(&test_key, a);
                                         action_manager_add_key(p->action_manager, &test_key);
                                 }
@@ -603,14 +599,12 @@ struct game *game_alloc()
 
                                         struct rotation_vector *rv = rotation_vector_alloc();
                                         rv->rad_vec3 = (union vec4){0, 1, 0, 0};
-                                        struct rotation_vector *rv2 = rotation_vector_alloc();
-                                        rv2->rad_vec3 = (union vec4){0, 1, 0, 0};
-                                        int path = 1;
+                                        int path = 3;
                                         struct action *a = action_parallel(
                                                 action_sequence(
                                                         action_alloc_gravity(&rv->rad_vec3,
                                                                 0, 4, &(union vec4){1, 0, 0, 0}, &(union vec4){
-                                                                        rv->rad_vec3.x + DEG_TO_RAD(180),
+                                                                        rv->rad_vec3.x + DEG_TO_RAD(90 * path),
                                                                         rv->rad_vec3.y,
                                                                         rv->rad_vec3.z,
                                                                         rv->rad_vec3.w}, NULL),
@@ -638,14 +632,13 @@ struct game *game_alloc()
                                                 action_alloc_gravity(&test_key_2.transform->position_expaned,
                                                         0, 500, &(union vec4){0, -1, 0, 0}, &(union vec4){
                                                                 test_key_2.transform->position_expaned.x,
-                                                                test_key_2.transform->position_expaned.y - 400,
+                                                                test_key_2.transform->position_expaned.y - 200 * path,
                                                                 test_key_2.transform->position_expaned.z,
                                                                 0}, NULL),
                                                 NULL
                                         );
                                         list_add_tail(&a->user_head, &rv->action);
                                         list_add_tail(&rv->head, &test_key_2.transform->anim_rotations);
-                                        list_add_tail(&rv2->head, &test_key_2.transform->anim_rotations);
                                         action_key_add_action(&test_key_2, a);
                                         action_manager_add_key(p->action_manager, &test_key_2);
                                 }
@@ -668,6 +661,7 @@ struct game *game_alloc()
                 node_3d_color_set_position(n2, (union vec3){0, 0, -100});
                 node_3d_color_set_color(n2, (union vec4){0.0, 0.0, 0.0, 0.7});
         }
+
         {
                 struct dae_mesh *pipe = dae_mesh_alloc("res/models/cell_1.dae");
                 for_i_from(i, -12, 15) {
@@ -687,10 +681,9 @@ struct game *game_alloc()
                 }
                 dae_mesh_free(pipe);
         }
-        /* recalculate color tree */
-        union vec4 v = vec4((float[4]){1, 1, 1, 1});
-        branch_color_traverse(node_3d_color_get_branch_color(n1), v);
 
+        /* recalculate color tree */
+        branch_color_traverse(node_3d_color_get_branch_color(n1), (union vec4){1, 1, 1, 1});
 
         /*
          * add ui content
