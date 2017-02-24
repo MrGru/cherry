@@ -30,6 +30,7 @@
 #include <cherry/graphic/camera.h>
 #include <cherry/graphic/dae/dae_mesh.h>
 #include <cherry/graphic/light/light.h>
+#include <cherry/graphic/node/action.h>
 
 /*
  * I don't know why instancing only works with divisor less than 256
@@ -42,6 +43,8 @@
 #define GAME_TRIANGLES_PER_OBJECT 100
 
 static struct node_3d_color *test_node;
+
+static struct action_key    test_key, test_key_2;
 
 /*
  * create ui content
@@ -462,6 +465,7 @@ struct game *game_alloc()
         p->update_queue         = branch_transform_queue_alloc();
         p->n3d_update_queue     = branch_transform_queue_alloc();
         p->frame                = 0;
+        p->action_manager       = action_manager_alloc();
 
         struct renderer *r = renderer_alloc();
         r->pass = render_pass_main_alloc();
@@ -513,9 +517,10 @@ struct game *game_alloc()
 
         int mesh_types = 2;
         struct dae_mesh *mesh[2] = {
-                dae_mesh_alloc("res/models/gem_3.dae"),
-                dae_mesh_alloc("res/models/gem_3.dae")
-                // dae_mesh_alloc("res/models/gem_star.dae")
+                // dae_mesh_alloc("res/models/gem_3.dae"),
+                // dae_mesh_alloc("res/models/gem_3.dae")
+                dae_mesh_alloc("res/models/gem_star_2.dae"),
+                dae_mesh_alloc("res/models/gem_star_2.dae")
         };
         struct node_3d_color *n1 = __game_empty_node_alloc(p);
         union vec4 color[6] = {
@@ -537,8 +542,112 @@ struct game *game_alloc()
                                 node_3d_color_add_node_3d_color(n1, n2);
                                 node_3d_color_set_position(n2, (union vec3){(i - 4) * 200, (j - 4) * 200, 0});
                                 node_3d_color_set_color(n2, color[ct]);
-                                if(!test_node && (i == 4 && j == 4)) {
+
+                                if(!test_node) {
                                         test_node = n2;
+                                }
+                                if(i == 4 && j == 0) {
+                                        action_key_init(&test_key);
+                                        test_key.transform = node_3d_color_get_branch_transform(n2);
+
+                                        struct rotation_vector *rv = rotation_vector_alloc();
+                                        rv->rad_vec3 = (union vec4){0, 1, 0, 0};
+                                        struct rotation_vector *rv2 = rotation_vector_alloc();
+                                        rv2->rad_vec3 = (union vec4){0, 1, 0, 0};
+                                        struct action *a = action_parallel(
+                                                action_sequence(
+                                                        action_alloc_gravity(&rv->rad_vec3,
+                                                                0, 4, &(union vec4){1, 0, 0, 0}, &(union vec4){
+                                                                        rv->rad_vec3.x + DEG_TO_RAD(90),
+                                                                        rv->rad_vec3.y,
+                                                                        rv->rad_vec3.z,
+                                                                        rv->rad_vec3.w}, NULL),
+
+                                                        action_parallel(
+                                                                action_alloc(&test_key.transform->position_expaned,
+                                                                        (union vec4){0, 5, 0, 0},
+                                                                        0.2f, EASE_QUADRATIC_IN_OUT, 0),
+                                                                action_alloc(&rv->rad_vec3,
+                                                                        (union vec4){DEG_TO_RAD(-5), 0, 0, 0},
+                                                                        0.2f, EASE_QUADRATIC_IN_OUT, 0),
+                                                                NULL
+                                                        ),
+                                                        action_parallel(
+                                                                action_alloc(&test_key.transform->position_expaned,
+                                                                        (union vec4){0, -5, 0, 0},
+                                                                        0.2f, EASE_QUADRATIC_IN_OUT, 0),
+                                                                action_alloc(&rv->rad_vec3,
+                                                                        (union vec4){DEG_TO_RAD(5), 0, 0, 0},
+                                                                        0.2f, EASE_QUADRATIC_IN_OUT, 0),
+                                                                NULL
+                                                        ),
+                                                        NULL
+                                                ),
+                                                action_alloc_gravity(&test_key.transform->position_expaned,
+                                                        0, 500, &(union vec4){0, -1, 0, 0}, &(union vec4){
+                                                                test_key.transform->position_expaned.x,
+                                                                test_key.transform->position_expaned.y - 200,
+                                                                test_key.transform->position_expaned.z,
+                                                                0}, NULL),
+                                                NULL
+                                        );
+                                        list_add_tail(&a->user_head, &rv->action);
+                                        list_add_tail(&rv->head, &test_key.transform->anim_rotations);
+                                        list_add_tail(&rv2->head, &test_key.transform->anim_rotations);
+                                        action_key_add_action(&test_key, a);
+                                        action_manager_add_key(p->action_manager, &test_key);
+                                }
+                                if(i == 5 && j == 0) {
+                                        action_key_init(&test_key_2);
+                                        test_key_2.transform = node_3d_color_get_branch_transform(n2);
+
+                                        struct rotation_vector *rv = rotation_vector_alloc();
+                                        rv->rad_vec3 = (union vec4){0, 1, 0, 0};
+                                        struct rotation_vector *rv2 = rotation_vector_alloc();
+                                        rv2->rad_vec3 = (union vec4){0, 1, 0, 0};
+                                        int path = 1;
+                                        struct action *a = action_parallel(
+                                                action_sequence(
+                                                        action_alloc_gravity(&rv->rad_vec3,
+                                                                0, 4, &(union vec4){1, 0, 0, 0}, &(union vec4){
+                                                                        rv->rad_vec3.x + DEG_TO_RAD(180),
+                                                                        rv->rad_vec3.y,
+                                                                        rv->rad_vec3.z,
+                                                                        rv->rad_vec3.w}, NULL),
+
+                                                        action_parallel(
+                                                                action_alloc(&test_key_2.transform->position_expaned,
+                                                                        (union vec4){0, 5, 0, 0},
+                                                                        0.2f, EASE_QUADRATIC_IN_OUT, 0),
+                                                                action_alloc(&rv->rad_vec3,
+                                                                        (union vec4){DEG_TO_RAD(-5), 0, 0, 0},
+                                                                        0.2f, EASE_QUADRATIC_IN_OUT, 0),
+                                                                NULL
+                                                        ),
+                                                        action_parallel(
+                                                                action_alloc(&test_key_2.transform->position_expaned,
+                                                                        (union vec4){0, -5, 0, 0},
+                                                                        0.2f, EASE_QUADRATIC_IN_OUT, 0),
+                                                                action_alloc(&rv->rad_vec3,
+                                                                        (union vec4){DEG_TO_RAD(5), 0, 0, 0},
+                                                                        0.2f, EASE_QUADRATIC_IN_OUT, 0),
+                                                                NULL
+                                                        ),
+                                                        NULL
+                                                ),
+                                                action_alloc_gravity(&test_key_2.transform->position_expaned,
+                                                        0, 500, &(union vec4){0, -1, 0, 0}, &(union vec4){
+                                                                test_key_2.transform->position_expaned.x,
+                                                                test_key_2.transform->position_expaned.y - 400,
+                                                                test_key_2.transform->position_expaned.z,
+                                                                0}, NULL),
+                                                NULL
+                                        );
+                                        list_add_tail(&a->user_head, &rv->action);
+                                        list_add_tail(&rv->head, &test_key_2.transform->anim_rotations);
+                                        list_add_tail(&rv2->head, &test_key_2.transform->anim_rotations);
+                                        action_key_add_action(&test_key_2, a);
+                                        action_manager_add_key(p->action_manager, &test_key_2);
                                 }
                         }
                         {
@@ -666,8 +775,7 @@ void game_update(struct game *p)
         // union vec4 r = *node_3d_color_get_rotation(test_node);
         // union vec4 q = quat_mul(quat_angle_axis(DEG_TO_RAD(1), (float[3]){1, 0, 0}), r);
         // node_3d_color_set_rotation(test_node, q);
-
-
+        action_manager_update(p->action_manager, 1.0f / 60);
         branch_transform_queue_traverse(p->update_queue);
         branch_transform_queue_traverse(p->n3d_update_queue);
 }
@@ -731,5 +839,6 @@ void game_free(struct game *p)
         point_light_free(p->world_light);
         camera_free(p->ui_cam);
         camera_free(p->game_cam);
+        action_manager_free(p->action_manager);
         sfree(p);
 }

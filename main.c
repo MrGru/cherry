@@ -20,25 +20,8 @@
 #include <cherry/stdio.h>
 #include <cherry/math/math.h>
 
-void test(char *p, ...)
-{
-        char *s = NULL;
-        va_list parg;
-        va_start(parg, p);
-
-        s = p;
-        while(s) {
-                debug("%s\n", s);
-                s = va_arg(parg, char*);
-        }
-
-
-        va_end(parg);
-}
-
 int main(int args, char **argv)
 {
-        test("Hello","World",NULL);
         /* setup window parameters */
         int width = 480, height = 800, fullscreen = 0;
         i16 i;

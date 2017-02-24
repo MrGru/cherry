@@ -15,6 +15,7 @@
 #include <cherry/memory.h>
 #include <cherry/list.h>
 #include <cherry/math/math.h>
+#include <cherry/array.h>
 
 static inline void __action_reset(struct action *p)
 {
@@ -29,6 +30,31 @@ static inline void __action_reset(struct action *p)
         }
 }
 
+static struct action *__action_alloc_sequence()
+{
+        struct action *p        = smalloc(sizeof(struct action));
+        p->ease_type            = EASE_SEQUENCE;
+        p->finish               = 0;
+        p->repeat               = 0;
+        INIT_LIST_HEAD(&p->head);
+        INIT_LIST_HEAD(&p->children);
+        INIT_LIST_HEAD(&p->user_head);
+        return p;
+}
+
+static struct action *__action_alloc_parallel()
+{
+        struct action *p        = smalloc(sizeof(struct action));
+        p->ease_type            = EASE_PARALLEL;
+        p->finish               = 0;
+        p->repeat               = 0;
+        INIT_LIST_HEAD(&p->head);
+        INIT_LIST_HEAD(&p->children);
+        INIT_LIST_HEAD(&p->user_head);
+        return p;
+}
+
+
 struct action *action_alloc(union vec4 *target, union vec4 offset, float duration, u8 type, i16 repeat)
 {
         struct action *p        = smalloc(sizeof(struct action));
@@ -39,10 +65,43 @@ struct action *action_alloc(union vec4 *target, union vec4 offset, float duratio
         p->duration             = duration;
         p->remain               = duration;
         p->finish               = 0;
-        p->child_finish         = 0;
         p->repeat               = repeat;
         INIT_LIST_HEAD(&p->head);
         INIT_LIST_HEAD(&p->children);
+        INIT_LIST_HEAD(&p->user_head);
+        return p;
+}
+
+struct action *action_alloc_gravity(union vec4 *target, float velocity, float accelerate, ...)
+{
+        struct action *p        = smalloc(sizeof(struct action));
+        p->ease_type            = EASE_GRAVITY;
+        p->target               = target;
+        p->velocity             = velocity;
+        p->accelerate           = accelerate;
+        p->finish               = 0;
+        p->repeat               = 0;
+        p->directions           = array_alloc(sizeof(union vec4), ORDERED);
+        p->destinations         = array_alloc(sizeof(union vec4), ORDERED);
+        INIT_LIST_HEAD(&p->head);
+        INIT_LIST_HEAD(&p->children);
+        INIT_LIST_HEAD(&p->user_head);
+        va_list parg;
+        va_start(parg, accelerate);
+        union vec4 *v = va_arg(parg, union vec4 *);
+        int i = 0;
+        while(v) {
+                if(i == 0) {
+                        array_push(p->directions, v);
+                } else {
+                        array_push(p->destinations, v);
+                }
+                i++;
+                i %= 2;
+                v = va_arg(parg, union vec4 *);
+        }
+        va_end(parg);
+
         return p;
 }
 
@@ -55,6 +114,11 @@ void action_free(struct action *p)
                 action_free(child);
         }
         list_del(&p->head);
+        list_del(&p->user_head);
+        if(p->ease_type == EASE_GRAVITY) {
+                array_free(p->directions);
+                array_free(p->destinations);
+        }
         sfree(p);
 }
 
@@ -416,11 +480,34 @@ static void __action_ease_circular_in_out(struct action *p, float delta)
         __action_update_target(p, t);
 }
 
+static void __action_ease_gravity(struct action *p, float delta)
+{
+        union vec4 direction    = array_get(p->directions, union vec4, 0);
+        union vec4 destination  = array_get(p->destinations, union vec4, 0);
+
+        union vec4 s            = *p->target;
+        s                       = vec4_add(s, vec4_mul_scalar(direction, p->velocity * delta));
+        s                       = vec4_add(s, vec4_mul_scalar(direction, p->accelerate * delta * delta * 0.5f));
+
+        *p->target              = s;
+        p->velocity             = p->velocity + p->accelerate * delta;
+
+        float c                 = vec4_length(vec4_add(vec4_normalize(direction),
+                                        vec4_normalize(vec4_sub(destination, s))));
+        if(c < 1) {
+                *p->target      = destination;
+                p->finish       = 1;
+        }
+}
+
 u8 action_update(struct action *p, float delta)
 {
         u8 finish = 1;
         if( ! p->finish) {
                 switch (p->ease_type) {
+                        case EASE_GRAVITY:
+                                __action_ease_gravity(p, delta);
+                                break;
                         case EASE_LINEAR:
                                 __action_ease_linear(p, delta);
                                 break;
@@ -509,21 +596,47 @@ u8 action_update(struct action *p, float delta)
                                 __action_ease_circular_in_out(p, delta);
                                 break;
 
+                        case EASE_PARALLEL:
+                                {
+                                        struct list_head *head;
+                                        p->finish = 1;
+                                        list_for_each(head, &p->children) {
+                                                struct action *child = (struct action *)
+                                                        ((void *)head - offsetof(struct action, head));
+                                                u8 child_finish = action_update(child, delta);
+                                                p->finish &= child_finish;
+                                        }
+                                }
+                                break;
+
+                        case EASE_SEQUENCE:
+                                {
+                                        struct list_head *head;
+                                        p->finish = 1;
+                                        list_for_each(head, &p->children) {
+                                                struct action *child = (struct action *)
+                                                        ((void *)head - offsetof(struct action, head));
+                                                if(child->finish) {
+                                                        continue;
+                                                } else {
+                                                        u8 child_finish = action_update(child, delta);
+                                                        if(child_finish && head == p->children.prev) {
+                                                                p->finish = 1;
+                                                        } else {
+                                                                p->finish = 0;
+                                                        }
+                                                        break;
+                                                }
+                                        }
+                                }
+                                break;
+
                         default:
                                 __action_ease_linear(p, delta);
                                 break;
                 }
         }
         finish &= p->finish;
-        if(finish) {
-                struct list_head *head;
-                list_for_each(head, &p->children) {
-                        struct action *child = (struct action *)
-                                ((void *)head - offsetof(struct action, head));
-                        u8 child_finish = action_update(child, delta);
-                        finish &= child_finish;
-                }
-        }
         if(finish) {
                 if(p->repeat == -1) {
                         __action_reset(p);
@@ -539,29 +652,30 @@ u8 action_update(struct action *p, float delta)
 
 struct action *action_sequence(struct action *p, ...)
 {
+        struct action *se = __action_alloc_sequence();
         va_list parg;
         va_start(parg, p);
-        struct action *parent   = p;
-        struct action *child    = va_arg(parg, struct action *);
+        struct action *child    = p;
         while(child) {
-                list_add_tail(&child->head, &parent->children);
-                parent = child;
+                list_add_tail(&child->head, &se->children);
                 child = va_arg(parg, struct action *);
         }
         va_end(parg);
+        return se;
 }
 
 struct action *action_parallel(struct action *p, ...)
 {
+        struct action *se = __action_alloc_parallel();
         va_list parg;
         va_start(parg, p);
-        struct action *parent   = p;
-        struct action *child    = va_arg(parg, struct action *);
+        struct action *child    = p;
         while(child) {
-                list_add_tail(&child->head, &parent->children);
+                list_add_tail(&child->head, &se->children);
                 child = va_arg(parg, struct action *);
         }
         va_end(parg);
+        return se;
 }
 
 /*
@@ -612,6 +726,7 @@ void action_manager_free(struct action_manager *p)
                 }
                 list_del_init(&key->key_head);
         }
+        sfree(p);
 }
 
 void action_manager_add_key(struct action_manager *p, struct action_key * k)
@@ -624,4 +739,10 @@ void action_key_add_action(struct action_key *p, struct action * a)
 {
         list_del(&a->head);
         list_add_tail(&a->head, &p->actions);
+}
+
+void action_key_init(struct action_key *p)
+{
+        INIT_LIST_HEAD(&p->key_head);
+        INIT_LIST_HEAD(&p->actions);
 }

@@ -22,6 +22,10 @@ void branch_transform_queue_traverse(struct branch_transform_queue *p);
 
 void branch_transform_queue_free(struct branch_transform_queue *p);
 
+struct rotation_vector *rotation_vector_alloc();
+
+void rotation_vector_free(struct rotation_vector *p);
+
 /*
  * branch z definitions
  */

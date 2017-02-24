@@ -34,6 +34,12 @@ struct branch_transform_queue {
         u8                      full;
 };
 
+struct rotation_vector {
+        struct list_head        head;
+        struct list_head        action;
+        union vec4              rad_vec3;
+};
+
 /*
  * branch_transform_queue only keep list of branchs knowing
  * which sub branchs would be updated by child_updater_list;
@@ -83,6 +89,8 @@ struct branch_transform {
                 union vec4              size_expaned;
         };
         union vec4                      quat;
+
+        struct list_head                anim_rotations;
 
         union mat4                      last_transform;
 
@@ -213,24 +221,39 @@ enum {
         EASE_EXPONENTIAL_IN_OUT,
         EASE_CIRCULAR_IN,
         EASE_CIRCULAR_OUT,
-        EASE_CIRCULAR_IN_OUT
+        EASE_CIRCULAR_IN_OUT,
+
+        EASE_GRAVITY,
+        EASE_SEQUENCE,
+        EASE_PARALLEL
 };
 
 struct action {
+        struct list_head                user_head;
         struct list_head                head;
         struct list_head                children;
 
         u8                              ease_type;
 
         union vec4                      *target;
-        union vec4                      offset;
-        union vec4                      last_amount_offset;
+        union {
+                struct {
+                        union vec4      offset;
+                        union vec4      last_amount_offset;
 
-        float                           duration;
-        float                           remain;
+                        float           duration;
+                        float           remain;
+                };
+                struct {
+                        float           velocity;
+                        float           accelerate;
+
+                        struct array    *directions;
+                        struct array    *destinations;
+                };
+        };
 
         u8                              finish;
-        u8                              child_finish;
 
         i16                             repeat;
 };

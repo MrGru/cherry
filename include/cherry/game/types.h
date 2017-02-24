@@ -102,6 +102,8 @@ struct game {
 
         struct point_light              *world_light;
 
+        struct action_manager           *action_manager;
+
         u8                              frame;
 };
 

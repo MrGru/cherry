@@ -18,6 +18,8 @@
 
 struct action *action_alloc(union vec4 *target, union vec4 offset, float duration, u8 type, i16 repeat);
 
+struct action *action_alloc_gravity(union vec4 *target, float velocity, float accelerate, ...);
+
 void action_free(struct action *p);
 
 u8 action_update(struct action *p, float delta);
@@ -38,5 +40,7 @@ void action_manager_free(struct action_manager *p);
 void action_manager_add_key(struct action_manager *p, struct action_key * k);
 
 void action_key_add_action(struct action_key *p, struct action * a);
+
+void action_key_init(struct action_key *p);
 
 #endif

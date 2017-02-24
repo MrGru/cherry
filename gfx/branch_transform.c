@@ -17,6 +17,23 @@
 #include <cherry/math/math.h>
 #include <cherry/memory.h>
 
+struct rotation_vector *rotation_vector_alloc()
+{
+        struct rotation_vector *p = smalloc(sizeof(struct rotation_vector));
+        INIT_LIST_HEAD(&p->head);
+        INIT_LIST_HEAD(&p->action);
+        return p;
+}
+
+void rotation_vector_free(struct rotation_vector *p)
+{
+        list_del(&p->head);
+        if(!list_singular(&p->action)) {
+                list_del_init(p->action.next);
+        }
+        sfree(p);
+}
+
 struct branch_transform_queue *branch_transform_queue_alloc()
 {
         struct branch_transform_queue *p = smalloc(sizeof(struct branch_transform_queue));
@@ -61,9 +78,9 @@ struct branch_transform *branch_transform_alloc(u8 bid, struct branch_transform_
         struct branch_transform *p      = smalloc(sizeof(struct branch_transform));
         p->bid                          = bid;
         p->update                       = 0;
-        p->position                     = vec3((float[3]){0, 0, 0});
-        p->scale                        = vec3((float[3]){1, 1, 1});
-        p->size                         = vec3((float[3]){1, 1, 1});
+        p->position_expaned             = vec4((float[4]){0, 0, 0, 0});
+        p->scale_expaned                = vec4((float[4]){1, 1, 1, 0});
+        p->size_expaned                 = vec4((float[4]){1, 1, 1, 0});
         p->quat                         = quat_identity;
         p->parent = NULL;
         p->update_queue = queue;
@@ -73,6 +90,7 @@ struct branch_transform *branch_transform_alloc(u8 bid, struct branch_transform_
         INIT_LIST_HEAD(&p->child_updater_list);
         INIT_LIST_HEAD(&p->updater_head);
         INIT_LIST_HEAD(&p->update_queue_head);
+        INIT_LIST_HEAD(&p->anim_rotations);
         return p;
 }
 
@@ -90,6 +108,11 @@ void branch_transform_free(struct branch_transform *p)
                 struct branch_transform *b = (struct branch_transform *)
                         ((void *)head - offsetof(struct branch_transform, branch_head));
                 branch_transform_free(b);
+        }
+        list_while_not_singular(head, &p->anim_rotations) {
+                struct rotation_vector *rv = (struct rotation_vector *)
+                        ((void *)head - offsetof(struct rotation_vector, head));
+                rotation_vector_free(rv);
         }
         list_del(&p->update_queue_head);
         sfree(p);
@@ -147,6 +170,7 @@ void branch_transform_shake(struct branch_transform *p)
                                         list_del_init(&b->update_queue_head);
                                         break;
                                 }
+                                parent = parent->parent;
                         }
                 }
         }
@@ -158,6 +182,7 @@ void branch_transform_shake(struct branch_transform *p)
                 struct branch_transform *parent = p->parent;
                 if(parent) {
                         list_add_tail(&p->updater_head, &parent->child_updater_list);
+                        list_del(&parent->update_queue_head);
                         list_add_tail(&parent->update_queue_head, &p->update_queue->list);
                 } else {
                         p->update_queue->full = 1;
@@ -169,9 +194,26 @@ void branch_transform_shake(struct branch_transform *p)
 void branch_transform_traverse(struct branch_transform *p, union mat4 cm)
 {
         if(p->update) {
+                union vec4 aquat = quat_identity;
+                struct list_head *rhead, *rnext;
+                i16 i = 0;
+                list_for_each_safe(rhead, rnext, &p->anim_rotations) {
+                        struct rotation_vector *rv = (struct rotation_vector *)
+                                ((void *)rhead - offsetof(struct rotation_vector, head));
+                        if(i == 0 && list_singular(&rv->action)) {
+                                p->quat = quat_mul(p->quat, quat_angle_axis(rv->rad_vec3.x, &rv->rad_vec3.y));
+                                rotation_vector_free(rv);
+                                i--;
+                        } else {
+                                aquat = quat_mul(aquat, quat_angle_axis(rv->rad_vec3.x, &rv->rad_vec3.y));
+                        }
+                        i++;
+                }
+
                 union mat4 transform = mat4_identity;
                 transform = mat4_translate(transform, p->position);
                 transform = mat4_mul(transform, mat4_from_quat(p->quat));
+                if(i) transform = mat4_mul(transform, mat4_from_quat(aquat));
                 transform = mat4_scale(transform, p->scale);
                 transform = mat4_mul(cm, transform);
 
