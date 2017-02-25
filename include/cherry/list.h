@@ -72,8 +72,14 @@ static inline int list_singular(struct list_head *head)
 #define list_for_each(p, list) \
         for(p = (list)->next; p != (list); p = p->next)
 
+#define list_back_each(p, list) \
+        for(p = (list)->prev; p != (list); p = p->prev)
+
 #define list_for_each_safe(p, k, list) \
         for(p = (list)->next, k = p->next; p != (list); p = k, k = p->next)
+
+#define list_back_each_safe(p, k, list) \
+        for(p = (list)->prev, k = p->prev; p != (list); p = k, k = p->prev)
 
 #define list_while_not_singular(p, list) \
         while(!list_singular(list) && (p = (list)->next))

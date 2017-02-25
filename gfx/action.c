@@ -72,6 +72,20 @@ struct action *action_alloc(union vec4 *target, union vec4 offset, float duratio
         return p;
 }
 
+struct action *action_alloc_force(union vec4 *target, union vec4 destination)
+{
+        struct action *p        = smalloc(sizeof(struct action));
+        p->ease_type            = EASE_FORCE;
+        p->target               = target;
+        p->destination          = destination;
+        p->finish               = 0;
+        p->repeat               = 0;
+        INIT_LIST_HEAD(&p->head);
+        INIT_LIST_HEAD(&p->children);
+        INIT_LIST_HEAD(&p->user_head);
+        return p;
+}
+
 struct action *action_alloc_gravity(union vec4 *target, float velocity, float accelerate, ...)
 {
         struct action *p        = smalloc(sizeof(struct action));
@@ -81,23 +95,16 @@ struct action *action_alloc_gravity(union vec4 *target, float velocity, float ac
         p->accelerate           = accelerate;
         p->finish               = 0;
         p->repeat               = 0;
-        p->directions           = array_alloc(sizeof(union vec4), ORDERED);
         p->destinations         = array_alloc(sizeof(union vec4), ORDERED);
+        p->index                = 0;
         INIT_LIST_HEAD(&p->head);
         INIT_LIST_HEAD(&p->children);
         INIT_LIST_HEAD(&p->user_head);
         va_list parg;
         va_start(parg, accelerate);
         union vec4 *v = va_arg(parg, union vec4 *);
-        int i = 0;
         while(v) {
-                if(i == 0) {
-                        array_push(p->directions, v);
-                } else {
-                        array_push(p->destinations, v);
-                }
-                i++;
-                i %= 2;
+                array_push(p->destinations, v);
                 v = va_arg(parg, union vec4 *);
         }
         va_end(parg);
@@ -116,7 +123,6 @@ void action_free(struct action *p)
         list_del(&p->head);
         list_del(&p->user_head);
         if(p->ease_type == EASE_GRAVITY) {
-                array_free(p->directions);
                 array_free(p->destinations);
         }
         sfree(p);
@@ -482,25 +488,44 @@ static void __action_ease_circular_in_out(struct action *p, float delta)
 
 static void __action_ease_gravity(struct action *p, float delta)
 {
-        union vec4 direction    = array_get(p->directions, union vec4, 0);
-        union vec4 destination  = array_get(p->destinations, union vec4, 0);
-
-        union vec4 s            = *p->target;
-        s                       = vec4_add(s, vec4_mul_scalar(direction, p->velocity * delta));
-        s                       = vec4_add(s, vec4_mul_scalar(direction, p->accelerate * delta * delta * 0.5f));
-
-        *p->target              = s;
-        p->velocity             = p->velocity + p->accelerate * delta;
-
-        float c                 = vec4_length(vec4_add(vec4_normalize(direction),
-                                        vec4_normalize(vec4_sub(destination, s))));
-        if(c < 1) {
-                *p->target      = destination;
-                array_remove(p->directions, 0);
-                array_remove(p->destinations, 0);
-                if(p->directions->len == 0)
-                        p->finish       = 1;
+        if(p->destinations->len == 0) {
+                p->finish = 0;
+                goto end;
         }
+        union vec4 destination          = array_get(p->destinations, union vec4, p->index);
+        union vec4 s                    = *p->target;
+
+        if(smemcmp(&destination, &s, sizeof(union vec4)) == 0) goto finish;
+
+        union vec4 direction            = vec4_normalize(vec4_sub(destination, s));
+
+        s                               = vec4_add(s, vec4_mul_scalar(direction, p->velocity * delta));
+        s                               = vec4_add(s, vec4_mul_scalar(direction, p->accelerate * delta * delta * 0.5f));
+
+        *p->target                      = s;
+        p->velocity                     = p->velocity + p->accelerate * delta;
+
+        if(smemcmp(&destination, &s, sizeof(union vec4)) == 0) goto finish;
+
+        union vec4 new_direction        = vec4_normalize(vec4_sub(destination, s));
+
+        float c                         = vec4_length(vec4_add(direction, new_direction));
+
+        if(c > 1) goto end;
+
+finish:;
+        p->index++;
+        if(p->index == p->destinations->len) {
+                *p->target              = destination;
+                p->finish               = 1;
+        }
+end:;
+}
+
+static void __action_ease_force(struct action *p)
+{
+        *p->target = p->destination;
+        p->finish = 1;
 }
 
 u8 action_update(struct action *p, float delta)
@@ -508,6 +533,9 @@ u8 action_update(struct action *p, float delta)
         u8 finish = 1;
         if( ! p->finish) {
                 switch (p->ease_type) {
+                        case EASE_FORCE:
+                                __action_ease_force(p);
+                                break;
                         case EASE_GRAVITY:
                                 __action_ease_gravity(p, delta);
                                 break;

@@ -11,17 +11,17 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GAME_PATH_H__
-#define __CHERRY_GAME_PATH_H__
+#ifndef __CHERRY_GAME_DELIVER_H__
+#define __CHERRY_GAME_DELIVER_H__
 
 #include <cherry/game/types.h>
 
-struct path_point *path_point_alloc();
+struct element_deliver *element_deliver_alloc_path_point(struct path_point *pp);
 
-void path_point_free(struct path_point *p);
+struct element_deliver *element_deliver_alloc_gate(struct path_point *pp);
 
-void path_point_add_neighbor(struct path_point *p, struct path_point *n, u8 index);
+struct element_deliver *element_deliver_alloc_gem_list(struct list_head *list, union vec4 pos);
 
-void path_point_check_move(struct path_point *p, struct game *game);
+void element_deliver_free(struct element_deliver *p);
 
 #endif

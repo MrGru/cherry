@@ -78,9 +78,9 @@ struct branch_transform *branch_transform_alloc(u8 bid, struct branch_transform_
         struct branch_transform *p      = smalloc(sizeof(struct branch_transform));
         p->bid                          = bid;
         p->update                       = 0;
-        p->position_expaned             = vec4((float[4]){0, 0, 0, 0});
-        p->scale_expaned                = vec4((float[4]){1, 1, 1, 0});
-        p->size_expaned                 = vec4((float[4]){1, 1, 1, 0});
+        p->position_expanded            = vec4((float[4]){0, 0, 0, 0});
+        p->scale_expanded               = vec4((float[4]){1, 1, 1, 0});
+        p->size_expanded                = vec4((float[4]){1, 1, 1, 0});
         p->quat                         = quat_identity;
         p->parent = NULL;
         p->update_queue = queue;

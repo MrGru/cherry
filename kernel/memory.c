@@ -24,11 +24,8 @@
 
 #define MEM_PAGE 4096
 
-/*
- * I don't know why MEM_DEBUG=0 will cause crash on some linux device
- */
 #ifndef MEM_DEBUG
-        #define MEM_DEBUG 1
+        #define MEM_DEBUG 0
 #endif
 
 /*
@@ -39,6 +36,11 @@ struct mem_block_head {
         struct pool_head        head;
 #if MEM_DEBUG == 1
         u8                      used;
+#else
+        /*
+         * without 1 byte padding will generate crash on some linux Release build
+         */
+        u8                      padding;
 #endif
         int                     *count;
 };

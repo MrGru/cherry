@@ -78,15 +78,15 @@ struct branch_transform {
          */
         union {
                 union vec3              position;
-                union vec4              position_expaned;
+                union vec4              position_expanded;
         };
         union {
                 union vec3              scale;
-                union vec4              scale_expaned;
+                union vec4              scale_expanded;
         };
         union {
                 union vec3              size;
-                union vec4              size_expaned;
+                union vec4              size_expanded;
         };
         union vec4                      quat;
 
@@ -225,7 +225,9 @@ enum {
 
         EASE_GRAVITY,
         EASE_SEQUENCE,
-        EASE_PARALLEL
+        EASE_PARALLEL,
+
+        EASE_FORCE
 };
 
 struct action {
@@ -248,8 +250,12 @@ struct action {
                         float           velocity;
                         float           accelerate;
 
-                        struct array    *directions;
                         struct array    *destinations;
+
+                        i16             index;
+                };
+                struct {
+                        union vec4      destination;
                 };
         };
 

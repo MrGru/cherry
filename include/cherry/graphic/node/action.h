@@ -18,6 +18,8 @@
 
 struct action *action_alloc(union vec4 *target, union vec4 offset, float duration, u8 type, i16 repeat);
 
+struct action *action_alloc_force(union vec4 *target, union vec4 destination);
+
 struct action *action_alloc_gravity(union vec4 *target, float velocity, float accelerate, ...);
 
 void action_free(struct action *p);

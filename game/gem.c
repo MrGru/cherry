@@ -29,11 +29,6 @@ struct gem *gem_alloc(u16 type)
         action_key_init(&p->node_choice_key);
         action_key_init(&p->node_unchoice_key);
         action_key_init(&p->node_collected_key);
-
-        action_key_init(&p->flipped_node_move_key);
-        action_key_init(&p->flipped_node_move_key);
-        action_key_init(&p->flipped_node_move_key);
-        action_key_init(&p->flipped_node_move_key);
         return p;
 }
 
@@ -43,11 +38,6 @@ void gem_free(struct gem *p)
         action_key_clear(&p->node_choice_key);
         action_key_clear(&p->node_unchoice_key);
         action_key_clear(&p->node_collected_key);
-
-        action_key_clear(&p->flipped_node_move_key);
-        action_key_clear(&p->flipped_node_move_key);
-        action_key_clear(&p->flipped_node_move_key);
-        action_key_clear(&p->flipped_node_move_key);
 
         list_del(&p->elm.path_head);
         sfree(p);

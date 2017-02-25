@@ -19,6 +19,7 @@
 #include <cherry/string.h>
 #include <cherry/stdio.h>
 #include <cherry/math/math.h>
+#include <cherry/list.h>
 
 int main(int args, char **argv)
 {

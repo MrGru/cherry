@@ -42,6 +42,8 @@ enum {
         GEM_6_LV_3
 };
 
+#define element_is_gem(elm) ((elm)->type >= GEM_1_LV_1 && (elm)->type <= GEM_6_LV_3)
+
 struct game_element {
         struct list_head                path_head;
 
@@ -59,11 +61,6 @@ struct gem {
         struct action_key               node_choice_key;
         struct action_key               node_unchoice_key;
         struct action_key               node_collected_key;
-
-        struct action_key               flipped_node_move_key;
-        struct action_key               flipped_node_choice_key;
-        struct action_key               flipped_node_unchoice_key;
-        struct action_key               flipped_node_collected_key;
 };
 
 /*
@@ -77,8 +74,6 @@ struct path_point;
 struct element_deliver;
 
 struct path_point {
-        struct list_head                request_dyelm_head;
-
         struct list_head                neighbor[8];
         struct list_head                neighbor_head[8];
 
@@ -88,29 +83,41 @@ struct path_point {
 
         union {
                 union vec3              position;
-                union vec4              position_expaned;
+                union vec4              position_expanded;
         };
 
-        struct element_deliver          *deliver;
+        struct array                    *delivers;
 };
 
 enum {
         ELEMENT_DELIVER_PATH_POINT,
-        ELEMENT_DELIVER_POOL
+        ELEMENT_DELIVER_POOL,
+        ELEMENT_DELIVER_GATE
 };
 
+/*
+ * @trace_head : used to maintain moving algorithm
+ */
 struct element_deliver {
-        u8                                      type;
+        struct list_head                                trace_head;
+        u8                                              type;
         union {
                 /*
-                 * ppoint active when type is ELEMENT_DELIVER_PATH_POINT
+                 * ppoint active when type is ELEMENT_DELIVER_PATH_POINT, ELEMENT_DELIVER_GATE
                  */
-                struct path_point               *ppoint;
+                struct {
+                        struct path_point               *ppoint;
+                        union vec4                      gate_pos_expanded;
+                };
                 /*
                  * element pool active when type is ELEMENT_DELIVER_POOL
                  */
                 struct {
-                        struct list_head        element_list;
+                        struct list_head                *element_list;
+                        union {
+                                union vec3              position;
+                                union vec4              position_expanded;
+                        };
                 };
         };
 };

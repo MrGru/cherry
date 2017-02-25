@@ -554,14 +554,14 @@ struct game *game_alloc()
                                         struct action *a = action_parallel(
                                                 action_sequence(
                                                         action_alloc_gravity(&rv->rad_vec3,
-                                                                0, 4, &(union vec4){1, 0, 0, 0}, &(union vec4){
+                                                                0, 4, &(union vec4){
                                                                         rv->rad_vec3.x + DEG_TO_RAD(90),
                                                                         rv->rad_vec3.y,
                                                                         rv->rad_vec3.z,
                                                                         rv->rad_vec3.w}, NULL),
 
                                                         action_parallel(
-                                                                action_alloc(&test_key.transform->position_expaned,
+                                                                action_alloc(&test_key.transform->position_expanded,
                                                                         (union vec4){0, 5, 0, 0},
                                                                         0.2f, EASE_QUADRATIC_IN_OUT, 0),
                                                                 action_alloc(&rv->rad_vec3,
@@ -570,7 +570,7 @@ struct game *game_alloc()
                                                                 NULL
                                                         ),
                                                         action_parallel(
-                                                                action_alloc(&test_key.transform->position_expaned,
+                                                                action_alloc(&test_key.transform->position_expanded,
                                                                         (union vec4){0, -5, 0, 0},
                                                                         0.2f, EASE_QUADRATIC_IN_OUT, 0),
                                                                 action_alloc(&rv->rad_vec3,
@@ -580,11 +580,11 @@ struct game *game_alloc()
                                                         ),
                                                         NULL
                                                 ),
-                                                action_alloc_gravity(&test_key.transform->position_expaned,
-                                                        0, 500, &(union vec4){0, -1, 0, 0}, &(union vec4){
-                                                                test_key.transform->position_expaned.x,
-                                                                test_key.transform->position_expaned.y - 200,
-                                                                test_key.transform->position_expaned.z,
+                                                action_alloc_gravity(&test_key.transform->position_expanded,
+                                                        0, 500, &(union vec4){
+                                                                test_key.transform->position_expanded.x,
+                                                                test_key.transform->position_expanded.y - 200,
+                                                                test_key.transform->position_expanded.z,
                                                                 0}, NULL),
                                                 NULL
                                         );
@@ -603,14 +603,14 @@ struct game *game_alloc()
                                         struct action *a = action_parallel(
                                                 action_sequence(
                                                         action_alloc_gravity(&rv->rad_vec3,
-                                                                0, 4, &(union vec4){1, 0, 0, 0}, &(union vec4){
+                                                                0, 4, &(union vec4){
                                                                         rv->rad_vec3.x + DEG_TO_RAD(90 * path),
                                                                         rv->rad_vec3.y,
                                                                         rv->rad_vec3.z,
                                                                         rv->rad_vec3.w}, NULL),
 
                                                         action_parallel(
-                                                                action_alloc(&test_key_2.transform->position_expaned,
+                                                                action_alloc(&test_key_2.transform->position_expanded,
                                                                         (union vec4){0, 5, 0, 0},
                                                                         0.2f, EASE_QUADRATIC_IN_OUT, 0),
                                                                 action_alloc(&rv->rad_vec3,
@@ -619,7 +619,7 @@ struct game *game_alloc()
                                                                 NULL
                                                         ),
                                                         action_parallel(
-                                                                action_alloc(&test_key_2.transform->position_expaned,
+                                                                action_alloc(&test_key_2.transform->position_expanded,
                                                                         (union vec4){0, -5, 0, 0},
                                                                         0.2f, EASE_QUADRATIC_IN_OUT, 0),
                                                                 action_alloc(&rv->rad_vec3,
@@ -629,11 +629,12 @@ struct game *game_alloc()
                                                         ),
                                                         NULL
                                                 ),
-                                                action_alloc_gravity(&test_key_2.transform->position_expaned,
-                                                        0, 500, &(union vec4){0, -1, 0, 0}, &(union vec4){
-                                                                test_key_2.transform->position_expaned.x,
-                                                                test_key_2.transform->position_expaned.y - 200 * path,
-                                                                test_key_2.transform->position_expaned.z,
+                                                action_alloc_gravity(&test_key_2.transform->position_expanded,
+                                                        0, 500,
+                                                                &(union vec4){
+                                                                test_key_2.transform->position_expanded.x,
+                                                                test_key_2.transform->position_expanded.y - 200 * path,
+                                                                test_key_2.transform->position_expanded.z,
                                                                 0}, NULL),
                                                 NULL
                                         );
