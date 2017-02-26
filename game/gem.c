@@ -16,11 +16,12 @@
 #include <cherry/list.h>
 #include <cherry/graphic/node/action.h>
 #include <cherry/math/math.h>
+#include <cherry/game/element.h>
 
 struct gem *gem_alloc(u16 type)
 {
         struct gem *p   = smalloc(sizeof(struct gem));
-        INIT_LIST_HEAD(&p->elm.path_head);
+        game_element_init(&p->elm);
         p->elm.type     = type;
         p->node         = NULL;
         p->flipped_node = NULL;
@@ -40,6 +41,7 @@ void gem_free(struct gem *p)
         action_key_clear(&p->node_collected_key);
 
         list_del(&p->elm.path_head);
+        list_del(&p->elm.life_head);
         sfree(p);
 }
 

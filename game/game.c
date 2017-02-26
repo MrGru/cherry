@@ -31,6 +31,7 @@
 #include <cherry/graphic/dae/dae_mesh.h>
 #include <cherry/graphic/light/light.h>
 #include <cherry/graphic/node/action.h>
+#include <cherry/xml/xml.h>
 
 /*
  * I don't know why instancing only works with divisor less than 256
@@ -456,7 +457,6 @@ struct game *game_alloc()
         time_t t;
         /* Intializes random number generator */
         srand((unsigned) time(&t));
-
         int i, j;
         struct game *p  = smalloc(sizeof(struct game));
         INIT_LIST_HEAD(&p->renderer_list);
@@ -808,6 +808,40 @@ void game_resize(struct game *p, int width, int height)
 
         __game_resize_ui_content(p);
         __game_resize_game_content(p);
+}
+
+void game_clear(struct game *p)
+{
+        struct list_head *head;
+        list_while_not_singular(head, &p->node_tree_list) {
+                struct node_tree *nt = (struct node_tree *)
+                        ((void *)head - offsetof(struct node_tree, life_head));
+                node_tree_free(nt);
+        }
+        list_while_not_singular(head, &p->node_3d_color_list) {
+                struct node_3d_color *n = (struct node_3d_color *)
+                        ((void *)head - offsetof(struct node_3d_color, life_head));
+                node_3d_color_free(n);
+        }
+        list_while_not_singular(head, &p->renderer_list) {
+                struct renderer *renderer = (struct renderer *)
+                        ((void *)head - offsetof(struct renderer, chain_head));
+                renderer_free(renderer);
+        }
+        if(p->update_queue) {
+                branch_transform_queue_free(p->update_queue);
+        }
+        p->update_queue = branch_transform_queue_alloc();
+
+        if(p->n3d_update_queue) {
+                branch_transform_queue_free(p->n3d_update_queue);
+        }
+        p->n3d_update_queue = branch_transform_queue_alloc();
+
+        if(p->action_manager) {
+                action_manager_free(p->action_manager);
+        }
+        p->action_manager = action_manager_alloc();
 }
 
 void game_free(struct game *p)

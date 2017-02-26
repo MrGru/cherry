@@ -11,23 +11,15 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GAME_GAME_H__
-#define __CHERRY_GAME_GAME_H__
+#include <cherry/game/game.h>
+#include <cherry/memory.h>
+#include <cherry/list.h>
+#include <cherry/string.h>
+#include <cherry/game/path.h>
+#include <cherry/game/deliver.h>
+#include <cherry/game/gem.h>
 
-#include <cherry/game/types.h>
+void game_parse_level(struct game *p)
+{
 
-struct game *game_alloc();
-
-void game_update(struct game *p);
-
-void game_render(struct game *p);
-
-void game_clear(struct game *p);
-
-void game_parse_level(struct game *p);
-
-void game_free(struct game *p);
-
-void game_resize(struct game *p, int width, int height);
-
-#endif
+}

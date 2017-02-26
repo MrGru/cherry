@@ -32,6 +32,7 @@ struct path_point *path_point_alloc()
         INIT_LIST_HEAD(&p->dynamic_element);
         INIT_LIST_HEAD(&p->obstacle_lv1);
         INIT_LIST_HEAD(&p->obstacle_lv2);
+        INIT_LIST_HEAD(&p->life_head);
         p->delivers             = array_alloc(sizeof(struct element_deliver *), ORDERED);
         p->position_expanded    = (union vec4){0 , 0, 0, 0};
         return p;
@@ -39,8 +40,9 @@ struct path_point *path_point_alloc()
 
 void path_point_free(struct path_point *p)
 {
-        sfree(p);
+        list_del(&p->life_head);
         array_free(p->delivers);
+        sfree(p);
 }
 
 void path_point_add_neighbor(struct path_point *p, struct path_point *n, u8 index)

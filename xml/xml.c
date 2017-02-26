@@ -26,6 +26,7 @@
 #define xml_read_attribute_value        5
 #define xml_find_element                6
 #define xml_check_element_value         7
+#define xml_read_comment                8
 
 static inline struct xml_attribute *__xml_attribute_alloc()
 {
@@ -106,9 +107,18 @@ struct xml_element *xml_parse(char *file)
         for_i(i, text->len) {
                 char c = text->ptr[i];
                 switch(state) {
+                        case xml_read_comment:
+                                if(c == '>') {
+                                        start   = end = 0;
+                                        finish  = 0;
+                                        state   = xml_none;
+                                }
+                                break;
                         case xml_none :
                                 if(c == '<') {
-                                        if(text->ptr[i + 1] == '/') {
+                                        if(text->ptr[i + 1] == '!') {
+                                                state = xml_read_comment;
+                                        } else if(text->ptr[i + 1] == '/') {
                                                 i++;
                                                 current = current->parent;
                                                 state   = xml_none;
@@ -222,8 +232,9 @@ struct xml_element *xml_parse(char *file)
                                         //find end element
                                         current = current->parent;
                                         state   = xml_none;
-                                } else
-                                {
+                                } else if(c == '!') {
+                                        state = xml_read_comment;
+                                } else {
                                         /* create new child and assign it to current parent */
                                         start   = end = i;
                                         finish  = 0;

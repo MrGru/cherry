@@ -45,6 +45,7 @@ enum {
 #define element_is_gem(elm) ((elm)->type >= GEM_1_LV_1 && (elm)->type <= GEM_6_LV_3)
 
 struct game_element {
+        struct list_head                life_head;
         struct list_head                path_head;
 
         u16                             type;
@@ -74,6 +75,7 @@ struct path_point;
 struct element_deliver;
 
 struct path_point {
+        struct list_head                life_head;
         struct list_head                neighbor[8];
         struct list_head                neighbor_head[8];
 
@@ -99,6 +101,7 @@ enum {
  * @trace_head : used to maintain moving algorithm
  */
 struct element_deliver {
+        struct list_head                                life_head;
         struct list_head                                trace_head;
         u8                                              type;
         union {
@@ -129,6 +132,13 @@ struct game {
         struct list_head                renderer_list;
         struct list_head                node_tree_list;
         struct list_head                node_3d_color_list;
+        struct list_head                deliver_list;
+        struct list_head                element_list;
+        struct list_head                element_pool_list;
+        struct list_head                path_point_list;
+
+        struct path_point               *path_point_touches[9][9];
+
 
         struct branch_transform_queue   *update_queue;
         struct branch_transform_queue   *n3d_update_queue;
@@ -148,6 +158,8 @@ struct game {
         struct point_light              *world_light;
 
         struct action_manager           *action_manager;
+
+
 
         u8                              frame;
 };

@@ -743,7 +743,7 @@ void action_manager_update(struct action_manager *p, float delta)
         }
 }
 
-void action_manager_free(struct action_manager *p)
+static inline void __action_manager_clear(struct action_manager *p)
 {
         struct list_head *head;
         list_while_not_singular(head, &p->keys) {
@@ -751,6 +751,11 @@ void action_manager_free(struct action_manager *p)
                         ((void *)head - offsetof(struct action_key, key_head));
                 action_key_clear(key);
         }
+}
+
+void action_manager_free(struct action_manager *p)
+{
+        __action_manager_clear(p);
         sfree(p);
 }
 

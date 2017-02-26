@@ -24,6 +24,7 @@ struct element_deliver *element_deliver_alloc_path_point(struct path_point *pp)
         p->type                         = ELEMENT_DELIVER_PATH_POINT;
         p->ppoint                       = pp;
         INIT_LIST_HEAD(&p->trace_head);
+        INIT_LIST_HEAD(&p->life_head);
         return p;
 }
 
@@ -33,6 +34,7 @@ struct element_deliver *element_deliver_alloc_gate(struct path_point *pp)
         p->type                         = ELEMENT_DELIVER_GATE;
         p->ppoint                       = pp;
         INIT_LIST_HEAD(&p->trace_head);
+        INIT_LIST_HEAD(&p->life_head);
         return p;
 }
 
@@ -43,10 +45,12 @@ struct element_deliver *element_deliver_alloc_gem_list(struct list_head *list, u
         p->element_list                 = list;
         p->position_expanded            = pos;
         INIT_LIST_HEAD(&p->trace_head);
+        INIT_LIST_HEAD(&p->life_head);
         return p;
 }
 
 void element_deliver_free(struct element_deliver *p)
 {
+        list_del(&p->life_head);
         sfree(p);
 }
