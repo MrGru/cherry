@@ -16,6 +16,7 @@
 #include <cherry/list.h>
 #include <cherry/math/math.h>
 #include <cherry/array.h>
+#include <cherry/graphic/node/branch.h>
 
 static inline void __action_reset(struct action *p)
 {
@@ -519,7 +520,7 @@ static void __action_ease_gravity(struct action *p, float delta)
 
         *p->target                      = s;
         p->velocity                     = p->velocity + p->accelerate * delta;
-        
+
         if(p->velocity > p->max_velocity) {
                 p->velocity = p->max_velocity;
         }

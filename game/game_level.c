@@ -22,6 +22,7 @@
 #include <cherry/stdio.h>
 #include <cherry/array.h>
 #include <cherry/map.h>
+#include <cherry/stdlib.h>
 
 void game_parse_level(struct game *p, char *file)
 {

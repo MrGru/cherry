@@ -22,6 +22,7 @@
 #include <cherry/math/mat4.h>
 #include <cherry/math/quat.h>
 #include <cherry/stdlib.h>
+#include <time.h>
 
 #ifndef MIN
 #define MIN(a,b) (((a)<(b))?(a):(b))

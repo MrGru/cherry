@@ -28,7 +28,6 @@ struct string *file_read_string(char *file)
         struct string *p = string_alloc(0);
         char buff[FILE_READ_BUFF];
         i32 count = 0;
-
         while((count = fread(buff, 1, FILE_READ_BUFF, f))) {
                 count -= count == FILE_READ_BUFF ? 0 : 1;
                 string_cat(p, buff, count);

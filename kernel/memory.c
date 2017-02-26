@@ -40,7 +40,7 @@ struct mem_block_head {
         /*
          * without 1 byte padding will generate crash on some linux Release build
          */
-        u8                      padding;
+         u8                      padding;
 #endif
         int                     *count;
 };
@@ -139,7 +139,10 @@ static inline void __expand(size_t size, int id)
  */
 static inline void __expand_large(size_t size, int id)
 {
-        void *p = malloc(size);
+        /*
+         * padding 8 bytes to tail to prevent error out of bound in smemcpy, smemcmp
+         */
+        void *p = malloc(size + 8);
         struct mem_block_head *head = (struct mem_block_head *)p;
         head->count = malloc(sizeof(int));
         *head->count = 0;
@@ -249,6 +252,7 @@ void  smemcpy(void *dst, void *src, size_t len)
         /* copy words */
         size_t *dw = dst;
         size_t *sw = src;
+    
         while(len >= sizeof(size_t)) {
                 *dw++ = *sw++;
                 len -= sizeof(size_t);

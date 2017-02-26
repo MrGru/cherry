@@ -32,6 +32,10 @@
 #include <cherry/graphic/light/light.h>
 #include <cherry/graphic/node/action.h>
 #include <cherry/xml/xml.h>
+#include <cherry/game/element.h>
+#include <cherry/game/deliver.h>
+#include <cherry/game/path.h>
+#include <cherry/game/gem.h>
 
 /*
  * create game content
@@ -40,7 +44,7 @@ static inline void __game_create_game_content(struct game *p, struct render_queu
 {
         struct array *buffers[BUFFERS];
         u32 triangles_per_object = GAME_TRIANGLES_PER_OBJECT;
-        u32 instances = 1000;
+        u32 instances = 300;
         i16 i;
         for_i(i, BUFFERS) {
                 buffers[i] = array_alloc(sizeof(struct device_buffer *), ORDERED);
@@ -224,25 +228,25 @@ struct game *game_alloc()
                 node_3d_color_set_color(n2, (union vec4){0.0, 0.0, 0.0, 0.7});
         }
 
-        {
-                struct dae_mesh *pipe = dae_mesh_alloc("res/models/cell_1.dae");
-                for_i_from(i, -13, 15) {
-                        struct node_3d_color *n2 = game_cell_alloc(p, pipe, i);
-                        node_3d_color_add_node_3d_color(n1, n2);
-                        node_3d_color_set_color(n2, (union vec4){1, 1, 1, 0.05});
-                }
-                dae_mesh_free(pipe);
-        }
-
-        {
-                struct dae_mesh *pipe = dae_mesh_alloc("res/models/plane_1.dae");
-                for_i_from(i, -13, 15) {
-                        struct node_3d_color *n2 = game_plane_alloc(p, pipe, i);
-                        node_3d_color_add_node_3d_color(n1, n2);
-                        node_3d_color_set_color(n2, (union vec4){1, 1, 1, 0.05});
-                }
-                dae_mesh_free(pipe);
-        }
+        // {
+        //         struct dae_mesh *pipe = dae_mesh_alloc("res/models/cell_1.dae");
+        //         for_i_from(i, -12, 15) {
+        //                 struct node_3d_color *n2 = game_cell_alloc(p, pipe, i);
+        //                 node_3d_color_add_node_3d_color(n1, n2);
+        //                 node_3d_color_set_color(n2, (union vec4){1, 1, 1, 0.05});
+        //         }
+        //         dae_mesh_free(pipe);
+        // }
+        //
+        // {
+        //         struct dae_mesh *pipe = dae_mesh_alloc("res/models/plane_1.dae");
+        //         for_i_from(i, -12, 15) {
+        //                 struct node_3d_color *n2 = game_plane_alloc(p, pipe, i);
+        //                 node_3d_color_add_node_3d_color(n1, n2);
+        //                 node_3d_color_set_color(n2, (union vec4){1, 1, 1, 0.05});
+        //         }
+        //         dae_mesh_free(pipe);
+        // }
 
         /* recalculate color tree */
         branch_color_traverse(node_3d_color_get_branch_color(n1), (union vec4){1, 1, 1, 1});

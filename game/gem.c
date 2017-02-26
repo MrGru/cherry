@@ -40,67 +40,67 @@ struct dae_mesh *gem_mesh_cache(u16 type)
         }
         struct dae_mesh *mesh = map_get(gem_cache, struct dae_mesh *, qpkey(type));
         if(mesh) goto finish;
-
-        switch (type) {
-                case GEM_1_LV_1:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_2_LV_1:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_3_LV_1:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_4_LV_1:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_5_LV_1:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_6_LV_1:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-
-                case GEM_1_LV_2:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_2_LV_2:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_3_LV_2:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_4_LV_2:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_5_LV_2:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_6_LV_2:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-
-                case GEM_1_LV_3:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_2_LV_3:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_3_LV_3:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_4_LV_3:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_5_LV_3:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                case GEM_6_LV_3:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
-                        break;
-                default:
-                        break;
-        }
+        mesh = dae_mesh_alloc("res/models/gem_star_2.dae");
+        // switch (type) {
+        //         case GEM_1_LV_1:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_2_LV_1:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_3_LV_1:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_4_LV_1:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_5_LV_1:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_6_LV_1:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //
+        //         case GEM_1_LV_2:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_2_LV_2:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_3_LV_2:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_4_LV_2:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_5_LV_2:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_6_LV_2:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //
+        //         case GEM_1_LV_3:
+        //                 mesh = dae_mesh_alloc("res/models/gem_star_2.dae");
+        //                 break;
+        //         case GEM_2_LV_3:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_3_LV_3:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_4_LV_3:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_5_LV_3:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         case GEM_6_LV_3:
+        //                 mesh = dae_mesh_alloc("res/models/gem_3.dae");
+        //                 break;
+        //         default:
+        //                 break;
+        // }
         if(!mesh) goto finish;
 
         map_set(gem_cache, qpkey(type), &mesh);
