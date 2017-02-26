@@ -86,12 +86,13 @@ struct action *action_alloc_force(union vec4 *target, union vec4 destination)
         return p;
 }
 
-struct action *action_alloc_gravity(union vec4 *target, float velocity, float accelerate, ...)
+struct action *action_alloc_gravity(union vec4 *target, float velocity, float max_velocity, float accelerate, ...)
 {
         struct action *p        = smalloc(sizeof(struct action));
         p->ease_type            = EASE_GRAVITY;
         p->target               = target;
         p->velocity             = velocity;
+        p->max_velocity         = max_velocity;
         p->accelerate           = accelerate;
         p->finish               = 0;
         p->repeat               = 0;
@@ -109,6 +110,20 @@ struct action *action_alloc_gravity(union vec4 *target, float velocity, float ac
         }
         va_end(parg);
 
+        return p;
+}
+
+struct action *action_alloc_delay(union vec4 *target, float duration)
+{
+        struct action *p        = smalloc(sizeof(struct action));
+        p->ease_type            = EASE_DELAY;
+        p->target               = target;
+        p->delay                = duration;
+        p->finish               = 0;
+        p->repeat               = 0;
+        INIT_LIST_HEAD(&p->head);
+        INIT_LIST_HEAD(&p->children);
+        INIT_LIST_HEAD(&p->user_head);
         return p;
 }
 
@@ -489,7 +504,7 @@ static void __action_ease_circular_in_out(struct action *p, float delta)
 static void __action_ease_gravity(struct action *p, float delta)
 {
         if(p->destinations->len == 0) {
-                p->finish = 0;
+                p->finish = 1;
                 goto end;
         }
         union vec4 destination          = array_get(p->destinations, union vec4, p->index);
@@ -504,6 +519,10 @@ static void __action_ease_gravity(struct action *p, float delta)
 
         *p->target                      = s;
         p->velocity                     = p->velocity + p->accelerate * delta;
+        
+        if(p->velocity > p->max_velocity) {
+                p->velocity = p->max_velocity;
+        }
 
         if(smemcmp(&destination, &s, sizeof(union vec4)) == 0) goto finish;
 
@@ -528,17 +547,19 @@ static void __action_ease_force(struct action *p)
         p->finish = 1;
 }
 
+static void __action_ease_delay(struct action *p, float delta)
+{
+        p->delay -= delta;
+        if(p->delay <= 0) {
+                p->finish = 1;
+        }
+}
+
 u8 action_update(struct action *p, float delta)
 {
         u8 finish = 1;
         if( ! p->finish) {
                 switch (p->ease_type) {
-                        case EASE_FORCE:
-                                __action_ease_force(p);
-                                break;
-                        case EASE_GRAVITY:
-                                __action_ease_gravity(p, delta);
-                                break;
                         case EASE_LINEAR:
                                 __action_ease_linear(p, delta);
                                 break;
@@ -627,17 +648,8 @@ u8 action_update(struct action *p, float delta)
                                 __action_ease_circular_in_out(p, delta);
                                 break;
 
-                        case EASE_PARALLEL:
-                                {
-                                        struct list_head *head;
-                                        p->finish = 1;
-                                        list_for_each(head, &p->children) {
-                                                struct action *child = (struct action *)
-                                                        ((void *)head - offsetof(struct action, head));
-                                                u8 child_finish = action_update(child, delta);
-                                                p->finish &= child_finish;
-                                        }
-                                }
+                        case EASE_GRAVITY:
+                                __action_ease_gravity(p, delta);
                                 break;
 
                         case EASE_SEQUENCE:
@@ -660,6 +672,26 @@ u8 action_update(struct action *p, float delta)
                                                 }
                                         }
                                 }
+                                break;
+
+                        case EASE_PARALLEL:
+                                {
+                                        struct list_head *head;
+                                        p->finish = 1;
+                                        list_for_each(head, &p->children) {
+                                                struct action *child = (struct action *)
+                                                        ((void *)head - offsetof(struct action, head));
+                                                u8 child_finish = action_update(child, delta);
+                                                p->finish &= child_finish;
+                                        }
+                                }
+                                break;
+
+                        case EASE_FORCE:
+                                __action_ease_force(p);
+                                break;
+                        case EASE_DELAY:
+                                __action_ease_delay(p, delta);
                                 break;
 
                         default:
@@ -771,10 +803,11 @@ void action_key_add_action(struct action_key *p, struct action * a)
         list_add_tail(&a->head, &p->actions);
 }
 
-void action_key_init(struct action_key *p)
+void action_key_init(struct action_key *p, struct branch_transform *br)
 {
         INIT_LIST_HEAD(&p->key_head);
         INIT_LIST_HEAD(&p->actions);
+        p->transform = br;
 }
 
 void action_key_clear(struct action_key *key)

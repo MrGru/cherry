@@ -181,7 +181,7 @@ struct shader_buffer_descriptor {
         struct array    *attributes;
         u16             vertex_size;
         u8              instanced;
-        u8              divisor;
+        u32             divisor;
 };
 
 /*

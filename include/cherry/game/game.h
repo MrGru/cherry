@@ -16,6 +16,16 @@
 
 #include <cherry/game/types.h>
 
+/*
+ * I don't know why instancing only works with divisor less than 256
+ *
+ * currently I set divisor or triangles_per_object is 100
+ *
+ * a model having large number of vertex can separate into several node
+ * or create a new render_content for it own
+ */
+#define GAME_TRIANGLES_PER_OBJECT 160
+
 struct game *game_alloc();
 
 void game_update(struct game *p);
@@ -24,10 +34,16 @@ void game_render(struct game *p);
 
 void game_clear(struct game *p);
 
-void game_parse_level(struct game *p);
+void game_parse_level(struct game *p, char *file);
 
 void game_free(struct game *p);
 
 void game_resize(struct game *p, int width, int height);
+
+struct node_3d_color *game_gem_alloc(struct game *p, struct dae_mesh *mesh);
+struct node_3d_color *game_empty_node_alloc(struct game *p);
+struct node_3d_color *game_floor_node_alloc(struct game *p);
+struct node_3d_color *game_cell_alloc(struct game *p, struct dae_mesh *mesh, int row);
+struct node_3d_color *game_plane_alloc(struct game *p, struct dae_mesh *mesh, int row);
 
 #endif

@@ -17,6 +17,7 @@
 #include <cherry/graphic/types.h>
 #include <cherry/graphic/node/types.h>
 #include <cherry/graphic/light/types.h>
+#include <cherry/graphic/dae/types.h>
 
 /*
  * game element
@@ -47,13 +48,13 @@ enum {
 struct game_element {
         struct list_head                life_head;
         struct list_head                path_head;
+        struct list_head                update_pos_head;
 
         u16                             type;
 };
 
 struct gem {
         struct game_element             elm;
-
         struct node_3d_color            *node;
 
         struct node_3d_color            *flipped_node;
@@ -121,6 +122,7 @@ struct element_deliver {
                                 union vec3              position;
                                 union vec4              position_expanded;
                         };
+                        float                           delay;
                 };
         };
 };
@@ -130,29 +132,24 @@ struct element_deliver {
  */
 struct game {
         struct list_head                renderer_list;
-        struct list_head                node_tree_list;
         struct list_head                node_3d_color_list;
-        struct list_head                deliver_list;
         struct list_head                element_list;
         struct list_head                element_pool_list;
+        struct list_head                deliver_list;
         struct list_head                path_point_list;
+        struct list_head                element_update_pos_list;
 
         struct path_point               *path_point_touches[9][9];
 
 
-        struct branch_transform_queue   *update_queue;
         struct branch_transform_queue   *n3d_update_queue;
 
-        struct render_content           *ui_content;
         struct render_content           *game_content;
 
-        struct camera                   *ui_cam;
         struct camera                   *game_cam;
 
-        struct shader_uniform           *ui_projection_uniform;
         struct shader_uniform           *game_projection_uniform;
 
-        struct node_tree                *ui_root;
         struct node_3d_color            *n3d_color_root;
 
         struct point_light              *world_light;

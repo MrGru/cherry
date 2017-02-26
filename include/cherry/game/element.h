@@ -20,4 +20,6 @@ void game_element_init(struct game_element *p);
 
 void game_element_free(struct game_element *p);
 
+void game_element_update_pos(struct game_element *p);
+
 #endif

@@ -227,7 +227,8 @@ enum {
         EASE_SEQUENCE,
         EASE_PARALLEL,
 
-        EASE_FORCE
+        EASE_FORCE,
+        EASE_DELAY
 };
 
 struct action {
@@ -248,6 +249,7 @@ struct action {
                 };
                 struct {
                         float           velocity;
+                        float           max_velocity;
                         float           accelerate;
 
                         struct array    *destinations;
@@ -256,6 +258,9 @@ struct action {
                 };
                 struct {
                         union vec4      destination;
+                };
+                struct {
+                        float           delay;
                 };
         };
 

@@ -44,6 +44,7 @@ struct element_deliver *element_deliver_alloc_gem_list(struct list_head *list, u
         p->type                         = ELEMENT_DELIVER_POOL;
         p->element_list                 = list;
         p->position_expanded            = pos;
+        p->delay                        = 0;
         INIT_LIST_HEAD(&p->trace_head);
         INIT_LIST_HEAD(&p->life_head);
         return p;

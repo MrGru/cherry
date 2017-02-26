@@ -20,7 +20,9 @@ struct action *action_alloc(union vec4 *target, union vec4 offset, float duratio
 
 struct action *action_alloc_force(union vec4 *target, union vec4 destination);
 
-struct action *action_alloc_gravity(union vec4 *target, float velocity, float accelerate, ...);
+struct action *action_alloc_gravity(union vec4 *target, float velocity, float max_velocity, float accelerate, ...);
+
+struct action *action_alloc_delay(union vec4 *target, float duration);
 
 void action_free(struct action *p);
 
@@ -46,7 +48,7 @@ void action_key_add_action(struct action_key *p, struct action * a);
 /*
  * action key
  */
-void action_key_init(struct action_key *p);
+void action_key_init(struct action_key *p, struct branch_transform *br);
 
 void action_key_clear(struct action_key *p);
 

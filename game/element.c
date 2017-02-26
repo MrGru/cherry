@@ -19,6 +19,7 @@ void game_element_init(struct game_element *p)
 {
         INIT_LIST_HEAD(&p->path_head);
         INIT_LIST_HEAD(&p->life_head);
+        INIT_LIST_HEAD(&p->update_pos_head);
 }
 
 void game_element_free(struct game_element *p)
@@ -27,5 +28,14 @@ void game_element_free(struct game_element *p)
                 struct gem *gem = (struct gem *)
                         ((void *)p - offsetof(struct gem, elm));
                 gem_free(gem);
+        }
+}
+
+void game_element_update_pos(struct game_element *p)
+{
+        if(element_is_gem(p)) {
+                struct gem *gem = (struct gem *)
+                        ((void *)p - offsetof(struct gem, elm));
+                gem_update_node(gem);
         }
 }

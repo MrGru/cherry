@@ -106,10 +106,11 @@ static inline void __move_gem(struct path_point *p, struct game *game, struct ga
         struct action *move_sequence    = action_sequence(NULL);
         struct branch_transform *branch = node_3d_color_get_branch_transform(gem->node);
         struct action *move_action      = action_alloc_gravity(&branch->position_expanded,
-                0, 500, NULL);
+                300, 55000, 2000, NULL);
         list_add_tail(&move_action->head, &move_sequence->children);
 
         struct list_head *head, *next;
+        float move_delay = 0;
         list_back_each_safe(head, next, list) {
                 struct element_deliver *deliver = (struct element_deliver *)
                         ((void *)head - offsetof(struct element_deliver, trace_head));
@@ -128,7 +129,7 @@ static inline void __move_gem(struct path_point *p, struct game *game, struct ga
                                                 next_deliver->position_expanded);
                                         list_add_tail(&pin->head, &move_sequence->children);
                                         move_action = action_alloc_gravity(&branch->position_expanded,
-                                                0, 500, NULL);
+                                                300, 55000, 2000, NULL);
                                         list_add_tail(&move_action->head, &move_sequence->children);
                                 }
                                 break;
@@ -138,8 +139,12 @@ static inline void __move_gem(struct path_point *p, struct game *game, struct ga
                                         struct action *pin = action_alloc_force(&branch->position_expanded,
                                                 deliver->position_expanded);
                                         list_add_tail(&pin->head, &move_sequence->children);
+                                        struct action *delay = action_alloc_delay(&branch->position_expanded, deliver->delay);
+                                        list_add_tail(&delay->head, &move_sequence->children);
+                                        move_delay += deliver->delay;
+                                        deliver->delay += rand_rf(0.3f, 0.5f);
                                         move_action = action_alloc_gravity(&branch->position_expanded,
-                                                0, 500, NULL);
+                                                300, 55000, 2000, NULL);
                                         list_add_tail(&move_action->head, &move_sequence->children);
                                 }
                                 break;
@@ -153,7 +158,7 @@ static inline void __move_gem(struct path_point *p, struct game *game, struct ga
         struct rotation_vector *rv = rotation_vector_alloc();
         rv->rad_vec3 = (union vec4){0, 1, 0, 0};
         struct action *rotate_action    = action_alloc_gravity(&rv->rad_vec3,
-                0, 4, NULL);
+                4, 16.5, 8, NULL);
         list_add_tail(&rotate_action->head, &rotate_sequence->children);
         union vec4 target = rv->rad_vec3;
         list_back_each_safe(head, next, list) {
@@ -162,20 +167,24 @@ static inline void __move_gem(struct path_point *p, struct game *game, struct ga
                 switch (deliver->type) {
                         case ELEMENT_DELIVER_PATH_POINT:
                                 target.x += (DEG_TO_RAD(90));
-                                array_push(move_action->destinations, &target);
+                                array_push(rotate_action->destinations, &target);
                                 break;
 
                         case ELEMENT_DELIVER_GATE:
                                 target.x += (DEG_TO_RAD(90));
                                 target.x += (DEG_TO_RAD(90));
-                                array_push(move_action->destinations, &target);
+                                array_push(rotate_action->destinations, &target);
                                 break;
 
                         case ELEMENT_DELIVER_POOL:
                                 target.x += (DEG_TO_RAD(90));
-                                array_push(move_action->destinations, &target);
+                                array_push(rotate_action->destinations, &target);
                                 break;
                 }
+        }
+        if(move_delay > 0) {
+                target.x += (DEG_TO_RAD(90 * (int)(move_delay / 0.09f)));
+                array_push(rotate_action->destinations, &target);
         }
         struct action *bonus = action_sequence(
                 action_parallel(
@@ -217,6 +226,9 @@ static inline void __move_gem(struct path_point *p, struct game *game, struct ga
         list_add_tail(&rv->head, &branch->anim_rotations);
         action_key_add_action(&gem->node_move_key, gem_action);
         action_manager_add_key(game->action_manager, &gem->node_move_key);
+        if(list_singular(&gem->elm.update_pos_head)) {
+                list_add_tail(&gem->elm.update_pos_head, &game->element_update_pos_list);
+        }
 }
 
 void path_point_check_move(struct path_point *p, struct game *game)
