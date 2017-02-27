@@ -153,7 +153,7 @@ struct node_3d_color *game_empty_node_alloc(struct game *p)
 struct node_3d_color *game_floor_node_alloc(struct game *p)
 {
         struct n3d_color_param n3d_param;
-        n3d_param.size = vec3((float[3]){4000, 6000, 1});
+        n3d_param.size = vec3((float[3]){200 * 12, 200 * 15, 1});
         u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
         n3d_param.v1 = smalloc(vsize);
         n3d_param.v2 = smalloc(vsize);

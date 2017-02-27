@@ -197,6 +197,7 @@ struct game *game_alloc()
                 (union vec4){255 / 255.0f, 86 / 255.0f, 0 / 255.0f, 1}, //ORANGE
         };
 
+        int test[2] = {GEM_1_LV_1, GEM_2_LV_1};
         for_i(i, 9) {
                 for_i(j, 9) {
                         struct gem *gem = gem_alloc(GEM_1_LV_3);
@@ -205,7 +206,9 @@ struct game *game_alloc()
                         int ct          = rand_ri(0, 6);
                         struct node_3d_color *node, *flipped_node;
                         {
-                                struct node_3d_color *n2 = game_gem_alloc(p, gem_mesh_cache(GEM_1_LV_3));
+                                int t = rand_ri(0, 1000);
+                                i16 type = t < 900 ? 0 : 1;
+                                struct node_3d_color *n2 = game_gem_alloc(p, gem_mesh_cache(type));
                                 node_3d_color_add_node_3d_color(n1, n2);
                                 node_3d_color_set_position(n2, (union vec3){(i - 4) * 200, (j - 4) * 200, 0});
                                 node_3d_color_set_color(n2, color[ct]);
@@ -225,7 +228,7 @@ struct game *game_alloc()
                 struct node_3d_color *n2 = game_floor_node_alloc(p);
                 node_3d_color_add_node_3d_color(n1, n2);
                 node_3d_color_set_position(n2, (union vec3){0, 0, -100});
-                node_3d_color_set_color(n2, (union vec4){0.0, 0.0, 0.0, 0.7});
+                node_3d_color_set_color(n2, (union vec4){0.0, 0.0, 0.0, 0.5});
         }
 
         // {
