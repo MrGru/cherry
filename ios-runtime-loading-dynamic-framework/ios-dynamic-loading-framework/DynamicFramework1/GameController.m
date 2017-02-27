@@ -31,6 +31,7 @@
     glview = (GameView*)self.view;
     glview.delegate = self;
     glview.gameviewdelegate = self;
+    glview.contentScaleFactor = 2.75f;
     updateViewport = TRUE;
 
     self.delegate = self; // 3

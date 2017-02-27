@@ -750,11 +750,11 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					"/Users/manh/Documents/cherry/ios_build/kernel/Debug-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build/gfx/Debug-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build/game/Debug-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build/xml/Debug-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build/audio/Debug-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build/kernel/Release-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build/gfx/Release-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build/game/Release-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build/xml/Release-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build/audio/Release-iphoneos",
 					/Users/manh/Documents/cherry/ios_lib,
 				);
 				OTHER_LDFLAGS = (

@@ -295,14 +295,14 @@ void main()
          * pass pixel parameters
          */
         // vec3 pixel_normal            = normals[int(vid)];
-        vec3 pixel_normal    = mat3(matrix4_transpose(matrix4_inverse(transform))) * normals[int(vid)];
+        vec3 pixel_normal               = mat3(matrix4_transpose(matrix4_inverse(transform))) * normals[int(vid)];
 
-        vec3 pixel_frag_pos          = vec3(transform * vec4(pos, 1.0));
+        vec3 pixel_frag_pos             = vec3(transform * vec4(pos, 1.0));
 
-        vec3 norm       = normalize(pixel_normal);
-        vec3 viewDir    = normalize(view_position - pixel_frag_pos);
+        vec3 norm                       = normalize(pixel_normal);
+        vec3 viewDir                    = normalize(view_position - pixel_frag_pos);
 
-        vec3 result     = CalcPointLight(pointLights[0], norm, pixel_frag_pos, viewDir);
+        vec3 result                     = CalcPointLight(pointLights[0], norm, pixel_frag_pos, viewDir);
 
-        pixel_color     = color * decodeFloatColor(vertex_colors[int(vid)]) * vec4(result, 1.0);
+        pixel_color                     = color * decodeFloatColor(vertex_colors[int(vid)]) * vec4(result, 1.0);
 }

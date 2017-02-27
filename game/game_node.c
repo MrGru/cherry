@@ -214,18 +214,20 @@ struct node_3d_color *game_cell_alloc(struct game *p, struct dae_mesh *mesh, int
         smemset(n3d_param.n1, 0, vsize);
         smemset(n3d_param.n2, 0, vsize);
         smemset(n3d_param.n3, 0, vsize);
-        int i, j;
-        for_i(i, 12) {
-                union vec3 pos = (union vec3){(i - 5) * 200, row * 200, 0};
-                for_i(j, 8) {
+        int i, j, k;
+        for_i(k, 3) {
+                for_i(i, 12) {
+                        union vec3 pos = (union vec3){(i - 5) * 200, (row + k) * 200, 0};
+                        for_i(j, 8) {
 
-                        n3d_param.v1[i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_1, union vec3, j), 100));
-                        n3d_param.v2[i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_2, union vec3, j), 100));
-                        n3d_param.v3[i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_3, union vec3, j), 100));
+                                n3d_param.v1[k * 96 + i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_1, union vec3, j), 100));
+                                n3d_param.v2[k * 96 + i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_2, union vec3, j), 100));
+                                n3d_param.v3[k * 96 + i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_3, union vec3, j), 100));
 
-                        n3d_param.n1[i * 8 + j]    = (union vec3) {0 ,0, 1};
-                        n3d_param.n2[i * 8 + j]    = (union vec3) {0 ,0, 1};
-                        n3d_param.n3[i * 8 + j]    = (union vec3) {0 ,0, 1};
+                                n3d_param.n1[k * 96 + i * 8 + j]    = (union vec3) {0 ,0, 1};
+                                n3d_param.n2[k * 96 + i * 8 + j]    = (union vec3) {0 ,0, 1};
+                                n3d_param.n3[k * 96 + i * 8 + j]    = (union vec3) {0 ,0, 1};
+                        }
                 }
         }
         n3d_param.vlen = vsize;
@@ -268,20 +270,23 @@ struct node_3d_color *game_plane_alloc(struct game *p, struct dae_mesh *mesh, in
         smemset(n3d_param.n1, 0, vsize);
         smemset(n3d_param.n2, 0, vsize);
         smemset(n3d_param.n3, 0, vsize);
-        int i, j;
-        for_i(i, 12) {
-                union vec3 pos = (union vec3){(i - 5) * 200, row * 200, 0};
-                for_i(j, 8) {
+        int i, j, k;
+        for_i(k, 3) {
+                for_i(i, 12) {
+                        union vec3 pos = (union vec3){(i - 5) * 200, (k + row) * 200, 0};
+                        for_i(j, 8) {
 
-                        n3d_param.v1[i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_1, union vec3, j), 87));
-                        n3d_param.v2[i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_2, union vec3, j), 87));
-                        n3d_param.v3[i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_3, union vec3, j), 87));
+                                n3d_param.v1[k * 96 + i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_1, union vec3, j), 87));
+                                n3d_param.v2[k * 96 + i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_2, union vec3, j), 87));
+                                n3d_param.v3[k * 96 + i * 8 + j]    = vec3_add(pos, vec3_mul_scalar(array_get(mesh->vertex_3, union vec3, j), 87));
 
-                        n3d_param.n1[i * 8 + j]    = (union vec3) {0 ,0, 1};
-                        n3d_param.n2[i * 8 + j]    = (union vec3) {0 ,0, 1};
-                        n3d_param.n3[i * 8 + j]    = (union vec3) {0 ,0, 1};
+                                n3d_param.n1[k * 96 + i * 8 + j]    = (union vec3) {0 ,0, 1};
+                                n3d_param.n2[k * 96 + i * 8 + j]    = (union vec3) {0 ,0, 1};
+                                n3d_param.n3[k * 96 + i * 8 + j]    = (union vec3) {0 ,0, 1};
+                        }
                 }
         }
+
         n3d_param.vlen = vsize;
 
         n3d_param.color = smalloc(vsize);

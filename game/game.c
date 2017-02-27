@@ -231,25 +231,25 @@ struct game *game_alloc()
                 node_3d_color_set_color(n2, (union vec4){0.0, 0.0, 0.0, 0.5});
         }
 
-        // {
-        //         struct dae_mesh *pipe = dae_mesh_alloc("res/models/cell_1.dae");
-        //         for_i_from(i, -12, 15) {
-        //                 struct node_3d_color *n2 = game_cell_alloc(p, pipe, i);
-        //                 node_3d_color_add_node_3d_color(n1, n2);
-        //                 node_3d_color_set_color(n2, (union vec4){1, 1, 1, 0.05});
-        //         }
-        //         dae_mesh_free(pipe);
-        // }
-        //
-        // {
-        //         struct dae_mesh *pipe = dae_mesh_alloc("res/models/plane_1.dae");
-        //         for_i_from(i, -12, 15) {
-        //                 struct node_3d_color *n2 = game_plane_alloc(p, pipe, i);
-        //                 node_3d_color_add_node_3d_color(n1, n2);
-        //                 node_3d_color_set_color(n2, (union vec4){1, 1, 1, 0.05});
-        //         }
-        //         dae_mesh_free(pipe);
-        // }
+        {
+                struct dae_mesh *pipe = dae_mesh_alloc("res/models/cell_1.dae");
+                for(i = -12; i < 15; i+= 3) {
+                        struct node_3d_color *n2 = game_cell_alloc(p, pipe, i);
+                        node_3d_color_add_node_3d_color(n1, n2);
+                        node_3d_color_set_color(n2, (union vec4){1, 1, 1, 0.05});
+                }
+                dae_mesh_free(pipe);
+        }
+
+        {
+                struct dae_mesh *pipe = dae_mesh_alloc("res/models/plane_1.dae");
+                for(i = -12; i < 15; i+= 3) {
+                        struct node_3d_color *n2 = game_plane_alloc(p, pipe, i);
+                        node_3d_color_add_node_3d_color(n1, n2);
+                        node_3d_color_set_color(n2, (union vec4){1, 1, 1, 0.05});
+                }
+                dae_mesh_free(pipe);
+        }
 
         /* recalculate color tree */
         branch_color_traverse(node_3d_color_get_branch_color(n1), (union vec4){1, 1, 1, 1});
