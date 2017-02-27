@@ -86,17 +86,17 @@ struct shader *shader_3d_color_alloc(u8 direction_lights, u8 point_lights, u8 sp
         {
                 char s[] = "NR_DIRECTION_LIGHTS __";
                 snprintf(s + sizeof(s) - 3, 3, "%02d", direction_lights);
-                string_replace(frag, "NR_DIRECTION_LIGHTS __", s);
+                string_replace(vert, "NR_DIRECTION_LIGHTS __", s);
         }
         {
                 char s[] = "NR_POINT_LIGHTS __";
                 snprintf(s + sizeof(s) - 3, 3, "%02d", point_lights);
-                string_replace(frag, "NR_POINT_LIGHTS __", s);
+                string_replace(vert, "NR_POINT_LIGHTS __", s);
         }
         {
                 char s[] = "NR_SPOT_LIGHTS __";
                 snprintf(s + sizeof(s) - 3, 3, "%02d", spot_lights);
-                string_replace(frag, "NR_SPOT_LIGHTS __", s);
+                string_replace(vert, "NR_SPOT_LIGHTS __", s);
         }
 
         instance = shader_alloc(vert->ptr, frag->ptr, des);
