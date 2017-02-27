@@ -215,7 +215,7 @@ struct game *game_alloc()
                                 node = n2;
                         }
                         {
-                                struct node_3d_color *n2 = game_gem_alloc(p, gem_mesh_cache(GEM_1_LV_3));
+                                struct node_3d_color *n2 = game_gem_alloc(p, gem_mesh_cache(GEM_1_LV_1));
                                 node_3d_color_add_node_3d_color(n1, n2);
                                 node_3d_color_set_position(n2, (union vec3){(i - 4) * 200, (j - 4) * 200, -200});
                                 node_3d_color_set_color(n2, vec4_mul_scalar(color[ct], 0.8));

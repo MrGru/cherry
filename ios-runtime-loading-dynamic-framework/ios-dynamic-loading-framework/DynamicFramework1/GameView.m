@@ -20,7 +20,7 @@
     EAGLContext *glctx = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     self.drawableDepthFormat = GLKViewDrawableDepthFormat16;
     self.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
-    self.drawableMultisample = 4;
+    self.drawableMultisample = GLKViewDrawableMultisample4X;
     self.context = glctx;
 }
 
