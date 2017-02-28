@@ -207,8 +207,8 @@ struct game *game_alloc()
         };
 
         int test_type = 6;
-        int test[6] = {GEM_1_LV_1, GEM_2_LV_1, GEM_3_LV_1,
-                GEM_4_LV_1, GEM_5_LV_1, GEM_6_LV_1};
+        int test[6] = {GEM_1_LV_1, GEM_2_LV_1,
+                GEM_5_LV_1, GEM_6_LV_1, GEM_3_LV_1, GEM_4_LV_1};
         for_i(i, 9) {
                 for_i(j, 9) {
                         struct gem *gem = gem_alloc(GEM_1_LV_1);
@@ -217,7 +217,7 @@ struct game *game_alloc()
                         int ct          = rand_ri(0, 6);
                         struct node_3d_color *node, *flipped_node;
                         int t = rand_ri(0, 1000);
-                        i16 type = rand_ri(0, test_type);
+                        i16 type = test[rand_ri(0, 5)];
                         {
                                 struct node_3d_color *n2 = game_gem_alloc(p, gem_mesh_cache(type));
                                 node_3d_color_add_node_3d_color(n1, n2);
@@ -229,7 +229,7 @@ struct game *game_alloc()
                                 struct node_3d_color *n2 = game_gem_alloc(p, gem_mesh_cache(type));
                                 node_3d_color_add_node_3d_color(n1, n2);
                                 node_3d_color_set_position(n2, (union vec3){(i - 4) * 200, (j - 4) * 200, -200});
-                                node_3d_color_set_color(n2, vec4_mul_scalar(color[ct], 0.8));
+                                node_3d_color_set_color(n2, vec4_mul_scalar(color[ct], 1.0));
                                 flipped_node = n2;
                         }
                         gem_set_node(gem, node, flipped_node);
@@ -239,7 +239,7 @@ struct game *game_alloc()
                 struct node_3d_color *n2 = game_floor_node_alloc(p);
                 node_3d_color_add_node_3d_color(n1, n2);
                 node_3d_color_set_position(n2, (union vec3){0, 0, -100});
-                node_3d_color_set_color(n2, (union vec4){0.0, 0.0, 0.0, 0.5});
+                node_3d_color_set_color(n2, (union vec4){0.0, 0.0, 0.0, 0.575});
         }
 
         // {
