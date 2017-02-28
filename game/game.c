@@ -116,7 +116,8 @@ static void __game_setup_base(struct game *p)
         p->world_light = pl;
 
         p->game_cam = camera_alloc(mat4_new_look_at(
-                0, 0, 4100,
+                // 0, 0, 4100,
+                0, 0, 3450,
                 0, 0, 0,
                 0, 1, 0
         ));
