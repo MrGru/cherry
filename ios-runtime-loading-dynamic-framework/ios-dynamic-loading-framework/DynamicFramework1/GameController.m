@@ -19,6 +19,7 @@
 @interface GameController () {
     GameView *glview;
     bool updateViewport;
+    CADisplayLink *link;
 }
 
 @end
@@ -32,6 +33,7 @@
     glview.delegate = self;
     glview.gameviewdelegate = self;
     glview.contentScaleFactor = 2.75f;
+    
     updateViewport = TRUE;
 
     self.delegate = self; // 3
@@ -39,6 +41,15 @@
 
     video_width = [[UIScreen mainScreen] bounds].size.width;
     video_height = [[UIScreen mainScreen] bounds].size.height;
+    
+    link = [CADisplayLink displayLinkWithTarget:self selector:@selector(handleDisplayLink:)];
+    link.preferredFramesPerSecond = 60;
+    [link addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+}
+
+- (void)handleDisplayLink:(CADisplayLink *)displayLink
+{
+    [self glkViewControllerUpdate:self];
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
@@ -62,6 +73,9 @@
         game_resize(_game, video_width, video_height);
     }
     updateViewport = FALSE;
+    if(_game->can_draw) {
+        [self.view setNeedsDisplay];
+    }
 }
 
 -(void)reshape:(GameView *)view
@@ -71,6 +85,14 @@
     updateViewport = TRUE;
 }
 
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    // Pause the rendering loop to draw on demand.
+    self.paused = YES;
+    self.resumeOnDidBecomeActive = NO;
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

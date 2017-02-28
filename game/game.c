@@ -182,6 +182,7 @@ struct game *game_alloc()
         p->n3d_update_queue     = branch_transform_queue_alloc();
         p->frame                = 0;
         p->action_manager       = action_manager_alloc();
+        p->can_draw             = BUFFERS;
 
         __game_setup_base(p);
 
@@ -265,11 +266,14 @@ struct game *game_alloc()
 static void game_update_element_pos(struct game *p)
 {
         struct list_head *head, *next;
+        i16 flag = 0;
         list_for_each_safe(head, next, &p->element_update_pos_list) {
                 struct game_element *ge = (struct game_element *)
                         ((void *)head - offsetof(struct game_element, update_pos_head));
                 game_element_update_pos(ge);
+                flag = 1;
         }
+        if(flag) p->can_draw = BUFFERS;
 }
 
 void game_update(struct game *p)
@@ -295,6 +299,7 @@ void game_render(struct game *p)
         /* increase frame by 1 */
         p->frame++;
         p->frame %= BUFFERS;
+        p->can_draw--;
 }
 
 static inline void __game_resize_game_content(struct game *p)
@@ -309,6 +314,7 @@ void game_resize(struct game *p, int width, int height)
         video_height = height;
 
         __game_resize_game_content(p);
+        p->can_draw = BUFFERS;
 }
 
 void game_free(struct game *p)

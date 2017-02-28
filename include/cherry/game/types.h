@@ -156,7 +156,7 @@ struct game {
 
         struct action_manager           *action_manager;
 
-
+        i16                             can_draw;
 
         u8                              frame;
 };
