@@ -42,22 +42,23 @@ struct dae_mesh *gem_mesh_cache(u16 type)
         if(mesh) goto finish;
         switch (type) {
                 case GEM_1_LV_1:
-                        mesh = dae_mesh_alloc("res/models/gem_star_3.dae");
+                        mesh = dae_mesh_alloc("res/models/gem/gem_red_level_1.dae");
                         break;
                 case GEM_2_LV_1:
-                        mesh = dae_mesh_alloc("res/models/sphere_1.dae");
+                        // mesh = dae_mesh_alloc("res/models/sphere_1.dae");
+                        mesh = dae_mesh_alloc("res/models/gem/gem_blue_level_1.dae");
                         break;
                 case GEM_3_LV_1:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
+                        mesh = dae_mesh_alloc("res/models/gem/gem_green_level_1.dae");
                         break;
                 case GEM_4_LV_1:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
+                        mesh = dae_mesh_alloc("res/models/gem/gem_yellow_level_1.dae");
                         break;
                 case GEM_5_LV_1:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
+                        mesh = dae_mesh_alloc("res/models/gem/gem_purple_level_1.dae");
                         break;
                 case GEM_6_LV_1:
-                        mesh = dae_mesh_alloc("res/models/gem_3.dae");
+                        mesh = dae_mesh_alloc("res/models/gem/gem_orange_level_1.dae");
                         break;
 
                 case GEM_1_LV_2:
