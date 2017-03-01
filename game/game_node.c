@@ -219,7 +219,7 @@ struct node_3d_color *game_floor_node_alloc(struct game *p)
         {
                 int id = 2;
                 union mat4 transform    = mat4_identity;
-                transform               = mat4_translate(transform, (union vec3){0, 0, 2});
+                transform               = mat4_translate(transform, (union vec3){0, 0, 4.5});
                 transform               = mat4_rotate_z(transform, DEG_TO_RAD(45));
                 transform               = mat4_scale(transform, (union vec3){200 * 2, 200 * 2, 1});
                 struct dae_mesh *mesh = dae_mesh_alloc("res/models/floor/floor_1.dae");
@@ -234,7 +234,7 @@ struct node_3d_color *game_floor_node_alloc(struct game *p)
                                 pack_rgb_to_float(255, 255, 255),
                                 pack_rgb_to_float(255, 255, 255),
                                 pack_rgb_to_float(255, 255, 255),
-                                pack_rgb_to_float(22, 22, 22)
+                                pack_rgb_to_float(27, 27, 27)
                         };
                         n3d_param.color[id] = blank;
                         id++;

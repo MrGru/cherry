@@ -121,9 +121,11 @@ static void __game_setup_base(struct game *p)
         /*
          * check screen resolution to apply good camera position
          */
-        if(fabs(screen_ratio - 1334.0f / 750) < 0.0001) { /* special case for iPhone6 */
+        if(fabs(screen_ratio - 2732.0f / 2048) < 0.0001) { /* special case for iPad Pro */
+                 camera_position.z = 3350;
+        } else if(fabs(screen_ratio - 1334.0f / 750) < 0.0001) { /* special case for iPhone6 */
                 camera_position.z = 4300;
-        }else if(fabs(screen_ratio - 16.0f / 9) < 0.0001) {
+        } else if(fabs(screen_ratio - 16.0f / 9) < 0.0001) {
                 camera_position.z = 4300;
         } else if(fabs(screen_ratio - 3.0f / 2) < 0.0001) {
                 camera_position.z = 3700;
