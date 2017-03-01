@@ -176,8 +176,9 @@ struct n3d_color_param {
         union vec3      *n1;
         union vec3      *n2;
         union vec3      *n3;
-        union vec3      *color;
+        union vec4      *color;
         u32             vlen;
+        u32             clen;
 };
 
 #endif

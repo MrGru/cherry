@@ -293,7 +293,7 @@ static inline struct dae_mesh *__dae_mesh_alloc()
         p->normal_1             = array_alloc(sizeof(union vec3), ORDERED);
         p->normal_2             = array_alloc(sizeof(union vec3), ORDERED);
         p->normal_3             = array_alloc(sizeof(union vec3), ORDERED);
-        p->colors               = array_alloc(sizeof(union vec3), ORDERED);
+        p->colors               = array_alloc(sizeof(union vec4), ORDERED);
         return p;
 }
 
@@ -314,7 +314,7 @@ static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m)
         }
 
         int i, step;
-        union vec3 temp_color;
+        union vec4 temp_color;
 
         for(i = 0, step = 0; i < m->p->len; i += num_attributes) {
                 /* currently I'm testing only with vertex and normal */
@@ -348,6 +348,7 @@ static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m)
                 temp_color.v[step] = pack_rgb_to_float((int)(cor.r * 255),
                         (int)(cor.g * 255), (int)(cor.b * 255));
                 if(step == 2) {
+                        temp_color.v[step + 1] = pack_rgb_to_float(255, 255, 255);
                         array_push(p->colors, &temp_color);
                 }
 

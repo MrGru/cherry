@@ -37,21 +37,18 @@ input vec3      vertex_3;
 input vec3      normal_1;
 input vec3      normal_2;
 input vec3      normal_3;
-input vec3      vertex_color;
+input vec4      vertex_color;
 
 /*
  * combine vertex_i, normal_i, vertex_color into array to access from vid
  */
 vec3            vertice[3];
 vec3            normals[3];
-highp int       vertex_colors[3];
 
 /*
  * pixel_color used to adjust fragment color
  */
 output vec4     pixel_color;
-// output vec3     pixel_normal;
-// output vec3     pixel_frag_pos;
 
 uniform mat4    project;
 uniform mat4    view;
@@ -278,12 +275,10 @@ void main()
         normals[0]              = normal_1;
         normals[1]              = normal_2;
         normals[2]              = normal_3;
-        /*
-         * group vertex_colors
-         */
-        vertex_colors[0]        = int(vertex_color.r);
-        vertex_colors[1]        = int(vertex_color.g);
-        vertex_colors[2]        = int(vertex_color.b);
+
+        vec4 alpha              = decodeFloatColor(int(vertex_color[3]));
+        vec4 decodecolor        = decodeFloatColor(int(vertex_color[int(vid)]));
+        decodecolor.a           = alpha[int(vid)];
 
         /*
          * working for 2d rendering so pos.z = 0
@@ -304,5 +299,5 @@ void main()
 
         vec3 result                     = CalcPointLight(pointLights[0], norm, pixel_frag_pos, viewDir);
 
-        pixel_color                     = color * decodeFloatColor(vertex_colors[int(vid)]) * vec4(result, 1.0);
+        pixel_color                     = color * decodecolor * vec4(result, 1.0);
 }

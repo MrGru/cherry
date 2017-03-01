@@ -209,8 +209,6 @@ struct game *game_alloc()
 
         game_parse_level(p, "res/levels/level_1.xml");
 
-        dim_memory();
-
         struct node_3d_color *n1 = game_empty_node_alloc(p);
 
         int test_type = 6;
@@ -240,13 +238,12 @@ struct game *game_alloc()
                         gem_set_node(gem, node, flipped_node);
                 }
         }
+
         {
                 struct node_3d_color *n2 = game_floor_node_alloc(p);
                 node_3d_color_add_node_3d_color(n1, n2);
                 node_3d_color_set_position(n2, (union vec3){0, 0, -100});
-                node_3d_color_set_color(n2, (union vec4){0.0, 0.0, 0.0, 0.575});
         }
-
         // {
         //         struct dae_mesh *pipe = dae_mesh_alloc("res/models/cell_1.dae");
         //         for(i = -12; i < 15; i+= 3) {
@@ -268,8 +265,8 @@ struct game *game_alloc()
         //         }
         //         dae_mesh_free(pipe);
         // }
-
         /* recalculate color tree */
+        printf("---\n");
         branch_color_traverse(node_3d_color_get_branch_color(n1), (union vec4){1, 1, 1, 1});
 
         back_i(i, 9) {

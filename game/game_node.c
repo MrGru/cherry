@@ -44,7 +44,7 @@ static struct node_3d_color *__game_n3d_color_alloc(struct game *p, struct n3d_c
         /* fill normal buffer */
         node_3d_color_fill_normal(n, param->n1, param->n2, param->n3, param->vlen);
         /* fill vertex color buffer */
-        node_3d_color_fill_vertex_color(n, param->color, param->vlen);
+        node_3d_color_fill_vertex_color(n, param->color, param->clen);
         /* fill transform buffer */
         node_3d_color_set_size(n, param->size);
         node_3d_color_set_position(n, vec3((float[3]){0, 0, 0}));
@@ -60,6 +60,7 @@ struct node_3d_color *game_gem_alloc(struct game *p, struct dae_mesh *mesh)
         float size = 89;
         n3d_param.size = vec3((float[3]){size, size, size});
         u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
+        u32 csize = sizeof(union vec4) * p->game_content->instance_multiple;
         int count = (int)(ceil((float)mesh->vertex_1->len / p->game_content->instance_multiple));
 
         array_reserve(mesh->vertex_1, p->game_content->instance_multiple * count);
@@ -68,6 +69,7 @@ struct node_3d_color *game_gem_alloc(struct game *p, struct dae_mesh *mesh)
         array_reserve(mesh->normal_1, p->game_content->instance_multiple * count);
         array_reserve(mesh->normal_2, p->game_content->instance_multiple * count);
         array_reserve(mesh->normal_3, p->game_content->instance_multiple * count);
+        array_reserve(mesh->colors, p->game_content->instance_multiple * count);
 #define APPEND_POINT(arr)                                               \
         while (arr->len < p->game_content->instance_multiple * count) { \
                 union vec3 p = (union vec3){0, 0, 0};           \
@@ -80,10 +82,19 @@ struct node_3d_color *game_gem_alloc(struct game *p, struct dae_mesh *mesh)
         APPEND_POINT(mesh->normal_1)
         APPEND_POINT(mesh->normal_2)
         APPEND_POINT(mesh->normal_3)
+#undef APPEND_POINT
+#define APPEND_POINT(arr)                                               \
+        while (arr->len < p->game_content->instance_multiple * count) { \
+                union vec4 p = (union vec4){0, 0, 0, 0};                \
+                array_push(arr, &p);                                    \
+        }
+
         APPEND_POINT(mesh->colors)
 #undef APPEND_POINT
 
+
         n3d_param.vlen  = vsize;
+        n3d_param.clen  = csize;
         n3d_param.v1    = mesh->vertex_1->ptr;
         n3d_param.v2    = mesh->vertex_2->ptr;
         n3d_param.v3    = mesh->vertex_3->ptr;
@@ -102,7 +113,7 @@ struct node_3d_color *game_gem_alloc(struct game *p, struct dae_mesh *mesh)
                 n3d_param.n1    = mesh->normal_1->ptr + (i + 1) * vsize;
                 n3d_param.n2    = mesh->normal_2->ptr + (i + 1) * vsize;
                 n3d_param.n3    = mesh->normal_3->ptr + (i + 1) * vsize;
-                n3d_param.color = mesh->colors->ptr   + (i + 1) * vsize;
+                n3d_param.color = mesh->colors->ptr   + (i + 1) * csize;
                 struct node_3d_color *sub = __game_n3d_color_alloc(p, &n3d_param);
                 node_3d_color_add_node_3d_color(n3d, sub);
         }
@@ -114,6 +125,7 @@ struct node_3d_color *game_empty_node_alloc(struct game *p)
         struct n3d_color_param n3d_param;
         n3d_param.size = vec3((float[3]){1, 1, 1});
         u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
+        u32 csize = sizeof(union vec4) * p->game_content->instance_multiple;
         n3d_param.v1 = smalloc(vsize);
         n3d_param.v2 = smalloc(vsize);
         n3d_param.v3 = smalloc(vsize);
@@ -127,9 +139,10 @@ struct node_3d_color *game_empty_node_alloc(struct game *p)
         smemset(n3d_param.n2, 0, vsize);
         smemset(n3d_param.n3, 0, vsize);
 
-        n3d_param.color = smalloc(vsize);
+        n3d_param.color = smalloc(csize);
         u32 i;
-        union vec3 blank = (union vec3){
+        union vec4 blank = (union vec4){
+                pack_rgb_to_float(255, 255, 255),
                 pack_rgb_to_float(255, 255, 255),
                 pack_rgb_to_float(255, 255, 255),
                 pack_rgb_to_float(255, 255, 255)
@@ -139,6 +152,7 @@ struct node_3d_color *game_empty_node_alloc(struct game *p)
         }
 
         n3d_param.vlen = vsize;
+        n3d_param.clen = csize;
         struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
         sfree(n3d_param.v1);
         sfree(n3d_param.v2);
@@ -153,37 +167,79 @@ struct node_3d_color *game_empty_node_alloc(struct game *p)
 struct node_3d_color *game_floor_node_alloc(struct game *p)
 {
         struct n3d_color_param n3d_param;
-        n3d_param.size = vec3((float[3]){200 * 12, 200 * 15, 1});
-        u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
-        n3d_param.v1 = smalloc(vsize);
-        n3d_param.v2 = smalloc(vsize);
-        n3d_param.v3 = smalloc(vsize);
-        n3d_param.n1 = smalloc(vsize);
-        n3d_param.n2 = smalloc(vsize);
-        n3d_param.n3 = smalloc(vsize);
+        n3d_param.size  = vec3((float[3]){1, 1, 1});
+        u32 vsize       = sizeof(union vec3) * p->game_content->instance_multiple;
+        u32 csize       = sizeof(union vec4) * p->game_content->instance_multiple;
+        n3d_param.v1    = smalloc(vsize);
+        n3d_param.v2    = smalloc(vsize);
+        n3d_param.v3    = smalloc(vsize);
+        n3d_param.n1    = smalloc(vsize);
+        n3d_param.n2    = smalloc(vsize);
+        n3d_param.n3    = smalloc(vsize);
+        n3d_param.color = smalloc(csize);
         smemset(n3d_param.v1, 0, vsize);
         smemset(n3d_param.v2, 0, vsize);
         smemset(n3d_param.v3, 0, vsize);
         smemset(n3d_param.n1, 0, vsize);
         smemset(n3d_param.n2, 0, vsize);
         smemset(n3d_param.n3, 0, vsize);
-        n3d_param.v1[0] = (union vec3){-0.5,  0.5, 0.0};
-        n3d_param.v2[0] = (union vec3){-0.5, -0.5, 0.0};
-        n3d_param.v3[0] = (union vec3){ 0.5, -0.5, 0.0};
-        n3d_param.v1[1] = (union vec3){-0.5,  0.5, 0.0};
-        n3d_param.v2[1] = (union vec3){ 0.5,  0.5, 0.0};
-        n3d_param.v3[1] = (union vec3){ 0.5, -0.5, 0.0};
-        n3d_param.vlen = vsize;
-
-        n3d_param.color = smalloc(vsize);
         u32 i;
-        union vec3 blank = (union vec3){
-                pack_rgb_to_float(255, 255, 255),
-                pack_rgb_to_float(255, 255, 255),
-                pack_rgb_to_float(255, 255, 255)
+        union vec4 blank = (union vec4){
+                pack_rgb_to_float(55, 55, 55),
+                pack_rgb_to_float(55, 55, 55),
+                pack_rgb_to_float(55, 55, 55),
+                pack_rgb_to_float(55, 55, 55)
         };
         for_i(i, p->game_content->instance_multiple) {
                 n3d_param.color[i] = blank;
+        }
+
+        n3d_param.vlen = vsize;
+        n3d_param.clen = csize;
+        {
+                int id = 0;
+                union mat4 transform    = mat4_identity;
+                transform               = mat4_translate(transform, (union vec3){0, 0, 0});
+                transform               = mat4_scale(transform, (union vec3){200 * 15, 200 * 20, 1});
+                n3d_param.v1[id]        = mat4_mul_vec3_translation(transform, (union vec3){-0.5,  0.5, 0.0});
+                n3d_param.v2[id]        = mat4_mul_vec3_translation(transform, (union vec3){-0.5, -0.5, 0.0});
+                n3d_param.v3[id]        = mat4_mul_vec3_translation(transform, (union vec3){ 0.5, -0.5, 0.0});
+                n3d_param.v1[id+1]      = mat4_mul_vec3_translation(transform, (union vec3){-0.5,  0.5, 0.0});
+                n3d_param.v2[id+1]      = mat4_mul_vec3_translation(transform, (union vec3){ 0.5,  0.5, 0.0});
+                n3d_param.v3[id+1]      = mat4_mul_vec3_translation(transform, (union vec3){ 0.5, -0.5, 0.0});
+                union vec4 blank = (union vec4){
+                        pack_rgb_to_float(0, 0, 0),
+                        pack_rgb_to_float(0, 0, 0),
+                        pack_rgb_to_float(0, 0, 0),
+                        pack_rgb_to_float(146, 146, 146)
+                };
+                n3d_param.color[id] = blank;
+                n3d_param.color[id + 1] = blank;
+        }
+        {
+                int id = 2;
+                union mat4 transform    = mat4_identity;
+                transform               = mat4_translate(transform, (union vec3){0, 0, 2});
+                transform               = mat4_rotate_z(transform, DEG_TO_RAD(45));
+                transform               = mat4_scale(transform, (union vec3){200 * 2, 200 * 2, 1});
+                struct dae_mesh *mesh = dae_mesh_alloc("res/models/floor/floor_1.dae");
+                for_i(i, mesh->vertex_1->len) {
+                        n3d_param.v1[id] = mat4_mul_vec3_translation(transform, array_get(mesh->vertex_1, union vec3, i));
+                        n3d_param.v2[id] = mat4_mul_vec3_translation(transform, array_get(mesh->vertex_2, union vec3, i));
+                        n3d_param.v3[id] = mat4_mul_vec3_translation(transform, array_get(mesh->vertex_3, union vec3, i));
+                        n3d_param.n1[id] = array_get(mesh->normal_1, union vec3, i);
+                        n3d_param.n2[id] = array_get(mesh->normal_2, union vec3, i);
+                        n3d_param.n3[id] = array_get(mesh->normal_3, union vec3, i);
+                        union vec4 blank = (union vec4){
+                                pack_rgb_to_float(255, 255, 255),
+                                pack_rgb_to_float(255, 255, 255),
+                                pack_rgb_to_float(255, 255, 255),
+                                pack_rgb_to_float(22, 22, 22)
+                        };
+                        n3d_param.color[id] = blank;
+                        id++;
+                }
+                dae_mesh_free(mesh);
         }
 
         struct node_3d_color *n3d = __game_n3d_color_alloc(p, &n3d_param);
@@ -202,6 +258,7 @@ struct node_3d_color *game_cell_alloc(struct game *p, struct dae_mesh *mesh, int
         struct n3d_color_param n3d_param;
         n3d_param.size = vec3((float[3]){1, 1, 1});
         u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
+        u32 csize = sizeof(union vec4) * p->game_content->instance_multiple;
         n3d_param.v1 = smalloc(vsize);
         n3d_param.v2 = smalloc(vsize);
         n3d_param.v3 = smalloc(vsize);
@@ -231,9 +288,11 @@ struct node_3d_color *game_cell_alloc(struct game *p, struct dae_mesh *mesh, int
                 }
         }
         n3d_param.vlen = vsize;
+        n3d_param.clen = csize;
 
-        n3d_param.color = smalloc(vsize);
-        union vec3 blank = (union vec3){
+        n3d_param.color = smalloc(csize);
+        union vec4 blank = (union vec4){
+                pack_rgb_to_float(255, 255, 255),
                 pack_rgb_to_float(255, 255, 255),
                 pack_rgb_to_float(255, 255, 255),
                 pack_rgb_to_float(255, 255, 255)
@@ -258,6 +317,7 @@ struct node_3d_color *game_plane_alloc(struct game *p, struct dae_mesh *mesh, in
         struct n3d_color_param n3d_param;
         n3d_param.size = vec3((float[3]){1, 1, 1});
         u32 vsize = sizeof(union vec3) * p->game_content->instance_multiple;
+        u32 csize = sizeof(union vec4) * p->game_content->instance_multiple;
         n3d_param.v1 = smalloc(vsize);
         n3d_param.v2 = smalloc(vsize);
         n3d_param.v3 = smalloc(vsize);
@@ -288,9 +348,11 @@ struct node_3d_color *game_plane_alloc(struct game *p, struct dae_mesh *mesh, in
         }
 
         n3d_param.vlen = vsize;
+        n3d_param.clen = csize;
 
         n3d_param.color = smalloc(vsize);
-        union vec3 blank = (union vec3){
+        union vec4 blank = (union vec4){
+                pack_rgb_to_float(255, 255, 255),
                 pack_rgb_to_float(255, 255, 255),
                 pack_rgb_to_float(255, 255, 255),
                 pack_rgb_to_float(255, 255, 255)
