@@ -29,6 +29,15 @@
 #endif
 
 /*
+ * store list of pages allocated by malloc, references shared to application
+ */
+struct mem_track_head {
+        struct list_head head;
+        int *count;
+        void *ptr;
+};
+
+/*
  * object head need reference to total objects shared for application
  * in order to dim_memory to work
  */
@@ -37,21 +46,9 @@ struct mem_block_head {
 #if MEM_DEBUG == 1
         u8                      used;
 #else
-        /*
-         * without 1 byte padding will generate crash on some linux Release build
-         */
-         u8                      padding;
+        u8                      padding;
 #endif
-        int                     *count;
-};
-
-/*
- * store list of pages allocated by malloc, references shared to application
- */
-struct mem_track_head {
-        struct list_head head;
-        int *count;
-        void *ptr;
+        struct mem_track_head   *track_head;
 };
 
 /*
@@ -118,20 +115,21 @@ static inline void __expand(size_t size, int id)
         int i;
         int *count = malloc(sizeof(int));
         *count = 0;
-        back_i(i, n) {
-                struct mem_block_head *head = (struct mem_block_head *)(p + i * size);
-                head->count = count;
-#if MEM_DEBUG == 1
-                head->used = 0;
-#endif
-                pool_add(&head->head, &blocks[id].head);
-        }
 
         /* expand track list */
         struct mem_track_head *track = malloc(sizeof(struct mem_track_head));
         track->ptr = p;
         track->count = count;
         list_add(&track->head, &blocks[id].track.head);
+
+        back_i(i, n) {
+                struct mem_block_head *head = (struct mem_block_head *)(p + i * size);
+                head->track_head = track;
+#if MEM_DEBUG == 1
+                head->used = 0;
+#endif
+                pool_add(&head->head, &blocks[id].head);
+        }
 }
 
 /*
@@ -143,19 +141,19 @@ static inline void __expand_large(size_t size, int id)
          * padding 8 bytes to tail to prevent error out of bound in smemcpy, smemcmp
          */
         void *p = malloc(size + 8);
+        /* expand track list */
+        struct mem_track_head *track = malloc(sizeof(struct mem_track_head));
+        track->ptr = p;
+        track->count = malloc(sizeof(int));
+        *track->count = 0;
+        list_add(&track->head, &blocks[id].track.head);
+
         struct mem_block_head *head = (struct mem_block_head *)p;
-        head->count = malloc(sizeof(int));
-        *head->count = 0;
+        head->track_head = track;
 #if MEM_DEBUG == 1
         head->used = 0;
 #endif
         pool_add(&head->head, &blocks[id].head);
-
-        /* expand track list */
-        struct mem_track_head *track = malloc(sizeof(struct mem_track_head));
-        track->ptr = p;
-        track->count = head->count;
-        list_add(&track->head, &blocks[id].track.head);
 }
 
 /*
@@ -177,7 +175,7 @@ static inline void *__smalloc(size_t size)
 #if MEM_DEBUG == 1
         p->used = 1;
 #endif
-        (*p->count)++;
+        (*p->track_head->count)++;
         return p + 1;
 }
 
@@ -208,7 +206,7 @@ void *smalloc(size_t size)
 void sfree(void *ptr)
 {
         struct mem_block_head *p = (struct mem_block_head *)ptr - 1;
-        (*p->count)--;
+        (*p->track_head->count)--;
 #if MEM_DEBUG == 1
         if(!p->used) {
                 debug("error: double free pointer!\n");
@@ -252,7 +250,7 @@ void  smemcpy(void *dst, void *src, size_t len)
         /* copy words */
         size_t *dw = dst;
         size_t *sw = src;
-    
+
         while(len >= sizeof(size_t)) {
                 *dw++ = *sw++;
                 len -= sizeof(size_t);
@@ -288,6 +286,42 @@ int   smemcmp(void *p1, void *p2, size_t len)
 }
 
 /*
+ * make sure all blocks parted from track will be removed from pool
+ */
+static inline void test_block(struct mem_head *head, struct mem_track_head *track)
+{
+        struct pool_head temp = POOL_HEAD_INIT(temp);
+
+        /*
+         * move all blocks to temporary pool
+         */
+        while(!pool_singular(&head->head)) {
+                struct mem_block_head * p = (struct mem_block_head *)pool_get(&head->head);
+                struct pool_head *b = &p->head;
+                /*
+                 * set temporary pool
+                 */
+                b->pprev = &temp;
+                pool_add(b, b->pprev);
+        }
+
+        /*
+         * push blocks not linked to track to real pool again
+         */
+        while(!pool_singular(&temp)) {
+                struct mem_block_head * p = (struct mem_block_head *)pool_get(&temp);
+                if(p->track_head != track) {
+                        struct pool_head *b = &p->head;
+                        /*
+                         * set real pool
+                         */
+                        b->pprev = &head->head;
+                        pool_add(b, b->pprev);
+                }
+        }
+}
+
+/*
  * free blocks unused
  */
 void dim_memory()
@@ -300,12 +334,14 @@ void dim_memory()
                 list_for_each_safe(lh, lhn, &head->track.head) {
                         struct mem_track_head *track = (struct mem_track_head *)lh;
                         if(*track->count == 0) {
+                                debug("track %p deallocated\n", track);
+                                test_block(head, track);
                                 list_del(lh);
                                 free(track->ptr);
                                 free(track->count);
                                 free(track);
                         } else {
-                                debug("leak %d , %d!\n", *track->count, head->item_size);
+                                debug("track %p | item_size %d | using %d\n", track, head->item_size, *track->count);
                         }
                 }
         }

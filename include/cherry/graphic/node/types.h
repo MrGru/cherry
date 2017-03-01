@@ -89,6 +89,8 @@ struct branch_transform {
                 union vec4              size_expanded;
         };
         union vec4                      quat;
+        union vec4                      bonus_quat;
+        union vec4                      last_rotate_quat;
 
         struct list_head                anim_rotations;
 

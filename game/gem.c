@@ -140,22 +140,23 @@ void gem_free(struct gem *p)
 void gem_update_node(struct gem *p)
 {
         struct branch_transform *br     = node_3d_color_get_branch_transform(p->node);
+        struct branch_transform *brf    = node_3d_color_get_branch_transform(p->flipped_node);
         union vec3 pos                  = br->position;
         union vec3 scale                = br->scale;
         union vec4 quat                 = br->quat;
 
         // pos.y                           = pos.y;
         pos.z                           = -pos.z - 200;
-        scale.z                         = -scale.z;
         node_3d_color_set_position(p->flipped_node, pos);
         node_3d_color_set_scale(p->flipped_node, scale);
         node_3d_color_set_rotation(p->flipped_node, quat);
+        brf->bonus_quat                 = quat_mul(quat_angle_axis(DEG_TO_RAD(180), (float[3]){0, 1, 0}), br->last_rotate_quat);
 
         if(list_singular(&p->node_move_key.key_head)
                 && list_singular(&p->node_choice_key.key_head)
                 && list_singular(&p->node_unchoice_key.key_head)
                 && list_singular(&p->node_collected_key.key_head)) {
-                        list_del_init(&p->elm.update_pos_head);
+                        list_del_init(&p->elm.update_pos_head);                        
                 }
 }
 

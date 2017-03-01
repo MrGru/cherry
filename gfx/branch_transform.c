@@ -82,6 +82,8 @@ struct branch_transform *branch_transform_alloc(u8 bid, struct branch_transform_
         p->scale_expanded               = vec4((float[4]){1, 1, 1, 0});
         p->size_expanded                = vec4((float[4]){1, 1, 1, 0});
         p->quat                         = quat_identity;
+        p->bonus_quat                   = quat_identity;
+        p->last_rotate_quat             = quat_identity;
         p->parent = NULL;
         p->update_queue = queue;
         INIT_LIST_HEAD(&p->tree_head);
@@ -209,11 +211,12 @@ void branch_transform_traverse(struct branch_transform *p, union mat4 cm)
                         }
                         i++;
                 }
-
+                p->last_rotate_quat = aquat;
                 union mat4 transform = mat4_identity;
                 transform = mat4_translate(transform, p->position);
                 transform = mat4_mul(transform, mat4_from_quat(p->quat));
-                if(i) transform = mat4_mul(transform, mat4_from_quat(aquat));
+                transform = mat4_mul(transform, mat4_from_quat(p->last_rotate_quat));
+                transform = mat4_mul(transform, mat4_from_quat(p->bonus_quat));
                 transform = mat4_scale(transform, p->scale);
                 transform = mat4_mul(cm, transform);
 

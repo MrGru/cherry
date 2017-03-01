@@ -115,12 +115,32 @@ static void __game_setup_base(struct game *p)
 
         p->world_light = pl;
 
+        union vec3 camera_position = (union vec3){0, 0, 2700};
+
+        float screen_ratio = video_height * 1.0f / video_width;
+        /*
+         * check screen resolution to apply good camera position
+         */
+        if(fabs(screen_ratio - 1334.0f / 750) < 0.0001) { /* special case for iPhone6 */
+                camera_position.z = 4300;
+        }else if(fabs(screen_ratio - 16.0f / 9) < 0.0001) {
+                camera_position.z = 4300;
+        } else if(fabs(screen_ratio - 3.0f / 2) < 0.0001) {
+                camera_position.z = 3700;
+        } else if(fabs(screen_ratio - 5.0f / 3) < 0.0001) {
+                camera_position.z = 4100;
+        } else if(fabs(screen_ratio - 4.0f / 3) < 0.0001) {
+                camera_position.z = 3400;
+        } else if(screen_ratio > 1) {
+                camera_position.z = 4100;
+        }
+
         p->game_cam = camera_alloc(mat4_new_look_at(
-                // 0, 0, 4100,
-                0, 0, 3450,
+                devec3(camera_position),
                 0, 0, 0,
                 0, 1, 0
         ));
+
         shader_set_uniform(s3d_color, SHADER_3D_COLOR_VIEW, p->game_cam->view_uniform);
         shader_set_uniform(s3d_color, SHADER_3D_COLOR_VIEW_POSITION, p->game_cam->position_uniform);
         union mat4 project = mat4_new_perspective(DEG_TO_RAD(45.0f), video_width * 1.0f / video_height, 1.0f, 10000.0f);
@@ -189,23 +209,9 @@ struct game *game_alloc()
 
         game_parse_level(p, "res/levels/level_1.xml");
 
+        dim_memory();
+
         struct node_3d_color *n1 = game_empty_node_alloc(p);
-        // union vec4 color[6] = {
-        //         (union vec4){255 / 255.0f, 0 / 255.0f, 55 / 255.0f, 1}, //RED
-        //         (union vec4){0 / 255.0f, 120 / 255.0f, 255 / 255.0f, 1}, //BLUE
-        //         (union vec4){72 / 255.0f, 255 / 255.0f, 0 / 255.0f, 1}, //GREEN
-        //         (union vec4){255 / 255.0f, 255 / 255.0f, 0 / 255.0f, 1}, //YELLOW
-        //         (union vec4){182 / 255.0f, 0 / 255.0f, 255 / 255.0f, 1}, //PURPLE
-        //         (union vec4){255 / 255.0f, 86 / 255.0f, 0 / 255.0f, 1}, //ORANGE
-        // };
-        union vec4 color[6] = {
-                (union vec4){1, 1, 1, 1},
-                (union vec4){1, 1, 1, 1},
-                (union vec4){1, 1, 1, 1},
-                (union vec4){1, 1, 1, 1},
-                (union vec4){1, 1, 1, 1},
-                (union vec4){1, 1, 1, 1}
-        };
 
         int test_type = 6;
         int test[6] = {GEM_1_LV_1, GEM_2_LV_1,
@@ -215,22 +221,20 @@ struct game *game_alloc()
                         struct gem *gem = gem_alloc(GEM_1_LV_1);
                         list_add_tail(&gem->elm.life_head, &p->element_list);
                         list_add_tail(&gem->elm.path_head, &p->element_pool_list);
-                        int ct          = rand_ri(0, 6);
                         struct node_3d_color *node, *flipped_node;
-                        int t = rand_ri(0, 1000);
                         i16 type = test[rand_ri(0, 5)];
                         {
                                 struct node_3d_color *n2 = game_gem_alloc(p, gem_mesh_cache(type));
                                 node_3d_color_add_node_3d_color(n1, n2);
                                 node_3d_color_set_position(n2, (union vec3){(i - 4) * 200, (j - 4) * 200, 0});
-                                node_3d_color_set_color(n2, color[ct]);
+                                node_3d_color_set_color(n2, (union vec4){1, 1, 1, 1});
                                 node = n2;
                         }
                         {
                                 struct node_3d_color *n2 = game_gem_alloc(p, gem_mesh_cache(type));
                                 node_3d_color_add_node_3d_color(n1, n2);
                                 node_3d_color_set_position(n2, (union vec3){(i - 4) * 200, (j - 4) * 200, -200});
-                                node_3d_color_set_color(n2, vec4_mul_scalar(color[ct], 1.0));
+                                node_3d_color_set_color(n2, (union vec4){1, 1, 1, 1});
                                 flipped_node = n2;
                         }
                         gem_set_node(gem, node, flipped_node);
@@ -249,6 +253,8 @@ struct game *game_alloc()
         //                 struct node_3d_color *n2 = game_cell_alloc(p, pipe, i);
         //                 node_3d_color_add_node_3d_color(n1, n2);
         //                 node_3d_color_set_color(n2, (union vec4){1, 1, 1, 0.05});
+        //                 node_3d_color_set_scale(n2, (union vec3){1.5, 1.5, 1.5});
+        //                 node_3d_color_set_rotation(n2, quat_angle_axis(DEG_TO_RAD(45), (float[3]){0, 0, 1}));
         //         }
         //         dae_mesh_free(pipe);
         // }
