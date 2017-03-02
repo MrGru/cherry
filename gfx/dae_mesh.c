@@ -30,6 +30,12 @@ struct geo_mesh {
         struct array    *p;
 };
 
+struct visual_node {
+        struct string   *name;
+        union mat4      transform;
+        struct string   *mesh_url;
+};
+
 static struct geo_mesh *__geo_mesh_alloc()
 {
         struct geo_mesh *p      = smalloc(sizeof(struct geo_mesh));
@@ -52,6 +58,22 @@ static void __geo_mesh_free(struct geo_mesh *p)
         array_free(p->colors);
         array_free(p->vcount);
         array_free(p->p);
+        sfree(p);
+}
+
+static struct visual_node *__visual_node_alloc()
+{
+        struct visual_node *p   = smalloc(sizeof(struct visual_node));
+        p->name                 = string_alloc(0);
+        p->transform            = mat4_identity;
+        p->mesh_url             = string_alloc(0);
+        return p;
+}
+
+static void __visual_node_free(struct visual_node *p)
+{
+        string_free(p->name);
+        string_free(p->mesh_url);
         sfree(p);
 }
 
@@ -284,9 +306,27 @@ static void __parse_geometry(struct array *result, struct xml_element *xml)
         }
 }
 
+static void __parse_visual_node(struct array *result, struct xml_element *xml)
+{
+        struct xml_element *visual_scene = xml_find(xml, "visual_scene", 0);
+        struct list_head *head;
+        list_for_each(head, &visual_scene->children) {
+                struct visual_node *p           = __visual_node_alloc();
+                struct xml_element *node        = (struct xml_element *)
+                        ((void *)head - offsetof(struct xml_element, element_head));
+                struct xml_element *matrix      = xml_find(node, "matrix", 0);
+                struct xml_element *mesh        = xml_find(node, "instance_geometry", 0);
+                p->transform                    = __convert_mat4(matrix->value);
+                string_cat_string(p->name, xml_find_attribute(node, "name")->value);
+                string_cat_string(p->mesh_url, xml_find_attribute(mesh, "url")->value);
+                array_push(result, &p);
+        }
+}
+
 static inline struct dae_mesh *__dae_mesh_alloc()
 {
         struct dae_mesh *p      = smalloc(sizeof(struct dae_mesh));
+        p->name                 = string_alloc(0);
         p->vertex_1             = array_alloc(sizeof(union vec3), ORDERED);
         p->vertex_2             = array_alloc(sizeof(union vec3), ORDERED);
         p->vertex_3             = array_alloc(sizeof(union vec3), ORDERED);
@@ -297,7 +337,7 @@ static inline struct dae_mesh *__dae_mesh_alloc()
         return p;
 }
 
-static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m)
+static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m, union mat4 transform)
 {
         struct dae_mesh *p      = __dae_mesh_alloc();
         int has_uvs             = m->uvs->len ? 1 : 0;
@@ -321,7 +361,7 @@ static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m)
                 int vertex_id   = array_get(m->p, int, i);
                 int normal_id   = array_get(m->p, int, i + 1);
 
-                union vec3 pos  = array_get(m->positions, union vec3, vertex_id);
+                union vec3 pos  = mat4_mul_vec3_translation(transform, array_get(m->positions, union vec3, vertex_id));
                 union vec3 nor  = array_get(m->normals, union vec3, normal_id);
                 switch (step) {
                         case 0:
@@ -359,16 +399,38 @@ static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m)
         return p;
 }
 
-struct dae_mesh *dae_mesh_alloc(char *file)
+struct array *__visual_node_to_dae_mesh(struct array *visual_nodes, struct array *geometries)
+{
+        struct array *result = array_alloc(sizeof(struct dae_mesh *), ORDERED);
+        struct visual_node **node;
+        struct geo_mesh **mesh;
+        array_for_each(node, visual_nodes) {
+                array_for_each(mesh, geometries) {
+                        if(strcmp((*mesh)->id->ptr, (*node)->mesh_url->ptr + 1) == 0) {
+                                struct dae_mesh *p = __geo_mesh_to_dae_mesh(*mesh, (*node)->transform);
+                                string_cat_string(p->name, (*node)->name);
+                                array_push(result, &p);
+                                break;
+                        }
+                }
+        }
+        return result;
+}
+
+struct array *dae_mesh_alloc(char *file)
 {
         struct xml_element *xml         = xml_parse(file);
 
         struct array *geometries        = array_alloc(sizeof(struct geo_mesh *), ORDERED);
         __parse_geometry(geometries, xml);
 
-        struct dae_mesh *p              = __geo_mesh_to_dae_mesh(array_get(geometries, struct geo_mesh *, 0));
+        struct array *visual_nodes      = array_alloc(sizeof(struct visual_node *), ORDERED);
+        __parse_visual_node(visual_nodes, xml);
+
+        struct array *p                 = __visual_node_to_dae_mesh(visual_nodes, geometries);
 
         array_deep_free(geometries, struct geo_mesh *, __geo_mesh_free);
+        array_deep_free(visual_nodes, struct visual_node *, __visual_node_free);
         xml_free(xml);
 
         return p;
@@ -383,5 +445,6 @@ void dae_mesh_free(struct dae_mesh *p)
         array_free(p->normal_2);
         array_free(p->normal_3);
         array_free(p->colors);
+        string_free(p->name);
         sfree(p);
 }

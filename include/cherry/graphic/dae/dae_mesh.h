@@ -16,7 +16,7 @@
 
 #include <cherry/graphic/dae/types.h>
 
-struct dae_mesh *dae_mesh_alloc(char *file);
+struct array *dae_mesh_alloc(char *file);
 
 void dae_mesh_free(struct dae_mesh *p);
 

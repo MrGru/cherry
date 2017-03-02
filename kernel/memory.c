@@ -327,6 +327,7 @@ static inline void test_block(struct mem_head *head, struct mem_track_head *trac
 void dim_memory()
 {
 	int i;
+        int empty = 1;
         for_i(i, 32) {
                 struct mem_head *head = &blocks[i];
                 struct list_head *lh;
@@ -342,8 +343,12 @@ void dim_memory()
                                 free(track);
                         } else {
                                 debug("track %p | item_size %d | using %d\n", track, head->item_size, *track->count);
+                                empty = 0;
                         }
                 }
+        }
+        if(empty) {
+                debug("all memory blocks are deallocated!\n");
         }
 }
 

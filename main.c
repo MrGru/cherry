@@ -81,7 +81,7 @@ int main(int args, char **argv)
                 }
                 game_update(game);
                 if(game->can_draw) {
-                        game_render(game);        
+                        game_render(game);
                 }
                 SDL_GL_SwapWindow(window);
         }

@@ -17,6 +17,7 @@
 #include <cherry/graphic/types.h>
 
 struct dae_mesh {
+        struct string   *name;
         struct array    *vertex_1;
         struct array    *vertex_2;
         struct array    *vertex_3;

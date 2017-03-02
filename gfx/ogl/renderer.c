@@ -22,6 +22,7 @@
 #include <cherry/graphic/shader.h>
 #include <cherry/graphic/device_buffer.h>
 #include <cherry/graphic/texture.h>
+#include <cherry/math/math.h>
 
 static u8 depth_testing = 0;
 
