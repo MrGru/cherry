@@ -24,7 +24,7 @@
  * a model having large number of vertex can separate into several node
  * or create a new render_content for it own
  */
-#define GAME_TRIANGLES_PER_OBJECT 320
+#define GAME_TRIANGLES_PER_OBJECT 400
 
 struct game *game_alloc();
 
