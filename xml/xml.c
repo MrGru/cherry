@@ -275,28 +275,54 @@ void xml_free(struct xml_element *p)
         __xml_element_free(p);
 }
 
-static struct xml_element *__xml_find(struct xml_element *root, char *name, int *index)
+struct xml_element *xml_find(struct xml_element* root, char* name, int index)
 {
-        struct list_head *head;
-        list_for_each(head, &root->children) {
+        struct list_head *head = &root->element_head;
+        while(head) {
                 struct xml_element *e = (struct xml_element *)
                         ((void *)head - offsetof(struct xml_element, element_head));
                 if(strcmp(e->name->ptr, name) == 0) {
-                        if(*index == 0) return e;
-                        (*index)--;
+                        if(index == 0) return e;
+                        index--;
                 }
-                struct xml_element *t = __xml_find(e, name, index);
-                if(t) return t;
+                /*
+                 * invalidate head for next check
+                 */
+                head = NULL;
+                if(!list_singular(&e->children)) {
+                        /*
+                         * check first child
+                         */
+                        head = e->children.next;
+                } else {
+                        /*
+                         * check next sibling
+                         * if e is last node than check next sibling of parent recursily
+                         */
+                        while(e->parent) {
+                                if(e->element_head.next != &e->parent->children) {
+                                        /*
+                                         * e has next sibling
+                                         */
+                                        head = e->element_head.next;
+                                        break;
+                                } else {
+                                        /*
+                                         * e is last node, check for parent sibling
+                                         */
+                                        e = e->parent;
+                                        /*
+                                         * stop at root
+                                         */
+                                        if(e == root) break;
+                                }
+                        }
+                }
         }
         return NULL;
 }
 
-struct xml_element *xml_find(struct xml_element* root, char* name, int index)
-{
-        return __xml_find(root, name, &index);
-}
-
-struct xml_attribute *__xml_find_attribute(struct xml_element *root, char *name)
+static struct xml_attribute *__xml_find_attribute(struct xml_element *root, char *name)
 {
         struct list_head *head;
         list_for_each(head, &root->attributes) {
@@ -315,16 +341,49 @@ struct xml_attribute *xml_find_attribute(struct xml_element *root, char *name)
 
 struct xml_element *xml_find_deep(struct xml_element *root, char *name, char *attr, char *val)
 {
-        struct list_head *head;
-        list_for_each(head, &root->children) {
+        struct list_head *head = &root->element_head;
+        while(head) {
                 struct xml_element *e = (struct xml_element *)
                         ((void *)head - offsetof(struct xml_element, element_head));
                 if(strcmp(e->name->ptr, name) == 0) {
                         struct xml_attribute *a = __xml_find_attribute(e, attr);
-                        if(strcmp(a->value->ptr, val) == 0) return e;
+                        if(a && strcmp(a->value->ptr, val) == 0) {
+                                return e;
+                        }
                 }
-                struct xml_element *t = xml_find_deep(e, name, attr, val);
-                if(t) return t;
+                /*
+                 * invalidate head for next check
+                 */
+                head = NULL;
+                if(!list_singular(&e->children)) {
+                        /*
+                         * check first child
+                         */
+                        head = e->children.next;
+                } else {
+                        /*
+                         * check next sibling
+                         * if e is last node than check next sibling of parent recursily
+                         */
+                        while(e->parent) {
+                                if(e->element_head.next != &e->parent->children) {
+                                        /*
+                                         * e has next sibling
+                                         */
+                                        head = e->element_head.next;
+                                        break;
+                                } else {
+                                        /*
+                                         * e is last node, check for parent sibling
+                                         */
+                                        e = e->parent;
+                                        /*
+                                         * stop at root
+                                         */
+                                        if(e == root) break;
+                                }
+                        }
+                }
         }
         return NULL;
 }

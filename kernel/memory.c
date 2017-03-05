@@ -247,13 +247,13 @@ void  smemcpy(void *dst, void *src, volatile size_t len)
         /* ignore zero copy */
         if(!len || dst == src) return;
 
-        /* copy words */
+        // /* copy words */
         size_t *dw = dst;
         size_t *sw = src;
-        while(len >= sizeof(size_t)) {
-                *dw++ = *sw++;
-                len -= sizeof(size_t);
-        }
+        // while(len >= sizeof(size_t)) {
+        //         *dw++ = *sw++;
+        //         len -= sizeof(size_t);
+        // }
 
         /* copy bytes */
         u8 *d1 = (u8 *)dw;

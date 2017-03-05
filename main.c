@@ -15,6 +15,7 @@
 #include <cherry/platform.h>
 
 #if OS == WEB
+        #include <GL/glew.h>
         #include <GL/glfw.h>
         #include <emscripten/emscripten.h>
 #else
@@ -41,20 +42,27 @@ int init_gl()
                 printf("glfwInit() failed\n");
                 return GL_FALSE;
         }
-
+        glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
         if (glfwOpenWindow(width, height, 8, 8, 8, 8, 16, 0, GLFW_WINDOW) != GL_TRUE) {
                 printf("glfwOpenWindow() failed\n");
                 return GL_FALSE;
         }
 
+        video_width = width;
+        video_height = height;
+        glViewport(0, 0, video_width, video_height);
         return GL_TRUE;
 }
 
 void do_frame()
 {
-        game_update(game);
-        if(game->can_draw) {
-               game_render(game);
+        if(!game) {
+                game = game_alloc();
+        } else {
+                game_update(game);
+                if(game->can_draw) {
+                       game_render(game);
+                }
         }
         glfwSwapBuffers();
 }
@@ -67,7 +75,6 @@ void shutdown_gl()
 int main(int args, char **argv)
 {
         if (init_gl() == GL_TRUE) {
-                game = game_alloc();
                 emscripten_set_main_loop(do_frame, 0, 1);
         }
 

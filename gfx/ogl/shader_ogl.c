@@ -254,7 +254,7 @@ void shader_setup_group(struct shader *p, struct device_buffer_group *g)
                 device_buffer_bind(db);
                 struct shader_attribute_descriptor **sad;
                 array_for_each(sad, sbd->attributes) {
-                        GLint attr = glGetAttribLocation(p->id, (*sad)->name->ptr);
+                        GLint attr = glGetAttribLocation((GLuint)p->id, (*sad)->name->ptr);
                         glEnableVertexAttribArray(attr);
                         i16 k;
                         switch((*sad)->type) {

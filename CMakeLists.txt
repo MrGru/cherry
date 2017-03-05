@@ -43,7 +43,7 @@ include_directories(include)
 
 if(${BUILD_WEB} MATCHES "true")
         set(CMAKE_EXECUTABLE_SUFFIX ".html")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s TOTAL_MEMORY=536870912 --use-preload-plugins --preload-file data@")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s TOTAL_MEMORY=134217728 --use-preload-plugins --preload-file ../data@")
         add_executable(cherry main.c)
         add_dependencies(cherry kernel gfx game audio xml)
         target_link_libraries(cherry kernel gfx game audio xml)
