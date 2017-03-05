@@ -36,7 +36,7 @@ struct game *game = NULL;
 
 int init_gl()
 {
-        const int width = 480, height = 800;
+        const int width = 400, height = 600;
 
         if (glfwInit() != GL_TRUE) {
                 printf("glfwInit() failed\n");
