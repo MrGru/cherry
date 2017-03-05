@@ -17,10 +17,6 @@
 #include <cherry/game/types.h>
 
 /*
- * I don't know why instancing only works with divisor less than 256
- *
- * currently I set divisor or triangles_per_object is 100
- *
  * a model having large number of vertex can separate into several node
  * or create a new render_content for it own
  */

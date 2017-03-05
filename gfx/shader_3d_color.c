@@ -31,6 +31,17 @@ static void clear()
 
 #if GFX == OGL
 
+#if OS == WEB
+static inline struct string *get_vert()
+{
+        return file_read_string("res/shaders/shader_3d_color_web.vert");
+}
+
+static inline struct string *get_frag()
+{
+        return file_read_string("res/shaders/shader_3d_color_web.frag");
+}
+#else
 static inline struct string *get_vert()
 {
         return file_read_string("res/shaders/shader_3d_color.vert");
@@ -40,6 +51,8 @@ static inline struct string *get_frag()
 {
         return file_read_string("res/shaders/shader_3d_color.frag");
 }
+#endif
+
 
 #elif GFX == MTL
 

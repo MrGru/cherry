@@ -40,12 +40,6 @@ input vec3      normal_3;
 input vec4      vertex_color;
 
 /*
- * combine vertex_i, normal_i, vertex_color into array to access from vid
- */
-vec3            vertice[3];
-vec3            normals[3];
-
-/*
  * pixel_color used to adjust fragment color
  */
 output vec4     pixel_color;
@@ -262,34 +256,43 @@ mat4 matrix4_transpose(mat4 matrix)
 
 void main()
 {
-        /*
-         * group vertice
-         */
-        vertice[0]              = vertex_1;
-        vertice[1]              = vertex_2;
-        vertice[2]              = vertex_3;
-
-        /*
-         * group normal
-         */
-        normals[0]              = normal_1;
-        normals[1]              = normal_2;
-        normals[2]              = normal_3;
-
         vec4 alpha              = decodeFloatColor(int(vertex_color[3]));
-        vec4 decodecolor        = decodeFloatColor(int(vertex_color[int(vid)]));
-        decodecolor.a           = alpha[int(vid)];
+        vec4 decodecolor;
+        if(vid >= 2.0) {
+                decodecolor        = decodeFloatColor(int(vertex_color[2]));
+                decodecolor.a           = alpha[2];
+        } else if(vid >= 1.0) {
+                decodecolor        = decodeFloatColor(int(vertex_color[1]));
+                decodecolor.a           = alpha[1];
+        } else {
+                decodecolor        = decodeFloatColor(int(vertex_color[0]));
+                decodecolor.a           = alpha[0];
+        }
 
         /*
          * working for 2d rendering so pos.z = 0
          */
-        vec3 pos                = vertice[int(vid)];
+        vec3 pos;
+        if(vid >= 2.0) {
+                pos                = vertex_3;
+        } else if(vid >= 1.0) {
+                pos                = vertex_2;
+        } else {
+                pos                = vertex_1;
+        }
         gl_Position             = project * view * transform * vec4(pos, 1.0);
 
         /*
          * pass pixel parameters
          */
-        vec3 pixel_normal       = mat3(matrix4_transpose(matrix4_inverse(transform))) * normals[int(vid)];
+        vec3 pixel_normal;
+        if(vid >= 2.0) {
+                pixel_normal       = mat3(matrix4_transpose(matrix4_inverse(transform))) * normal_3;
+        } else if(vid >= 1.0) {
+                pixel_normal       = mat3(matrix4_transpose(matrix4_inverse(transform))) * normal_2;
+        } else {
+                pixel_normal       = mat3(matrix4_transpose(matrix4_inverse(transform))) * normal_1;
+        }
 
         vec3 pixel_frag_pos     = vec3(transform * vec4(pos, 1.0));
 

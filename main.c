@@ -47,7 +47,6 @@ int init_gl()
                 printf("glfwOpenWindow() failed\n");
                 return GL_FALSE;
         }
-
         video_width = width;
         video_height = height;
         glViewport(0, 0, video_width, video_height);
