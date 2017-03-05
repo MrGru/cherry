@@ -25,4 +25,9 @@ OSX
 - run make.sh to build and test
 
 ANDROID
- - developing
+- developing
+
+EMSCRIPTEN
+- developing
+- need fix array constant index in shader
+- need fix too many recursion in xml_find
