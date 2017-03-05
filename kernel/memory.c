@@ -19,6 +19,7 @@
 #include <cherry/list.h>
 #include <cherry/stdint.h>
 #include <cherry/stdio.h>
+#include <cherry/platform.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -250,10 +251,12 @@ void  smemcpy(void *dst, void *src, volatile size_t len)
         // /* copy words */
         size_t *dw = dst;
         size_t *sw = src;
-        // while(len >= sizeof(size_t)) {
-        //         *dw++ = *sw++;
-        //         len -= sizeof(size_t);
-        // }
+#if OS != WEB
+        while(len >= sizeof(size_t)) {
+                *dw++ = *sw++;
+                len -= sizeof(size_t);
+        }
+#endif
 
         /* copy bytes */
         u8 *d1 = (u8 *)dw;
@@ -270,10 +273,12 @@ int   smemcmp(void *p1, void *p2, volatile size_t len)
 
         size_t *dw = p1;
         size_t *sw = p2;
+#if OS != WEB
         while(len >= sizeof(size_t)) {
                 if(*dw++ != *sw++) return 1;
                 len -= sizeof(size_t);
         }
+#endif
 
         char *d1 = (char *)dw;
         char *s1 = (char *)sw;

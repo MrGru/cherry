@@ -12,6 +12,6 @@
 # GNU General Public License for more details.
 #
 mkdir -p build_emscripten
-cmake -DCMAKE_TOOLCHAIN_FILE=/home/manh/Downloads/emsdk_portable/emscripten/master/cmake/Modules/Platform/Emscripten.cmake -Bbuild_emscripten -H. -DCMAKE_BUILD_TYPE=Debug -DOPENGL=true -DAPP_DEBUG=true -DBUILD_WEB=true
+cmake -DCMAKE_TOOLCHAIN_FILE=/home/manh/Downloads/emsdk_portable/emscripten/master/cmake/Modules/Platform/Emscripten.cmake -Bbuild_emscripten -H. -DCMAKE_BUILD_TYPE=Release -DOPENGL=true -DAPP_DEBUG=true -DBUILD_WEB=true
 make -C build_emscripten
 cp -rf res build_emscripten

@@ -28,6 +28,4 @@ ANDROID
 - developing
 
 EMSCRIPTEN
-- developing
-- need fix array constant index in shader
-- need fix too many recursion in xml_find
+- run make_emscripten.sh

@@ -38,7 +38,7 @@ void  sfree(void *ptr);
 /*
  * copy length bytes from src to dst
  */
-void  smemcpy(void *dst, void *src, size_t length);
+void  smemcpy(void *dst, void *src, volatile size_t length);
 
 /*
  * compare length bytes of p2 and p1
