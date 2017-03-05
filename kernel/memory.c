@@ -140,7 +140,7 @@ static inline void __expand_large(size_t size, int id)
         /*
          * padding 8 bytes to tail to prevent error out of bound in smemcpy, smemcmp
          */
-        void *p = malloc(size + 8);
+        void *p = malloc(size);
         /* expand track list */
         struct mem_track_head *track = malloc(sizeof(struct mem_track_head));
         track->ptr = p;
@@ -332,7 +332,7 @@ void dim_memory()
                 struct list_head *lh;
                 struct list_head *lhn;
                 list_for_each_safe(lh, lhn, &head->track.head) {
-                        struct mem_track_head volatile *track = (struct mem_track_head volatile*)lh;
+                        struct mem_track_head *track = (struct mem_track_head *)lh;
                         if(*track->count == 0) {
                                 debug("track %p deallocated\n", track);
                                 test_block(head, track);

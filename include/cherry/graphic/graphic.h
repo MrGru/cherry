@@ -90,6 +90,10 @@
 
                 #define glDrawArraysInstanced glDrawArraysInstancedEXT
                 #define glVertexAttribDivisor glVertexAttribDivisorEXT
+        #elif OS == WEB
+                #define GL_GLEXT_PROTOTYPES
+                #include <GL/gl.h>
+                #include <GL/glext.h>
         #else
                 #include <GL/glut.h>
                 #include <GLES3/gl3.h>

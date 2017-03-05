@@ -16,8 +16,15 @@
 #if IMAGE_TYPE == IMAGE_SDL2
 
 #include <cherry/memory.h>
+
+#if OS == WEB
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
+#else
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#endif
+
 
 /*
  * allocate new image object from file path

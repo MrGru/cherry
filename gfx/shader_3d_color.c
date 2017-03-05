@@ -106,7 +106,6 @@ struct shader *shader_3d_color_alloc(u8 direction_lights, u8 point_lights, u8 sp
         string_free(frag);
 
         struct shader_3d_color_uniform scu;
-
         shader_reserve_uniform(instance, SHADER_3D_COLOR_PROJECT, UNIFORM_M4,
                 "project", (void*)&scu.project - (void*)&scu);
         shader_reserve_uniform(instance, SHADER_3D_COLOR_VIEW, UNIFORM_M4,

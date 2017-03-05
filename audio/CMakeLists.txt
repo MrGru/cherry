@@ -19,7 +19,7 @@ set(PROJECT_LINK_LIBS kernel)
 else()
 
 file(GLOB_RECURSE SOURCES "*.c")
-set(PROJECT_LINK_LIBS kernel SDL2)
+set(PROJECT_LINK_LIBS kernel)
 
 endif()
 

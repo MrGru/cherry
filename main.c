@@ -12,14 +12,71 @@
  * GNU General Public License for more details.
  */
 #include <cherry/memory.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
-#include <SDL2/SDL_image.h>
+#include <cherry/platform.h>
+
+#if OS == WEB
+        #include <GL/glfw.h>
+        #include <emscripten/emscripten.h>
+#else
+        #include <SDL2/SDL.h>
+        #include <SDL2/SDL_opengl.h>
+        #include <SDL2/SDL_image.h>
+#endif
+
 #include <cherry/game/game.h>
 #include <cherry/string.h>
 #include <cherry/stdio.h>
 #include <cherry/math/math.h>
 #include <cherry/list.h>
+
+#if OS == WEB
+
+struct game *game = NULL;
+
+int init_gl()
+{
+        const int width = 480, height = 800;
+
+        if (glfwInit() != GL_TRUE) {
+                printf("glfwInit() failed\n");
+                return GL_FALSE;
+        }
+
+        if (glfwOpenWindow(width, height, 8, 8, 8, 8, 16, 0, GLFW_WINDOW) != GL_TRUE) {
+                printf("glfwOpenWindow() failed\n");
+                return GL_FALSE;
+        }
+
+        return GL_TRUE;
+}
+
+void do_frame()
+{
+        game_update(game);
+        if(game->can_draw) {
+               game_render(game);
+        }
+        glfwSwapBuffers();
+}
+
+void shutdown_gl()
+{
+        glfwTerminate();
+}
+
+int main(int args, char **argv)
+{
+        if (init_gl() == GL_TRUE) {
+                game = game_alloc();
+                emscripten_set_main_loop(do_frame, 0, 1);
+        }
+
+        shutdown_gl();
+
+        return 0;
+}
+
+#else
 
 int main(int args, char **argv)
 {
@@ -47,8 +104,6 @@ int main(int args, char **argv)
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-        // SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-        // SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
@@ -94,3 +149,5 @@ int main(int args, char **argv)
         dim_memory();
         return 0;
 }
+
+#endif

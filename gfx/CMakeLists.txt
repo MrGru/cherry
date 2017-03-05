@@ -22,7 +22,12 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         set(MACOSX TRUE)
 endif()
 
-if(ANDROID)
+if(${BUILD_WEB} MATCHES "true")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s LEGACY_GL_EMULATION=1")
+        set(PROJECT_LINK_LIBS kernel xml m)
+
+        file(GLOB_RECURSE SOURCES "*.c")
+elseif(ANDROID)
         include_directories(../android_include)
 
         if(${ANDROID_ABI} MATCHES "armeabi-v7a")

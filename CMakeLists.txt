@@ -41,7 +41,13 @@ add_subdirectory(xml)
 
 include_directories(include)
 
-if(${USER_BUILD_IOS} MATCHES "true")
+if(${BUILD_WEB} MATCHES "true")
+        set(CMAKE_EXECUTABLE_SUFFIX ".html")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s TOTAL_MEMORY=536870912 --use-preload-plugins --preload-file data@")
+        add_executable(cherry main.c)
+        add_dependencies(cherry kernel gfx game audio xml)
+        target_link_libraries(cherry kernel gfx game audio xml)
+elseif(${USER_BUILD_IOS} MATCHES "true")
 
 elseif(${USER_BUILD_ANDROID} MATCHES "true")
 

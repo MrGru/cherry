@@ -19,10 +19,14 @@
 #define DROID 2
 #define LINUX 3
 #define OSX 4
+#define WEB 5
 
 #define OS DROID
 
-#if defined(__APPLE__)
+#if defined(EMSCRIPTEN)
+        #undef OS
+        #define OS WEB
+#elif defined(__APPLE__)
 
         #include "TargetConditionals.h"
         #if TARGET_IPHONE_SIMULATOR
