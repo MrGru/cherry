@@ -317,6 +317,8 @@ static void __parse_visual_node(struct array *result, struct xml_element *xml)
                 struct xml_element *matrix      = xml_find(node, "matrix", 0);
                 struct xml_element *mesh        = xml_find(node, "instance_geometry", 0);
                 p->transform                    = __convert_mat4(matrix->value);
+                /* transpose matrix to fix Blender Export */
+                p->transform                    = mat4_transpose(p->transform.m);
                 string_cat_string(p->name, xml_find_attribute(node, "name")->value);
                 string_cat_string(p->mesh_url, xml_find_attribute(mesh, "url")->value);
                 array_push(result, &p);
@@ -432,7 +434,6 @@ struct array *dae_mesh_alloc(char *file)
         array_deep_free(geometries, struct geo_mesh *, __geo_mesh_free);
         array_deep_free(visual_nodes, struct visual_node *, __visual_node_free);
         xml_free(xml);
-
         return p;
 }
 

@@ -242,7 +242,7 @@ void *srealloc(void *ptr, size_t size)
 /*
  * fast mem copy
  */
-void  smemcpy(void *dst, void *src, size_t len)
+void  smemcpy(void *dst, void *src, volatile size_t len)
 {
         /* ignore zero copy */
         if(!len || dst == src) return;
@@ -250,22 +250,21 @@ void  smemcpy(void *dst, void *src, size_t len)
         /* copy words */
         size_t *dw = dst;
         size_t *sw = src;
-
         while(len >= sizeof(size_t)) {
                 *dw++ = *sw++;
                 len -= sizeof(size_t);
         }
 
         /* copy bytes */
-        char *d1 = (char *)dw;
-        char *s1 = (char *)sw;
+        u8 *d1 = (u8 *)dw;
+        u8 *s1 = (u8 *)sw;
         while(len) {
                 *d1++ = *s1++;
                 len--;
         }
 }
 
-int   smemcmp(void *p1, void *p2, size_t len)
+int   smemcmp(void *p1, void *p2, volatile size_t len)
 {
         if(!len || p1 == p2) return 0;
 
@@ -333,7 +332,7 @@ void dim_memory()
                 struct list_head *lh;
                 struct list_head *lhn;
                 list_for_each_safe(lh, lhn, &head->track.head) {
-                        struct mem_track_head *track = (struct mem_track_head *)lh;
+                        struct mem_track_head volatile *track = (struct mem_track_head volatile*)lh;
                         if(*track->count == 0) {
                                 debug("track %p deallocated\n", track);
                                 test_block(head, track);

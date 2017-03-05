@@ -63,6 +63,7 @@ int main(int args, char **argv)
         }
         glViewport(0, 0, video_width, video_height);
 
+
         struct game *game = game_alloc();
 
         /* main loop */

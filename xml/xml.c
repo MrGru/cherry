@@ -265,8 +265,8 @@ struct xml_element *xml_parse(char *file)
                                 break;
                 }
         }
-
         string_free(text);
+
         return host;
 }
 
