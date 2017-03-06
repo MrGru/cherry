@@ -11,20 +11,30 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
+cmake_minimum_required(VERSION 2.8.9)
+project (server C)
 
-#create target folder
-mkdir -p build_emscripten
+set(PROJECT_LINK_LIBS kernel)
 
-#copy file from res to data for preloading
-mkdir -p data
-cp -rf res data
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(WINDOWS TRUE)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(LINUX TRUE)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(MACOSX TRUE)
+endif()
 
-#remove previous dependencies
-rm build_emscripten/cherry.*
+include_directories(../include)
 
-#build
-cmake -DCMAKE_TOOLCHAIN_FILE=/home/manh/Downloads/emsdk_portable/emscripten/master/cmake/Modules/Platform/Emscripten.cmake -Bbuild_emscripten -DOUT=build_emscripten -Happlication -DCMAKE_BUILD_TYPE=Release -DOPENGL=true -DAPP_DEBUG=true -DBUILD_WEB=true
-make -C build_emscripten
+if(MACOSX)
 
-#clear temp data
-rm -rf data
+file(GLOB_RECURSE SOURCES "*.c" "*.m")
+
+else()
+
+file(GLOB_RECURSE SOURCES "*.c")
+
+endif()
+
+add_library(server STATIC ${SOURCES})
+target_link_libraries(server ${PROJECT_LINK_LIBS})

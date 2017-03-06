@@ -4,5 +4,6 @@ ios_build
 ios_build_metal
 build_android
 build_emscripten
+build_server
 res_works
 game

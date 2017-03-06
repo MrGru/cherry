@@ -11,20 +11,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-
-#create target folder
-mkdir -p build_emscripten
-
-#copy file from res to data for preloading
-mkdir -p data
-cp -rf res data
-
-#remove previous dependencies
-rm build_emscripten/cherry.*
-
-#build
-cmake -DCMAKE_TOOLCHAIN_FILE=/home/manh/Downloads/emsdk_portable/emscripten/master/cmake/Modules/Platform/Emscripten.cmake -Bbuild_emscripten -DOUT=build_emscripten -Happlication -DCMAKE_BUILD_TYPE=Release -DOPENGL=true -DAPP_DEBUG=true -DBUILD_WEB=true
-make -C build_emscripten
-
-#clear temp data
-rm -rf data
+mkdir -p build_server
+cmake -Bbuild_server -DOUT=build_server -Happlication_server -DCMAKE_BUILD_TYPE=Release -DAPP_DEBUG=true
+make -C build_server

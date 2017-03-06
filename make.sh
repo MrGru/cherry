@@ -12,6 +12,6 @@
 # GNU General Public License for more details.
 #
 mkdir -p build
-cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release -DOPENGL=true -DAPP_DEBUG=true
+cmake -Bbuild -DOUT=build -Happlication -DCMAKE_BUILD_TYPE=Release -DOPENGL=true -DAPP_DEBUG=true
 make -C build
 cp -rf res build

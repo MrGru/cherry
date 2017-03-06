@@ -11,20 +11,21 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
+cmake_minimum_required(VERSION 2.8.9)
+project (application_server C)
 
-#create target folder
-mkdir -p build_emscripten
+if(${APP_DEBUG} MATCHES "true")
+        add_definitions(-DAPP_DEBUG=1)
+else()
+        add_definitions(-DAPP_DEBUG=0)
+endif()
 
-#copy file from res to data for preloading
-mkdir -p data
-cp -rf res data
+add_subdirectory(../kernel "../${OUT}/kernel")
+add_subdirectory(../xml ../${OUT}/xml)
+add_subdirectory(../server ../${OUT}/server)
 
-#remove previous dependencies
-rm build_emscripten/cherry.*
+include_directories(../include)
 
-#build
-cmake -DCMAKE_TOOLCHAIN_FILE=/home/manh/Downloads/emsdk_portable/emscripten/master/cmake/Modules/Platform/Emscripten.cmake -Bbuild_emscripten -DOUT=build_emscripten -Happlication -DCMAKE_BUILD_TYPE=Release -DOPENGL=true -DAPP_DEBUG=true -DBUILD_WEB=true
-make -C build_emscripten
-
-#clear temp data
-rm -rf data
+add_executable(application_server main.c)
+add_dependencies(application_server kernel xml server)
+target_link_libraries(application_server kernel xml server)
