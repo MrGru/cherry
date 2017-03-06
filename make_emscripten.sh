@@ -16,6 +16,7 @@
 mkdir -p build_emscripten
 
 #copy file from res to data for preloading
+mkdir -p data
 cp -rf res data
 
 #remove previous dependencies
@@ -24,3 +25,6 @@ rm build_emscripten/cherry.*
 #build
 cmake -DCMAKE_TOOLCHAIN_FILE=/home/manh/Downloads/emsdk_portable/emscripten/master/cmake/Modules/Platform/Emscripten.cmake -Bbuild_emscripten -H. -DCMAKE_BUILD_TYPE=Release -DOPENGL=true -DAPP_DEBUG=true -DBUILD_WEB=true
 make -C build_emscripten
+
+#clear temp data
+rm -rf data

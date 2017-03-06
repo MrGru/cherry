@@ -253,7 +253,9 @@ mat4 matrix4_transpose(mat4 matrix)
         return m;
 }
 
-
+/*
+ * WebGL currently does not support array index as attribute so I need use branch
+ */
 void main()
 {
         vec4 alpha              = decodeFloatColor(int(vertex_color[3]));

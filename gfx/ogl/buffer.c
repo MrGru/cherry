@@ -109,10 +109,22 @@ void device_buffer_sub(struct device_buffer *p, u32 offset, void *bytes, u32 siz
 #else
         GLenum target = device_buffer_target(p);
         __device_buffer_bind(p);
-        void *ptr = glMapBufferRange(target, offset, size, GL_MAP_WRITE_BIT
-                | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-        smemcpy(ptr, bytes, size);
-        glUnmapBuffer(target);
+        switch (p->location) {
+                case BUFFER_DEVICE:
+                        glBufferSubData(target, offset, size, bytes);
+                        break;
+
+                case BUFFER_PINNED: {
+                                void *ptr = glMapBufferRange(target, offset, size, GL_MAP_WRITE_BIT
+                                        | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+                                smemcpy(ptr, bytes, size);
+                                glUnmapBuffer(target);
+                        }
+                        break;
+
+                default:
+                        break;
+        }
 #endif
 }
 
