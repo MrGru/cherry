@@ -12,10 +12,10 @@
  * GNU General Public License for more details.
  */
 #include<sys/select.h>
-#include<stdio.h>
 #include <cherry/memory.h>
 #include <cherry/server/file_descriptor.h>
 #include <cherry/array.h>
+#include <cherry/stdio.h>
 
 int main(void)
 {
@@ -28,7 +28,7 @@ int main(void)
         file_descriptor_get_active(fds, actives);
         u32 *a;
         array_for_each(a, actives) {
-                printf("%d\n", *a);
+                debug("%d\n", *a);
         }
         file_descriptor_set_free(fds);
         array_free(actives);

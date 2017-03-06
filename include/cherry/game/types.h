@@ -153,6 +153,7 @@ struct game {
         struct node_3d_color            *n3d_color_root;
 
         struct point_light              *world_light;
+        struct direction_light          *world_direction_light;
 
         struct action_manager           *action_manager;
 

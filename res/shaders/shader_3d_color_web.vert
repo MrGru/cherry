@@ -109,7 +109,7 @@ uniform SpotLight       spotLights[NR_SPOT_LIGHTS];
  */
 uniform vec3    view_position;
 
-vec3 CalcDirLight(DirLight ulight, vec3 normal, vec3 viewDir)
+vec3 CalcDirLight(DirLight ulight, vec3 normal)
 {
         vec3 color      = vec3(1.0, 1.0, 1.0);
         vec3 lightDir   = normalize(-ulight.direction);
@@ -296,12 +296,18 @@ void main()
                 pixel_normal       = mat3(matrix4_transpose(matrix4_inverse(transform))) * normal_1;
         }
 
-        vec3 pixel_frag_pos     = vec3(transform * vec4(pos, 1.0));
-
         vec3 norm               = normalize(pixel_normal);
-        vec3 viewDir            = normalize(view_position - pixel_frag_pos);
 
-        vec3 result             = CalcPointLight(pointLights[0], norm, pixel_frag_pos, viewDir);
+        vec3 result             = vec3(0.0);
+
+#if NR_DIRECTION_LIGHTS >= 1
+        result                  += CalcDirLight(dirLights[0], norm);
+#endif
+#if NR_POINT_LIGHTS >= 1
+        vec3 pixel_frag_pos     = vec3(transform * vec4(pos, 1.0));
+        vec3 viewDir            = normalize(view_position - pixel_frag_pos);
+        result                  += CalcPointLight(pointLights[0], norm, pixel_frag_pos, viewDir);
+#endif
 
         pixel_color             = color * decodecolor * vec4(result, 1.0);
 }
