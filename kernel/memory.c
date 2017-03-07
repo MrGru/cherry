@@ -141,7 +141,7 @@ static inline void __expand_large(size_t size, int id)
         /*
          * padding 8 bytes to tail to prevent error out of bound in smemcpy, smemcmp
          */
-        void *p = malloc(size);
+        void *p = malloc(size + 8);
         /* expand track list */
         struct mem_track_head *track = malloc(sizeof(struct mem_track_head));
         track->ptr = p;
