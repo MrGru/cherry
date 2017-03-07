@@ -296,10 +296,12 @@ void main()
 #if NR_DIRECTION_LIGHTS >= 1
         result                  += CalcDirLight(dirLights[0], norm);
 #endif
+
 #if NR_POINT_LIGHTS >= 1
         vec3 viewDir            = normalize(view_position - pixel_frag_pos);
         vec3 pixel_frag_pos     = vec3(transform * vec4(pos, 1.0));
         result                  += CalcPointLight(pointLights[0], norm, pixel_frag_pos, viewDir);
 #endif
-        pixel_color             = color * decodecolor * vec4(result, 1.0);
+
+        pixel_color             = decodecolor * vec4(result, 1.0);
 }
