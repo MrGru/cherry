@@ -6,6 +6,16 @@
 
 - support DirectX : plan
 
+##Note
+
+The game folder is my working game and I can not share it so the below builds will fail.
+
+If someone sees this coding style is interesting so you can create your own game folder and implement game.h in include/cherry/game/game.h, you can delete other files in include/cherry/game because it's only relevant to my game.
+
+Your game will be called in application/main.c.
+
+If you need more information then you can contact me by email <nhatdiep1991@gmail.com>
+
 ##Run
 
 Linux
