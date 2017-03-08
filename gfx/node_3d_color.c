@@ -81,6 +81,16 @@ static inline void detach_vertex_color(struct node_3d_color *p)
         }
 }
 
+static inline void detach_bright(struct node_3d_color *p)
+{
+        if( ! list_singular(&p->bright)) {
+                struct list_head *head = p->bright.next;
+                struct twig_bright *ob = (struct twig_bright *)
+                        ((void *)head - offsetof(struct twig_bright, tree_head));
+                twig_bright_free(ob);
+        }
+}
+
 static inline void __node_3d_set_node(struct node_3d_color *p, struct node *n)
 {
         /* detach previous node and push it back to pool */
@@ -100,6 +110,7 @@ struct node_3d_color *node_3d_color_alloc(struct node *n)
         INIT_LIST_HEAD(&p->vertex);
         INIT_LIST_HEAD(&p->normal);
         INIT_LIST_HEAD(&p->vertex_color);
+        INIT_LIST_HEAD(&p->bright);
         INIT_LIST_HEAD(&p->life_head);
         __node_3d_set_node(p, n);
         return p;
@@ -113,6 +124,7 @@ void node_3d_color_free(struct node_3d_color *p)
         detach_vertex(p);
         detach_normal(p);
         detach_vertex_color(p);
+        detach_bright(p);
         list_del(&p->life_head);
         sfree(p);
 }
@@ -145,6 +157,14 @@ void node_3d_color_set_branch_color(struct node_3d_color *p, struct branch_color
         list_del(&b->tree_head);
         list_add_tail(&b->tree_head, &p->color);
         b->offset_to_node = offsetof(struct node_3d_color, color);
+}
+
+void node_3d_color_set_twig_bright(struct node_3d_color *p, struct twig_bright *b)
+{
+        detach_bright(p);
+        list_del(&b->tree_head);
+        list_add_tail(&b->tree_head, &p->bright);
+        b->offset_to_node = offsetof(struct node_3d_color, bright);
 }
 
 void node_3d_color_set_twig_3d_vertex(struct node_3d_color *p, struct twig_3d_vertex *b)
@@ -358,6 +378,16 @@ void node_3d_color_set_color(struct node_3d_color *p, union vec4 color)
                 struct branch_color *ob = (struct branch_color *)
                         ((void *)head - offsetof(struct branch_color, tree_head));
                 ob->color = color;
+        }
+}
+
+void node_3d_color_set_bright(struct node_3d_color *p, float bright)
+{
+        if( ! list_singular(&p->bright)) {
+                struct list_head *head = p->bright.next;
+                struct twig_bright *ob = (struct twig_bright *)
+                        ((void *)head - offsetof(struct twig_bright, tree_head));
+                twig_bright_update(ob, bright);
         }
 }
 

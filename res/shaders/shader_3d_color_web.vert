@@ -29,7 +29,7 @@
  * vid used to access current texcoord, vertex
  */
 input float     vid;
-input vec4      color;
+input float     bright;
 input mat4      transform;
 input vec3      vertex_1;
 input vec3      vertex_2;
@@ -109,7 +109,7 @@ uniform SpotLight       spotLights[NR_SPOT_LIGHTS];
  */
 uniform vec3    view_position;
 
-vec3 CalcDirLight(DirLight ulight, vec3 normal)
+vec3 CalcDirLight(DirLight ulight, vec3 normal, float factor)
 {
         vec3 color      = vec3(1.0, 1.0, 1.0);
         vec3 lightDir   = normalize(-ulight.direction);
@@ -117,7 +117,7 @@ vec3 CalcDirLight(DirLight ulight, vec3 normal)
         float diff      = max(dot(normal, lightDir), 0.0);
 
         vec3 ambient    = ulight.ambient;
-        vec3 diffuse    = ulight.diffuse * diff;
+        vec3 diffuse    = ulight.diffuse * diff * factor;
         return (ambient + diffuse);
 }
 
@@ -301,7 +301,7 @@ void main()
         vec3 result             = vec3(0.0);
 
 #if NR_DIRECTION_LIGHTS >= 1
-        result                  += CalcDirLight(dirLights[0], norm);
+        result                  += CalcDirLight(dirLights[0], norm, bright);
 #endif
 #if NR_POINT_LIGHTS >= 1
         vec3 pixel_frag_pos     = vec3(transform * vec4(pos, 1.0));
@@ -309,5 +309,5 @@ void main()
         result                  += CalcPointLight(pointLights[0], norm, pixel_frag_pos, viewDir);
 #endif
 
-        pixel_color             = color * decodecolor * vec4(result, 1.0);
+        pixel_color             = decodecolor * vec4(result, 1.0);
 }

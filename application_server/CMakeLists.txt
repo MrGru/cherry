@@ -20,7 +20,7 @@ else()
         add_definitions(-DAPP_DEBUG=0)
 endif()
 
-add_subdirectory(../kernel "../${OUT}/kernel")
+add_subdirectory(../kernel ../${OUT}/kernel)
 add_subdirectory(../xml ../${OUT}/xml)
 add_subdirectory(../server ../${OUT}/server)
 

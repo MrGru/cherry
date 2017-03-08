@@ -34,6 +34,8 @@ struct device_buffer *buffer_color_alloc(u32 instances, u8 location);
 
 struct device_buffer *buffer_vertex_color_alloc(u32 instances, u8 location);
 
+struct device_buffer *buffer_bright_alloc(u32 instances, u8 location);
+
 /*
  * 3d buffers collection
  */

@@ -77,4 +77,13 @@ void twig_texid_free(struct twig_texid *p);
 
 void twig_texid_update(struct twig_texid *p);
 
+/*
+ * twig bright definitions
+ */
+struct twig_bright *twig_bright_alloc(u8 bid);
+
+void twig_bright_free(struct twig_bright *p);
+
+void twig_bright_update(struct twig_bright *p, float bright);
+
 #endif

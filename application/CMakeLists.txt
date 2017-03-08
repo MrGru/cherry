@@ -33,7 +33,7 @@ else()
         add_definitions(-DAPP_DEBUG=0)
 endif()
 
-add_subdirectory(../kernel "../${OUT}/kernel")
+add_subdirectory(../kernel ../${OUT}/kernel)
 add_subdirectory(../gfx ../${OUT}/gfx)
 add_subdirectory(../game ../${OUT}/game)
 add_subdirectory(../audio ../${OUT}/audio)

@@ -116,9 +116,9 @@ struct shader_descriptor *descriptor_3d_color_get(u32 triangles_per_object)
         sad = shader_attribute_descriptor_alloc(ATTRIBUTE_MAT4, 0, "transform");
         array_push(sbd->attributes, &sad);
         array_push(des->buffers, &sbd);
-        /* color */
-        sbd = shader_buffer_descriptor_alloc(4 * sizeof(float), 1, triangles_per_object);
-        sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC4, 0, "color");
+        /* bright */
+        sbd = shader_buffer_descriptor_alloc(sizeof(float), 1, triangles_per_object);
+        sad = shader_attribute_descriptor_alloc(ATTRIBUTE_FLOAT, 0, "bright");
         array_push(sbd->attributes, &sad);
         array_push(des->buffers, &sbd);
         /* vertex */

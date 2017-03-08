@@ -46,6 +46,16 @@ struct device_buffer *buffer_vertex_color_alloc(u32 instances, u8 location)
         return buffer;
 }
 
+struct device_buffer *buffer_bright_alloc(u32 instances, u8 location)
+{
+        void *data = smalloc(sizeof(float) * instances);
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
+                sizeof(float), location);
+        device_buffer_fill(buffer, data, sizeof(float) * instances);
+        sfree(data);
+        return buffer;
+}
+
 /*
  * 3d buffers collection
  */
