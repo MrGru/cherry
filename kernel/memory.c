@@ -22,12 +22,16 @@
 #include <cherry/platform.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 #define MEM_PAGE 4096
 
 #ifndef MEM_DEBUG
         #define MEM_DEBUG 0
 #endif
+
+static pthread_spinlock_t       spinlock;
+static u8                       spinlock_init = 0;
 
 /*
  * store list of pages allocated by malloc, references shared to application
@@ -121,7 +125,10 @@ static inline void __expand(size_t size, int id)
         struct mem_track_head *track = malloc(sizeof(struct mem_track_head));
         track->ptr = p;
         track->count = count;
+
+        pthread_spin_lock(&spinlock);
         list_add(&track->head, &blocks[id].track.head);
+        pthread_spin_unlock(&spinlock);
 
         back_i(i, n) {
                 struct mem_block_head *head = (struct mem_block_head *)(p + i * size);
@@ -129,7 +136,9 @@ static inline void __expand(size_t size, int id)
 #if MEM_DEBUG == 1
                 head->used = 0;
 #endif
+                pthread_spin_lock(&spinlock);
                 pool_add(&head->head, &blocks[id].head);
+                pthread_spin_unlock(&spinlock);
         }
 }
 
@@ -147,14 +156,19 @@ static inline void __expand_large(size_t size, int id)
         track->ptr = p;
         track->count = malloc(sizeof(int));
         *track->count = 0;
+
+        pthread_spin_lock(&spinlock);
         list_add(&track->head, &blocks[id].track.head);
+        pthread_spin_unlock(&spinlock);
 
         struct mem_block_head *head = (struct mem_block_head *)p;
         head->track_head = track;
 #if MEM_DEBUG == 1
         head->used = 0;
 #endif
+        pthread_spin_lock(&spinlock);
         pool_add(&head->head, &blocks[id].head);
+        pthread_spin_unlock(&spinlock);
 }
 
 /*
@@ -172,11 +186,13 @@ static inline void *__smalloc(size_t size)
                         __expand_large(size, id);
                 }
         }
+        pthread_spin_lock(&spinlock);
         struct mem_block_head * p = (struct mem_block_head *)pool_get(&blocks[id].head);
 #if MEM_DEBUG == 1
         p->used = 1;
 #endif
         (*p->track_head->count)++;
+        pthread_spin_unlock(&spinlock);
         return p + 1;
 }
 
@@ -198,6 +214,10 @@ static inline size_t __sizep2(size_t size)
 
 void *smalloc(size_t size)
 {
+        if(!spinlock_init) {
+                pthread_spin_init(&spinlock, 0);
+                spinlock_init = 1;
+        }
         return __smalloc(__sizep2(size));
 }
 
@@ -207,6 +227,7 @@ void *smalloc(size_t size)
 void sfree(void *ptr)
 {
         struct mem_block_head *p = (struct mem_block_head *)ptr - 1;
+        pthread_spin_lock(&spinlock);
         (*p->track_head->count)--;
 #if MEM_DEBUG == 1
         if(!p->used) {
@@ -216,6 +237,7 @@ void sfree(void *ptr)
 #endif
         struct pool_head *b = &p->head;
         pool_add(b, b->pprev);
+        pthread_spin_unlock(&spinlock);
 }
 
 /*
@@ -340,8 +362,10 @@ void dim_memory()
                         struct mem_track_head *track = (struct mem_track_head *)lh;
                         if(*track->count == 0) {
                                 debug("track %p deallocated\n", track);
+                                pthread_spin_lock(&spinlock);
                                 test_block(head, track);
                                 list_del(lh);
+                                pthread_spin_unlock(&spinlock);
                                 free(track->ptr);
                                 free(track->count);
                                 free(track);
@@ -366,13 +390,22 @@ struct cache_function {
 
 static struct list_head cache_head = LIST_HEAD_INIT(cache_head);
 
+static pthread_spinlock_t       func_lock;
+static u8                       func_lock_init;
+
 /*
  * add function need to be called in cache_free
  */
 void cache_add(void(*func)())
 {
+        if(!func_lock_init) {
+                pthread_spin_init(&func_lock, 0);
+                func_lock_init = 1;
+        }
         struct cache_function *p = malloc(sizeof(struct cache_function));
+        pthread_spin_lock(&func_lock);
         list_add_tail(&p->head, &cache_head);
+        pthread_spin_unlock(&func_lock);
         p->f = func;
 }
 
@@ -382,7 +415,8 @@ void cache_add(void(*func)())
  */
 void cache_free()
 {
-        if(list_singular(&cache_head)) return;
+        pthread_spin_lock(&func_lock);
+        if(list_singular(&cache_head)) goto end;
 
         struct list_head *p;
         list_while_not_singular(p, &cache_head) {
@@ -391,4 +425,6 @@ void cache_free()
                 list_del(p);
                 free(c);
         }
+end:;
+        pthread_spin_unlock(&func_lock);
 }
