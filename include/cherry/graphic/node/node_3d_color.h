@@ -41,6 +41,10 @@ struct branch_transform *node_3d_color_get_branch_transform(struct node_3d_color
 
 struct branch_color *node_3d_color_get_branch_color(struct node_3d_color *p);
 
+struct twig_bright *node_3d_color_get_twig_bright(struct node_3d_color *p);
+
+struct twig_3d_vertex *node_3d_color_get_twig_3d_vertex(struct node_3d_color *p);
+
 struct node *node_3d_color_get_node(struct node_3d_color *p);
 
 /*
