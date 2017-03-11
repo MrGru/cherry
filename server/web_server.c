@@ -67,6 +67,7 @@ static int __web_server_check_path(struct web_server *ws, struct string *path)
                                 check_dot++;
                                 break;
                         default:
+                                check_dot = 0;
                                 break;
                 }
         }
