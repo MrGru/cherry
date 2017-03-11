@@ -59,7 +59,8 @@ static int __web_server_check_path(struct web_server *ws, char *path, u32 len)
                                 if(check_dot == 2) {
                                         depth--;
                                 } else {
-                                        depth++;
+                                        if(i + 1 < len && path[i + 1] != '/')
+                                                depth++;
                                 }
                                 check_dot = 0;
                                 break;
