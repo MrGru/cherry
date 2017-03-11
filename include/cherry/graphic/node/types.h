@@ -153,6 +153,11 @@ struct twig_vertex_color {
 struct twig_bright {
         struct list_head        tree_head;
 
+        union {
+                float                   bright;
+                union vec4              bright_expanded;
+        };
+
         u8                      bid;
         u16                     offset_to_node;
 };
@@ -210,6 +215,12 @@ struct node_3d_color {
  * node action
  */
 enum {
+        ACTION_OTHER = (u64)0,
+        ACTION_TRANSFORM = (u64)1 << 0,
+        ACTION_BRIGHT = (u64)1 << 1
+};
+
+enum {
         EASE_LINEAR,
         EASE_QUADRATIC_IN,
         EASE_QUADRATIC_OUT,
@@ -247,9 +258,13 @@ struct action {
         struct list_head                children;
 
         u8                              ease_type;
+        u64                             action_type;
 
         union vec4                      *target;
         union {
+                /*
+                 * ease action
+                 */
                 struct {
                         union vec4      offset;
                         union vec4      last_amount_offset;
@@ -257,6 +272,9 @@ struct action {
                         float           duration;
                         float           remain;
                 };
+                /*
+                 * gravity action
+                 */
                 struct {
                         float           velocity;
                         float           max_velocity;
@@ -266,9 +284,15 @@ struct action {
 
                         i16             index;
                 };
+                /*
+                 * immediately action
+                 */
                 struct {
                         union vec4      destination;
                 };
+                /*
+                 * delay action
+                 */
                 struct {
                         float           delay;
                 };
@@ -283,6 +307,7 @@ struct action_key {
         struct list_head                key_head;
         struct list_head                actions;
         struct branch_transform         *transform;
+        struct twig_bright              *bright;
 };
 
 struct action_manager {
