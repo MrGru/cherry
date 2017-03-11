@@ -17,6 +17,7 @@
 #include <cherry/math/math.h>
 #include <cherry/array.h>
 #include <cherry/graphic/node/branch.h>
+#include <cherry/graphic/node/twig.h>
 
 static inline void __action_reset(struct action *p)
 {
@@ -37,6 +38,7 @@ static struct action *__action_alloc_sequence()
         p->ease_type            = EASE_SEQUENCE;
         p->finish               = 0;
         p->repeat               = 0;
+        p->action_type          = ACTION_OTHER;
         INIT_LIST_HEAD(&p->head);
         INIT_LIST_HEAD(&p->children);
         INIT_LIST_HEAD(&p->user_head);
@@ -49,6 +51,7 @@ static struct action *__action_alloc_parallel()
         p->ease_type            = EASE_PARALLEL;
         p->finish               = 0;
         p->repeat               = 0;
+        p->action_type          = ACTION_OTHER;
         INIT_LIST_HEAD(&p->head);
         INIT_LIST_HEAD(&p->children);
         INIT_LIST_HEAD(&p->user_head);
@@ -56,7 +59,7 @@ static struct action *__action_alloc_parallel()
 }
 
 
-struct action *action_alloc(union vec4 *target, union vec4 offset, float duration, u8 type, i16 repeat)
+struct action *action_alloc(u64 action_type, union vec4 *target, union vec4 offset, float duration, u8 type, i16 repeat)
 {
         struct action *p        = smalloc(sizeof(struct action));
         p->ease_type            = type;
@@ -67,13 +70,14 @@ struct action *action_alloc(union vec4 *target, union vec4 offset, float duratio
         p->remain               = duration;
         p->finish               = 0;
         p->repeat               = repeat;
+        p->action_type          = action_type;
         INIT_LIST_HEAD(&p->head);
         INIT_LIST_HEAD(&p->children);
         INIT_LIST_HEAD(&p->user_head);
         return p;
 }
 
-struct action *action_alloc_force(union vec4 *target, union vec4 destination)
+struct action *action_alloc_force(u64 action_type, union vec4 *target, union vec4 destination)
 {
         struct action *p        = smalloc(sizeof(struct action));
         p->ease_type            = EASE_FORCE;
@@ -81,13 +85,14 @@ struct action *action_alloc_force(union vec4 *target, union vec4 destination)
         p->destination          = destination;
         p->finish               = 0;
         p->repeat               = 0;
+        p->action_type          = action_type;
         INIT_LIST_HEAD(&p->head);
         INIT_LIST_HEAD(&p->children);
         INIT_LIST_HEAD(&p->user_head);
         return p;
 }
 
-struct action *action_alloc_gravity(union vec4 *target, float velocity, float max_velocity, float accelerate, ...)
+struct action *action_alloc_gravity(u64 action_type, union vec4 *target, float velocity, float max_velocity, float accelerate, ...)
 {
         struct action *p        = smalloc(sizeof(struct action));
         p->ease_type            = EASE_GRAVITY;
@@ -99,6 +104,7 @@ struct action *action_alloc_gravity(union vec4 *target, float velocity, float ma
         p->repeat               = 0;
         p->destinations         = array_alloc(sizeof(union vec4), ORDERED);
         p->index                = 0;
+        p->action_type          = action_type;
         INIT_LIST_HEAD(&p->head);
         INIT_LIST_HEAD(&p->children);
         INIT_LIST_HEAD(&p->user_head);
@@ -122,6 +128,7 @@ struct action *action_alloc_delay(union vec4 *target, float duration)
         p->delay                = duration;
         p->finish               = 0;
         p->repeat               = 0;
+        p->action_type          = ACTION_OTHER;
         INIT_LIST_HEAD(&p->head);
         INIT_LIST_HEAD(&p->children);
         INIT_LIST_HEAD(&p->user_head);
@@ -556,10 +563,11 @@ static void __action_ease_delay(struct action *p, float delta)
         }
 }
 
-u8 action_update(struct action *p, float delta)
+u8 action_update(struct action *p, float delta, u64 *flag)
 {
         u8 finish = 1;
         if( ! p->finish) {
+                *flag |= p->action_type;
                 switch (p->ease_type) {
                         case EASE_LINEAR:
                                 __action_ease_linear(p, delta);
@@ -663,7 +671,7 @@ u8 action_update(struct action *p, float delta)
                                                 if(child->finish) {
                                                         continue;
                                                 } else {
-                                                        u8 child_finish = action_update(child, delta);
+                                                        u8 child_finish = action_update(child, delta, flag);
                                                         if(child_finish && head == p->children.prev) {
                                                                 p->finish = 1;
                                                         } else {
@@ -682,7 +690,7 @@ u8 action_update(struct action *p, float delta)
                                         list_for_each(head, &p->children) {
                                                 struct action *child = (struct action *)
                                                         ((void *)head - offsetof(struct action, head));
-                                                u8 child_finish = action_update(child, delta);
+                                                u8 child_finish = action_update(child, delta, flag);
                                                 p->finish &= child_finish;
                                         }
                                 }
@@ -758,18 +766,23 @@ void action_manager_update(struct action_manager *p, float delta)
         list_for_each_safe(head, next, &p->keys) {
                 struct action_key *key = (struct action_key *)
                         ((void *)head - offsetof(struct action_key, key_head));
-                u8 all_finish = 1;
+                u8 all_finish   = 1;
+                u64 flag        = (u64)ACTION_OTHER;
                 struct list_head *action_head, *action_head_next;
                 list_for_each_safe(action_head, action_head_next, &key->actions) {
                         struct action *a = (struct action *)
                                 ((void *)action_head - offsetof(struct action, head));
-                        u8 finish = action_update(a, delta);
+                        u8 finish = action_update(a, delta, &flag);
                         if(finish) {
                                 action_free(a);
                         }
                         all_finish &= finish;
                 }
-                branch_transform_shake(key->transform);
+                if(flag & ACTION_TRANSFORM) {
+                        branch_transform_shake(key->transform);
+                } else if(flag & ACTION_BRIGHT) {
+                        twig_bright_update(key->bright, key->bright->bright);
+                }
                 if(all_finish) {
                         list_del_init(&key->key_head);
                 }
@@ -804,11 +817,12 @@ void action_key_add_action(struct action_key *p, struct action * a)
         list_add_tail(&a->head, &p->actions);
 }
 
-void action_key_init(struct action_key *p, struct branch_transform *br)
+void action_key_init(struct action_key *p)
 {
         INIT_LIST_HEAD(&p->key_head);
         INIT_LIST_HEAD(&p->actions);
-        p->transform = br;
+        p->transform    = NULL;
+        p->bright       = NULL;
 }
 
 void action_key_clear(struct action_key *key)

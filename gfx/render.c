@@ -136,8 +136,10 @@ struct node_data *node_data_alloc()
 static inline void __node_data_set(struct node_data *p, u8 bid, void *bytes, u32 len)
 {
         p->buffer_id = bid;
-        p->data->len = 0;
-        bytes_cat(p->data, bytes, len);
+        if(p->data->ptr != bytes) {
+                p->data->len = 0;
+                bytes_cat(p->data, bytes, len);
+        }
 
         if(list_singular(&p->fill_segment->head)) {
                 list_add_tail(&p->fill_segment->head, &p->segments);
@@ -152,13 +154,19 @@ static inline void __node_data_set_segment(struct node_data *p, struct node_data
         if(list_singular(&seg->head)) {
                 list_add_tail(&seg->head, &p->segments);
         }
-        bytes_sub(p->data, seg->start, bytes, len);
+        if((void*)p->data->ptr < bytes || (void*)p->data->ptr > bytes) {
+                bytes_sub(p->data, seg->start, bytes, len);
+        }
         seg->frames = BUFFERS;
 }
 
 void node_data_free(struct node_data *p)
 {
         node_data_segment_free(p->fill_segment);
+        struct list_head *head;
+        list_while_not_singular(head, &p->segments) {
+                list_del_init(head);
+        }
         bytes_free(p->data);
         sfree(p);
 }
@@ -198,6 +206,12 @@ void node_set_data(struct node *p, u8 index, void *bytes, u32 len)
         if(list_singular(&p->updater_head)) {
                 list_add_tail(&p->updater_head, &p->host->pending_updaters);
         }
+}
+
+void *node_get_data(struct node *p, u8 index)
+{
+        struct node_data *d = array_get(p->datas, struct node_data *, index);
+        return d->data->ptr;
 }
 
 void node_set_data_segment(struct node *p, u8 index, struct node_data_segment *seg, void *bytes, u32 len)

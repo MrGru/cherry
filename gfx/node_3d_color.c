@@ -213,6 +213,28 @@ struct branch_color *node_3d_color_get_branch_color(struct node_3d_color *p)
         return NULL;
 }
 
+struct twig_bright *node_3d_color_get_twig_bright(struct node_3d_color *p)
+{
+        if( ! list_singular(&p->bright)) {
+                struct list_head *head = p->bright.next;
+                struct twig_bright *ob = (struct twig_bright *)
+                        ((void *)head - offsetof(struct twig_bright, tree_head));
+                return ob;
+        }
+        return NULL;
+}
+
+struct twig_3d_vertex *node_3d_color_get_twig_3d_vertex(struct node_3d_color *p)
+{
+        if( ! list_singular(&p->vertex)) {
+                struct list_head *head = p->vertex.next;
+                struct twig_3d_vertex *ob = (struct twig_3d_vertex *)
+                        ((void *)head - offsetof(struct twig_3d_vertex, tree_head));
+                return ob;
+        }
+        return NULL;
+}
+
 struct node *node_3d_color_get_node(struct node_3d_color *p)
 {
         if(!list_singular(&p->node_head)) {

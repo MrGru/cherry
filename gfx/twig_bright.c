@@ -21,6 +21,7 @@ struct twig_bright *twig_bright_alloc(u8 bid)
 {
         struct twig_bright *p   = smalloc(sizeof(struct twig_bright));
         p->bid                  = bid;
+        p->bright_expanded      = (union vec4){1, 0, 0, 0};
         INIT_LIST_HEAD(&p->tree_head);
         return p;
 }
@@ -33,6 +34,7 @@ void twig_bright_free(struct twig_bright *p)
 
 void twig_bright_update(struct twig_bright *p, float bright)
 {
+        p->bright = bright;
         if(!list_singular(&p->tree_head)) {
                 struct list_head *head = p->tree_head.next;
                 struct list_head *node_head = (struct list_head *)
