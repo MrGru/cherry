@@ -32,6 +32,8 @@ void game_clear(struct game *p);
 
 void game_parse_level(struct game *p, char *file);
 
+void game_read_event(struct game *p, struct event *e);
+
 void game_free(struct game *p);
 
 void game_resize(struct game *p, int width, int height);
@@ -39,7 +41,6 @@ void game_resize(struct game *p, int width, int height);
 struct node_3d_color *game_gem_alloc(struct game *p, struct dae_mesh *mesh);
 struct node_3d_color *game_empty_node_alloc(struct game *p);
 struct node_3d_color *game_floor_node_alloc(struct game *p);
-struct node_3d_color *game_cell_alloc(struct game *p, struct dae_mesh *mesh, int row);
-struct node_3d_color *game_plane_alloc(struct game *p, struct dae_mesh *mesh, int row);
+struct node_3d_color *game_line_alloc(struct game *p);
 
 #endif

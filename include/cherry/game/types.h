@@ -23,27 +23,26 @@
  * game element
  */
 enum {
-        GEM_1_LV_1,
-        GEM_2_LV_1,
-        GEM_3_LV_1,
-        GEM_4_LV_1,
-        GEM_5_LV_1,
-        GEM_6_LV_1,
-        GEM_1_LV_2,
-        GEM_2_LV_2,
-        GEM_3_LV_2,
-        GEM_4_LV_2,
-        GEM_5_LV_2,
-        GEM_6_LV_2,
-        GEM_1_LV_3,
-        GEM_2_LV_3,
-        GEM_3_LV_3,
-        GEM_4_LV_3,
-        GEM_5_LV_3,
-        GEM_6_LV_3
+        GEM_RED,
+        GEM_BLUE,
+        GEM_GREEN,
+        GEM_PURPLE,
+        GEM_ORANGE,
+
+        GEM_BLUE_HORIZON,
+        GEM_RED_HORIZON,
+        GEM_GREEN_HORIZON,
+        GEM_PURPLE_HORIZON,
+        GEM_ORANGE_HORIZON,
+
+        GEM_RED_VERTICAL,
+        GEM_BLUE_VERTICAL,
+        GEM_GREEN_VERTICAL,
+        GEM_PURPLE_VERTICAL,
+        GEM_ORANGE_VERTICAL
 };
 
-#define element_is_gem(elm) ((elm)->type >= GEM_1_LV_1 && (elm)->type <= GEM_6_LV_3)
+#define element_is_gem(elm) ((elm)->type >= GEM_RED && (elm)->type <= GEM_ORANGE_VERTICAL)
 
 struct game_element {
         struct list_head                life_head;
@@ -76,6 +75,7 @@ struct path_point;
 struct element_deliver;
 
 struct path_point {
+        struct list_head                touch_head;
         struct list_head                life_head;
         struct list_head                neighbor[8];
         struct list_head                neighbor_head[8];
@@ -127,6 +127,26 @@ struct element_deliver {
         };
 };
 
+struct connect_line {
+        struct list_head                                head;
+        union mat4                                      transform;
+        union {
+                struct {
+                        struct node_data_segment        *seg_v1;
+                        struct node_data_segment        *seg_v2;
+                        struct node_data_segment        *seg_v3;
+                };
+                struct node_data_segment                *seg[3];
+        };
+        struct node_3d_color                            *node;
+};
+
+enum {
+        PLAY_IDLE,
+        PLAY_SEARCH_NODE,
+        PLAY_PROCESS
+};
+
 /*
  * game context
  */
@@ -138,9 +158,14 @@ struct game {
         struct list_head                deliver_list;
         struct list_head                path_point_list;
         struct list_head                element_update_pos_list;
+        struct list_head                free_connect_line_list;
+        struct list_head                using_connect_line_list;
+        struct list_head                touching_gem_list;
+
+        u8                              play_state;
+
 
         struct path_point               *path_point_touches[9][9];
-
 
         struct branch_transform_queue   *n3d_update_queue;
 
@@ -150,9 +175,6 @@ struct game {
 
         struct shader_uniform           *game_projection_uniform;
 
-        struct node_3d_color            *n3d_color_root;
-
-        struct point_light              *world_light;
         struct direction_light          *world_direction_light;
 
         struct action_manager           *action_manager;

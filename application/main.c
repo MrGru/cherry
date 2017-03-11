@@ -36,7 +36,7 @@ struct game *game = NULL;
 
 int init_gl()
 {
-        const int width = 400, height = 600;
+        const int width = 500, height = 750;
 
         if (glfwInit() != GL_TRUE) {
                 printf("glfwInit() failed\n");
@@ -129,15 +129,33 @@ int main(int args, char **argv)
 
         /* main loop */
         while (1) {
-                if (SDL_PollEvent(&windowEvent)) {
-                        if (windowEvent.type == SDL_QUIT) break;
-                        if (windowEvent.type == SDL_KEYUP &&
-                                windowEvent.key.keysym.sym == SDLK_ESCAPE) break;
-                        if(windowEvent.type == SDL_WINDOWEVENT) {
+                while (SDL_PollEvent(&windowEvent)) {
+                        if (windowEvent.type == SDL_QUIT) goto exit;
+                        else if (windowEvent.type == SDL_KEYUP &&
+                                windowEvent.key.keysym.sym == SDLK_ESCAPE) goto exit;
+                        else if(windowEvent.type == SDL_WINDOWEVENT) {
                                 if(windowEvent.window.event == SDL_WINDOWEVENT_RESIZED) {
                                         SDL_GetWindowSize(window, &video_width, &video_height);
                                         glViewport(0, 0, video_width, video_height);
                                         game_resize(game, video_width, video_height);
+                                }
+                        } else if(windowEvent.type == SDL_MOUSEBUTTONDOWN
+                    		|| windowEvent.type == SDL_MOUSEBUTTONUP
+                    		|| windowEvent.type == SDL_MOUSEMOTION) {
+                                if(windowEvent.button.button == SDL_BUTTON_LEFT) {
+                                        struct event e = {
+                                                .type    = EVENT_MOUSE,
+                                                .mouse_x = windowEvent.button.x,
+                                                .mouse_y = windowEvent.button.y,
+                                                .mouse_state = windowEvent.type == SDL_MOUSEBUTTONDOWN
+                                                        ? MOUSE_DOWN
+                                                        : (
+                                                                windowEvent.type == SDL_MOUSEBUTTONUP
+                                                                ? MOUSE_UP
+                                                                : MOUSE_MOVE
+                                                        )
+                                        };
+                                        game_read_event(game, &e);
                                 }
                         }
                 }
@@ -147,6 +165,7 @@ int main(int args, char **argv)
                 }
                 SDL_GL_SwapWindow(window);
         }
+exit:;
         game_free(game);
         SDL_GL_DeleteContext(context);
         SDL_Quit();

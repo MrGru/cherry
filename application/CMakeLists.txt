@@ -38,7 +38,6 @@ add_subdirectory(../gfx ../${OUT}/gfx)
 add_subdirectory(../game ../${OUT}/game)
 add_subdirectory(../audio ../${OUT}/audio)
 add_subdirectory(../xml ../${OUT}/xml)
-add_subdirectory(../server ../${OUT}/server)
 
 include_directories(../include)
 
@@ -55,7 +54,7 @@ elseif(${USER_BUILD_ANDROID} MATCHES "true")
 else()
 
         add_executable(cherry main.c)
-        add_dependencies(cherry kernel gfx game audio xml server)
-        target_link_libraries(cherry kernel gfx game audio xml server)
+        add_dependencies(cherry kernel gfx game audio xml)
+        target_link_libraries(cherry kernel gfx game audio xml)
 
 endif()

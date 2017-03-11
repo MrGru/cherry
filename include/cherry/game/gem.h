@@ -24,6 +24,8 @@ void gem_set_node(struct gem *p, struct node_3d_color *node, struct node_3d_colo
 
 void gem_update_node(struct gem *p);
 
+void gem_reset_mesh(struct gem *p);
+
 struct dae_mesh *gem_mesh_cache(u16 type);
 
 #endif
