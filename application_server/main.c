@@ -11,28 +11,49 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#include<sys/select.h>
 #include <cherry/memory.h>
 #include <cherry/server/file_descriptor.h>
+#include <cherry/server/web_server.h>
 #include <cherry/array.h>
 #include <cherry/stdio.h>
+#include <cherry/string.h>
+#include <cherry/math/math.h>
+#include <cherry/stdlib.h>
+#include <unistd.h>
 
-int main(void)
+#define DEFAULT_PORT 50000
+
+int main(int argc, char* argv[])
 {
-        struct file_descriptor_set *fds = file_descriptor_set_alloc();
-        file_descriptor_set_add(fds, 6);
-        file_descriptor_set_add(fds, 20);
-        file_descriptor_set_add(fds, 33);
-        file_descriptor_set_add(fds, 1100);
-        struct array *actives = array_alloc(sizeof(u32), ORDERED);
-        file_descriptor_get_active(fds, actives);
-        u32 *a;
-        array_for_each(a, actives) {
-                debug("%d\n", *a);
+        struct string *root     = string_alloc(0);
+        u16 port                = DEFAULT_PORT;
+        char *r                 = getenv("PWD");
+        string_cat(root, r, strlen(r));
+
+        struct web_server *ws   = web_server_alloc();
+
+        char c;
+        while ((c = getopt (argc, argv, "p:r:")) != -1) {
+                switch (c) {
+                        case 'r':
+                                root->len = 0;
+                                string_cat(root, optarg, strlen(optarg));
+                                break;
+                        case 'p':
+                                port = atoi(optarg);
+                                break;
+                        case '?':
+                                fprintf(stderr,"Wrong arguments given!!!\n");
+                                goto finish;
+                        default:
+                                goto finish;
+                }
         }
-        file_descriptor_set_free(fds);
-        array_free(actives);
+        web_server_start(ws, port, root->ptr);
         /* destroy cache and free memory pages allocated */
+finish:;
+        string_free(root);
+        web_server_free(ws);
         cache_free();
         dim_memory();
         return 0;
