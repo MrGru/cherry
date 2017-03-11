@@ -28,6 +28,10 @@ typedef uint64_t        u64;
 
 #define for_i(i, n) for(i = 0; i < n; ++i)
 
+#define for_i_step(i, s, n) for(i = 0; i < n; i += s)
+
+#define for_i_from_step(i, f, s, n) for(i = f; i < n; i += s)
+
 #define back_i(i, n) for(i = n - 1; i >= 0; i--)
 
 #define for_i_from(i, f, n) for(i = f; i < n; ++i)
