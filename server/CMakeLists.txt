@@ -14,7 +14,7 @@
 cmake_minimum_required(VERSION 2.8.9)
 project (server C)
 
-set(PROJECT_LINK_LIBS kernel)
+set(PROJECT_LINK_LIBS kernel pthread)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(WINDOWS TRUE)

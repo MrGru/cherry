@@ -20,4 +20,12 @@ struct file_descriptor_set {
         struct array    *set;
 };
 
+struct web_server {
+        struct file_descriptor_set      *master;
+        struct file_descriptor_set      *incomming;
+        int                             fdmax;
+        int                             listener;
+        struct string                   *root;
+};
+
 #endif
