@@ -36,11 +36,11 @@ static inline void __check_set_size(struct file_descriptor_set *p, u32 fd)
         }
 }
 
-struct file_descriptor_set *file_descriptor_set_alloc()
+struct file_descriptor_set *file_descriptor_set_alloc(u32 max)
 {
         struct file_descriptor_set *p   = smalloc(sizeof(struct file_descriptor_set));
         p->set                          = array_alloc(sizeof(u64), ORDERED);
-        __append_set(p);
+        __check_set_size(p, max);
         return p;
 }
 
@@ -70,7 +70,7 @@ void file_descriptor_set_remove(struct file_descriptor_set *p, u32 fd)
         }
 }
 
-void file_descriptor_clean(struct file_descriptor_set *p)
+void file_descriptor_set_clean(struct file_descriptor_set *p)
 {
         u64 *data;
         array_for_each(data, p->set) {
@@ -78,7 +78,21 @@ void file_descriptor_clean(struct file_descriptor_set *p)
         }
 }
 
-void file_descriptor_get_active(struct file_descriptor_set *p, struct array *o)
+void file_descriptor_set_assign(struct file_descriptor_set *p, struct file_descriptor_set *q)
+{
+        file_descriptor_set_clean(p);
+
+        u64 *data;
+        u16 index;
+        array_for_each_index(data, index, q->set) {
+                if(index >= p->set->len) {
+                        __append_set(p);
+                }
+                array_set(p->set, index, data);
+        }
+}
+
+void file_descriptor_set_get_active(struct file_descriptor_set *p, struct array *o)
 {
         u64 *data;
         u32 fd;

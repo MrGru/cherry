@@ -16,7 +16,7 @@
 
 #include <cherry/server/types.h>
 
-struct file_descriptor_set *file_descriptor_set_alloc();
+struct file_descriptor_set *file_descriptor_set_alloc(u32 max);
 
 void file_descriptor_set_free(struct file_descriptor_set *p);
 
@@ -24,8 +24,10 @@ void file_descriptor_set_add(struct file_descriptor_set *p, u32 fd);
 
 void file_descriptor_set_remove(struct file_descriptor_set *p, u32 fd);
 
-void file_descriptor_clean(struct file_descriptor_set *p);
+void file_descriptor_set_clean(struct file_descriptor_set *p);
 
-void file_descriptor_get_active(struct file_descriptor_set *p, struct array *o);
+void file_descriptor_set_assign(struct file_descriptor_set *p, struct file_descriptor_set *q);
+
+void file_descriptor_set_get_active(struct file_descriptor_set *p, struct array *o);
 
 #endif
