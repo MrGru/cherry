@@ -61,6 +61,8 @@ void node_set_data(struct node *p, u8 index, void *bytes, u32 len);
 
 void node_set_data_segment(struct node *p, u8 index, struct node_data_segment *seg, void *bytes, u32 len);
 
+void *node_get_data(struct node *p, u8 index);
+
 /*
  * swap node order in content
  */
