@@ -48,7 +48,29 @@ struct web_server *web_server_alloc()
 
 static int __web_server_check_path(struct web_server *ws, struct string *path)
 {
-        return 1;
+        char c;
+        int i;
+        int depth = 0;
+        int check_dot = 0;
+        for_i(i, path->len) {
+                c = path->ptr[i];
+                switch (c) {
+                        case '/':
+                                if(check_dot == 2) {
+                                        depth--;
+                                } else {
+                                        depth++;
+                                }
+                                check_dot = 0;
+                                break;
+                        case '.':
+                                check_dot++;
+                                break;
+                        default:
+                                break;
+                }
+        }
+        return depth >= 0;
 }
 
 static void __web_server_handle_msg(struct web_server *ws, u32 fd, char* msg)
@@ -85,6 +107,8 @@ static void __web_server_handle_msg(struct web_server *ws, u32 fd, char* msg)
                                 } else {
                                         write(fd, "HTTP/1.0 404 Not Found\n", 23);
                                 }
+                        } else {
+                                write(fd, "HTTP/1.0 400 Bad Request\n", 25);
                         }
                 }
         }
