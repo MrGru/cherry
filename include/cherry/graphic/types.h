@@ -387,4 +387,61 @@ struct renderer {
         struct list_head        chain_head;
 };
 
+/*
+ * event
+ */
+enum {
+        EVENT_KEYBOARD,
+        EVENT_MOUSE,
+        EVENT_TOUCH
+};
+
+enum {
+        KEY_DOWN,
+        KEY_HOLD,
+        KEY_UP
+};
+
+enum {
+        MOUSE_DOWN,
+        MOUSE_MOVE,
+        MOUSE_UP,
+        MOUSE_CANCEL
+};
+
+enum {
+        TOUCH_DOWN,
+        TOUCH_MOVE,
+        TOUCH_UP,
+        TOUCH_CANCEL
+};
+
+struct event {
+        u8      type;
+        union {
+                /*
+                 * keyboard interface
+                 */
+                struct {
+                        int     key;
+                        u8      key_state;
+                };
+                /*
+                 * mouse interface
+                 */
+                struct {
+                        int     mouse_x;
+                        int     mouse_y;
+                        u8      mouse_state;
+                };
+                /*
+                 * touch interface
+                 */
+                struct {
+                        int     touch_x;
+                        int     touch_y;
+                        u8      touch_state;
+                };
+        };
+};
 #endif
