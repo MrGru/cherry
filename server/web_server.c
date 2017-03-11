@@ -46,14 +46,14 @@ struct web_server *web_server_alloc()
         return p;
 }
 
-static int __web_server_check_path(struct web_server *ws, struct string *path)
+static int __web_server_check_path(struct web_server *ws, char *path, u32 len)
 {
         char c;
         int i;
         int depth = 0;
         int check_dot = 0;
-        for_i(i, path->len) {
-                c = path->ptr[i];
+        for_i(i, len) {
+                c = path[i];
                 switch (c) {
                         case '/':
                                 if(check_dot == 2) {
@@ -94,8 +94,9 @@ static void __web_server_handle_msg(struct web_server *ws, u32 fd, char* msg)
                                 reqline[1] = "/index.html";
                         }
                         string_cat_string(path, ws->root);
-                        string_cat(path, reqline[1], strlen(reqline[1]));
-                        ok = __web_server_check_path(ws, path);
+                        u32 len = strlen(reqline[1]);
+                        string_cat(path, reqline[1], len);
+                        ok = __web_server_check_path(ws, reqline[1], len);
                         if(ok) {
                                 debug("send file :%s\n", path->ptr);
 
