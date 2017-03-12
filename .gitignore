@@ -7,3 +7,4 @@ build_emscripten
 build_server
 res_works
 game
+!include/cherry/game

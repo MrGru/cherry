@@ -38,4 +38,6 @@ ANDROID
 - developing
 
 EMSCRIPTEN
+- install emscripten
+- replace folder containing toolchain in make_emscripten.sh
 - run make_emscripten.sh
