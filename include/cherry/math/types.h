@@ -18,10 +18,19 @@ union vec2 {
         struct { float x, y; };
         struct { float t, s; };
         float v[2];
-} __attribute__((aligned(8))) ;
+};
 
 union vec3 {
-        struct { float x, y, z; };
+        struct {
+                union {
+                        struct {
+                                float x;
+                                float y;
+                        };
+                        union vec2 xy;
+                };
+                float z;
+        };
         struct { float r, g, b; };
         float v[3];
 };
