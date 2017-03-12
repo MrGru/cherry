@@ -20,6 +20,14 @@
 #include <cherry/graphic/dae/types.h>
 
 /*
+ * a model having large number of vertex can separate into several node
+ * or create a new render_content for it own
+ */
+#define GAME_TRIANGLES_PER_OBJECT       320
+
+#define CELL_SIZE                       200
+
+/*
  * game element
  */
 enum {
@@ -123,6 +131,7 @@ struct element_deliver {
                                 union vec4              position_expanded;
                         };
                         float                           delay;
+                        struct list_head                reduce_delay_head;
                 };
         };
 };
@@ -156,6 +165,7 @@ struct game {
         struct list_head                element_list;
         struct list_head                element_pool_list;
         struct list_head                deliver_list;
+        struct list_head                deliver_delay_list;
         struct list_head                path_point_list;
         struct list_head                element_update_pos_list;
         struct list_head                free_connect_line_list;

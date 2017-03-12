@@ -22,6 +22,8 @@ struct element_deliver *element_deliver_alloc_gate(struct path_point *pp);
 
 struct element_deliver *element_deliver_alloc_gem_list(struct list_head *list, union vec4 pos);
 
+void element_deliver_reduce_delay(struct element_deliver *p, float t);
+
 void element_deliver_free(struct element_deliver *p);
 
 #endif

@@ -26,6 +26,8 @@ void gem_update_node(struct gem *p);
 
 void gem_reset_mesh(struct gem *p);
 
+int gem_can_join(struct gem *p, struct gem *q);
+
 struct dae_mesh *gem_mesh_cache(u16 type);
 
 #endif

@@ -16,12 +16,6 @@
 
 #include <cherry/game/types.h>
 
-/*
- * a model having large number of vertex can separate into several node
- * or create a new render_content for it own
- */
-#define GAME_TRIANGLES_PER_OBJECT 320
-
 struct game *game_alloc();
 
 void game_update(struct game *p);

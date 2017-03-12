@@ -24,4 +24,6 @@ void path_point_add_neighbor(struct path_point *p, struct path_point *n, u8 inde
 
 void path_point_check_move(struct path_point *p, struct game *game);
 
+int path_point_is_neighbor(struct path_point *p, struct path_point *q);
+
 #endif
