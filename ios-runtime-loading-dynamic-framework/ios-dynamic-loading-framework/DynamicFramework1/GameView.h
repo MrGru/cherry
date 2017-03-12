@@ -27,5 +27,4 @@
 // called if the view changes orientation or size, renderer can precompute its view and projection matricies here for example
 - (void)reshape:(GameView *)view;
 
-
 @end
