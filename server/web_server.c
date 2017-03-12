@@ -71,6 +71,7 @@ static int __web_server_check_path(struct web_server *ws, char *path, u32 len)
                                 check_dot = 0;
                                 break;
                 }
+                if(depth < 0) break;
         }
         return depth >= 0;
 }
