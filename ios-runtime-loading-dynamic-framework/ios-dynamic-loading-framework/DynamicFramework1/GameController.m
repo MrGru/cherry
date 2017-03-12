@@ -65,13 +65,6 @@ struct touch_event {
     [self glkViewControllerUpdate:self];
 }
 
-- (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
-{
-    if(_game) {
-        game_render(_game);
-    }
-}
-
 -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
     UITouch *touch          = [touches anyObject];
@@ -139,6 +132,14 @@ struct touch_event {
     list_add_tail(&te->head, &touch_list);
     spin_lock_unlock(&touch_lock);
 }
+
+- (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
+{
+    if(_game) {
+        game_render(_game);
+    }
+}
+
 
 - (void)glkViewControllerUpdate:(GLKViewController *)controller
 {
