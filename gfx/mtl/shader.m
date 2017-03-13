@@ -187,4 +187,21 @@ void shader_update_uniform(struct shader *p, u8 frame)
         }
 }
 
+void shader_setup_group(struct shader *p, struct device_buffer_group *g)
+{
+        struct device_buffer *divisor = device_buffer_alloc(BUFFER_VERTICE, sizeof(int), BUFFER_PINNED);
+        device_buffer_group_add(g, divisor);
+
+        struct array *data = array_alloc(sizeof(int), ORDERED);
+        i16 i;
+        for_i(i, p->descriptor->buffers->len) {
+                struct shader_buffer_descriptor *sbd = array_get(p->descriptor->buffers,
+                        struct shader_buffer_descriptor *, i);
+                int divisor = sbd->divisor;
+                array_push(data, &divisor);
+        }
+        device_buffer_fill(divisor, data->ptr, data->len * data->item_size);
+        array_free(data);
+}
+
 #endif

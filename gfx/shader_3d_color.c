@@ -58,12 +58,12 @@ static inline struct string *get_frag()
 
 static inline struct string *get_vert()
 {
-        return NULL;
+        return string_alloc_chars("vertex_3d_color", sizeof("vertex_3d_color")-1);
 }
 
 static inline struct string *get_frag()
 {
-        return NULL;
+        return string_alloc_chars("fragment_3d_color", sizeof("fragment_3d_color")-1);
 }
 
 #endif
@@ -96,6 +96,7 @@ struct shader *shader_3d_color_alloc(u8 direction_lights, u8 point_lights, u8 sp
         /*
          * replace number lights definitions
          */
+#if GFX == OGL
         {
                 char s[] = "NR_DIRECTION_LIGHTS __";
                 snprintf(s + sizeof(s) - 3, 3, "%02d", direction_lights);
@@ -111,6 +112,7 @@ struct shader *shader_3d_color_alloc(u8 direction_lights, u8 point_lights, u8 sp
                 snprintf(s + sizeof(s) - 3, 3, "%02d", spot_lights);
                 string_replace(vert, "NR_SPOT_LIGHTS __", s);
         }
+#endif
 
         instance = shader_alloc(vert->ptr, frag->ptr, des);
         map_set(groups, bytes->ptr, bytes->len, &instance);

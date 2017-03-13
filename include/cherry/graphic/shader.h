@@ -126,9 +126,10 @@ void shader_set_uniform(struct shader *p, i16 index, struct shader_uniform *u);
  */
 #if   GFX == OGL
 void shader_use(struct shader *p);
+#endif
 
 void shader_setup_group(struct shader *p, struct device_buffer_group *g);
-#endif
+
 
 /*
  * update uniform datas

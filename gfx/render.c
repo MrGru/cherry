@@ -57,9 +57,7 @@ struct render_content *render_content_alloc(struct render_queue *queue,
                 array_for_each(buffer, buffers[i]) {
                         device_buffer_group_add(p->groups[i], *buffer);
                 }
-#if GFX == OGL
                 shader_setup_group(queue->pipeline, p->groups[i]);
-#endif
         }
         p->textures             = array_alloc(sizeof(struct texture *), ORDERED);
         p->vertice              = vertice;
