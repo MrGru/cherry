@@ -47,10 +47,10 @@ static spin_lock lock;
 static void push_mouse_event(int x, int y, int state)
 {
         struct touch_event *te  = smalloc(sizeof(struct touch_event));
-        te->e.type                = EVENT_MOUSE;
-        te->e.mouse_x             = x;
-        te->e.mouse_y             = y;
-        te->e.mouse_state         = state;
+        te->e.type              = EVENT_MOUSE;
+        te->e.mouse_x           = x;
+        te->e.mouse_y           = y;
+        te->e.mouse_state       = state;
 
         spin_lock_lock(&lock);
         list_add_tail(&te->head, &touch_list);
