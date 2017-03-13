@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2017 Manh Tran
  *
+ * file_descriptor_set is created to expand maximum fd limit (1024) from FD_SET
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -36,11 +38,11 @@ static inline void __check_set_size(struct file_descriptor_set *p, u32 fd)
         }
 }
 
-struct file_descriptor_set *file_descriptor_set_alloc(u32 max)
+struct file_descriptor_set *file_descriptor_set_alloc()
 {
         struct file_descriptor_set *p   = smalloc(sizeof(struct file_descriptor_set));
         p->set                          = array_alloc(sizeof(u64), ORDERED);
-        __check_set_size(p, max);
+        __check_set_size(p, 1023);
         return p;
 }
 

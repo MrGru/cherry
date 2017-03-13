@@ -38,8 +38,8 @@ static void *get_in_addr(struct sockaddr *sa)
 struct web_server *web_server_alloc()
 {
         struct web_server *p    = smalloc(sizeof(struct web_server));
-        p->master               = file_descriptor_set_alloc(10000);
-        p->incomming            = file_descriptor_set_alloc(10000);
+        p->master               = file_descriptor_set_alloc();
+        p->incomming            = file_descriptor_set_alloc();
         p->fdmax                = 0;
         p->listener             = 0;
         p->root                 = string_alloc(0);

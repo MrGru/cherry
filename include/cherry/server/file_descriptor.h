@@ -16,7 +16,7 @@
 
 #include <cherry/server/types.h>
 
-struct file_descriptor_set *file_descriptor_set_alloc(u32 max);
+struct file_descriptor_set *file_descriptor_set_alloc();
 
 void file_descriptor_set_free(struct file_descriptor_set *p);
 
