@@ -18,6 +18,9 @@
         #include <GL/glew.h>
         #include <GL/glfw.h>
         #include <emscripten/emscripten.h>
+        #include <emscripten/html5.h>
+        #include <pthread.h>
+        #include <cherry/lock.h>
 #else
         #include <SDL2/SDL.h>
         #include <SDL2/SDL_opengl.h>
@@ -32,7 +35,51 @@
 
 #if OS == WEB
 
-struct game *game = NULL;
+struct touch_event {
+        struct list_head head;
+        struct event e;
+};
+
+static struct game *game = NULL;
+static struct list_head touch_list;
+static spin_lock lock;
+
+static void push_mouse_event(int x, int y, int state)
+{
+        struct touch_event *te  = smalloc(sizeof(struct touch_event));
+        te->e.type                = EVENT_MOUSE;
+        te->e.mouse_x             = x;
+        te->e.mouse_y             = y;
+        te->e.mouse_state         = state;
+
+        spin_lock_lock(&lock);
+        list_add_tail(&te->head, &touch_list);
+        spin_lock_unlock(&lock);
+}
+
+static int mouse_down(int eventType, const EmscriptenMouseEvent *e, void *userData)
+{
+        push_mouse_event(e->targetX, e->targetY, MOUSE_DOWN);
+        return EMSCRIPTEN_RESULT_SUCCESS;
+}
+
+static int mouse_up(int eventType, const EmscriptenMouseEvent *e, void *userData)
+{
+        push_mouse_event(e->targetX, e->targetY, MOUSE_UP);
+        return EMSCRIPTEN_RESULT_SUCCESS;
+}
+
+static int mouse_move(int eventType, const EmscriptenMouseEvent *e, void *userData)
+{
+        push_mouse_event(e->targetX, e->targetY, MOUSE_MOVE);
+        return EMSCRIPTEN_RESULT_SUCCESS;
+}
+
+static int mouse_cancel(int eventType, const EmscriptenMouseEvent *e, void *userData)
+{
+        push_mouse_event(e->targetX, e->targetY, MOUSE_CANCEL);
+        return EMSCRIPTEN_RESULT_SUCCESS;
+}
 
 int init_gl()
 {
@@ -47,27 +94,68 @@ int init_gl()
                 printf("glfwOpenWindow() failed\n");
                 return GL_FALSE;
         }
+
         video_width = width;
         video_height = height;
         glViewport(0, 0, video_width, video_height);
+
+        game = game_alloc();
+        INIT_LIST_HEAD(&touch_list);
+        spin_lock_init(&lock, 0);
+
+        emscripten_set_mousedown_callback("#canvas", NULL, 1, mouse_down);
+        emscripten_set_mouseup_callback("#canvas", NULL, 1, mouse_up);
+        emscripten_set_mousemove_callback("#canvas", NULL, 1, mouse_move);
+        emscripten_set_mouseout_callback("#canvas", NULL, 1, mouse_cancel);
+        emscripten_set_mouseleave_callback("#canvas", NULL, 1, mouse_cancel);
         return GL_TRUE;
 }
 
 void do_frame()
 {
-        if(!game) {
-                game = game_alloc();
-        } else {
-                game_update(game);
-                if(game->can_draw) {
-                       game_render(game);
-                }
+        /*
+         * process mouse event
+         */
+        struct list_head *head = NULL;
+get_touch:;
+        spin_lock_lock(&lock);
+        if(!list_singular(&touch_list)) {
+                head = touch_list.next;
+                list_del(head);
+        }
+        spin_lock_unlock(&lock);
+
+        if(head) {
+                struct touch_event *te = (struct touch_event *)
+                        ((void *)head - offsetof(struct touch_event, head));
+                game_read_event(game, &te->e);
+                sfree(te);
+                head = NULL;
+                goto get_touch;
+        }
+
+        /*
+         * update game
+         */
+        game_update(game);
+        if(game->can_draw) {
+                /*
+                 * render game if needed
+                 */
+               game_render(game);
         }
         glfwSwapBuffers();
 }
 
 void shutdown_gl()
 {
+        if(game) {
+                game_free(game);
+                /* destroy cache and free memory pages allocated */
+                cache_free();
+                dim_memory();
+                game = NULL;
+        }
         glfwTerminate();
 }
 
