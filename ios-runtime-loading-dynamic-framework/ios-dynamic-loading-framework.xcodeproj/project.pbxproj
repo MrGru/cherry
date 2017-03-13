@@ -835,6 +835,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 					"GFX=MTL",
+					"IMAGE_TYPE=IMAGE_OBJC",
 				);
 				HEADER_SEARCH_PATHS = /Users/manh/Documents/cherry/include;
 				INFOPLIST_FILE = DynamicFramework2/Info.plist;
@@ -872,7 +873,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GCC_PREPROCESSOR_DEFINITIONS = "GFX=MTL";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"GFX=MTL",
+					"IMAGE_TYPE=IMAGE_OBJC",
+				);
 				HEADER_SEARCH_PATHS = /Users/manh/Documents/cherry/include;
 				INFOPLIST_FILE = DynamicFramework2/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";

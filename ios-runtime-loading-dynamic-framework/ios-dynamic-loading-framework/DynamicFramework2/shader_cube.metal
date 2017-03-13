@@ -17,7 +17,7 @@
 
 using namespace metal;
 
-struct vertex {
+struct InVertex {
         float   vid [[attribute(0)]];
 };
 
@@ -66,7 +66,7 @@ struct shader_3d_color_uniform {
 } __attribute__((aligned (1024)));
 
 
-float4 decodeFloatColor(int val)
+static float4 decodeFloatColor(int val)
 {
         /*
          * value for each channel decoded from val has range [-127, 127] so
@@ -76,17 +76,20 @@ float4 decodeFloatColor(int val)
         /*
          * val / 65536     : shift right val by 16 bit to clear green and blue channel and get red channel
          */
-        c[0] = float(val / 65536 + 128);
+//        c[0] = float(val / 65536 + 128);
+        c[0] = float((val >> 16) + 128);
         /*
          * val * 65536     : shift left val by 16 bit to clear red channel
          * (x) / 16777216  : shift right x by 24 bit to clear blue channel and get green channel
          */
-        c[1] = float((val * 65536) / 16777216 + 128);
+//        c[1] = float((val * 65536) / 16777216 + 128);
+        c[1] = float(((val << 16) >> 24) + 128);
         /*
          * val * 16777216  : shift left val by 24 bit to clear red and green channel
          * (x) / 16777216  : shift right x by 24 bit to get blue channel
          */
-        c[2] = float((val * 16777216) / 16777216 + 128);
+        //        c[2] = float((val * 16777216) / 16777216 + 128);
+        c[2] = float(((val << 24) >> 24) + 128);
         /*
          * currently we fill alpha channel by max value 255 because input value
          * present only RGB color
@@ -100,7 +103,7 @@ float4 decodeFloatColor(int val)
         return c;
 }
 
-float4x4 matrix4_inverse(float4x4 m)
+static float4x4 matrix4_inverse(float4x4 m)
 {
         float
                 a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],
@@ -124,41 +127,42 @@ float4x4 matrix4_inverse(float4x4 m)
                 det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
         return float4x4(
-                a11 * b11 - a12 * b10 + a13 * b09,
+                float4(a11 * b11 - a12 * b10 + a13 * b09,
                 a02 * b10 - a01 * b11 - a03 * b09,
                 a31 * b05 - a32 * b04 + a33 * b03,
-                a22 * b04 - a21 * b05 - a23 * b03,
-                a12 * b08 - a10 * b11 - a13 * b07,
+                a22 * b04 - a21 * b05 - a23 * b03) / det,
+                float4(a12 * b08 - a10 * b11 - a13 * b07,
                 a00 * b11 - a02 * b08 + a03 * b07,
                 a32 * b02 - a30 * b05 - a33 * b01,
-                a20 * b05 - a22 * b02 + a23 * b01,
-                a10 * b10 - a11 * b08 + a13 * b06,
+                a20 * b05 - a22 * b02 + a23 * b01) / det,
+                float4(a10 * b10 - a11 * b08 + a13 * b06,
                 a01 * b08 - a00 * b10 - a03 * b06,
                 a30 * b04 - a31 * b02 + a33 * b00,
-                a21 * b02 - a20 * b04 - a23 * b00,
-                a11 * b07 - a10 * b09 - a12 * b06,
+                a21 * b02 - a20 * b04 - a23 * b00) / det,
+                float4(a11 * b07 - a10 * b09 - a12 * b06,
                 a00 * b09 - a01 * b07 + a02 * b06,
                 a31 * b01 - a30 * b03 - a32 * b00,
-                a20 * b03 - a21 * b01 + a22 * b00
-        ) / det;
+                a20 * b03 - a21 * b01 + a22 * b00) / det
+        );
 }
 
-float4x4 matrix4_transpose(float4x4 matrix)
+static float4x4 matrix4_transpose(float4x4 matrix)
 {
-        return float4x4(matrix[0][0], matrix[1][0], matrix[2][0], matrix[3][0],
-                matrix[0][1], matrix[1][1], matrix[2][1], matrix[3][1],
-                matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2],
-                matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3]);
+        return float4x4(
+                float4(matrix[0][0], matrix[1][0], matrix[2][0], matrix[3][0]),
+                float4(matrix[0][1], matrix[1][1], matrix[2][1], matrix[3][1]),
+                float4(matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2]),
+                float4(matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3]));
 }
 
-static half3 CalcDirLight(DirLight light, float3 normal, float bright)
+static float3 CalcDirLight(DirLight light, float3 normal, float bright)
 {
    float3 lightDir = normalize(-light.direction);
    float diff = fmax(dot(normal, lightDir), 0);
-   return half3(light.ambient + light.diffuse * diff * bright);
+   return light.ambient + light.diffuse * diff * bright;
 }
 
-vertex ColorInOut vertex_3d_color(constant vertex *vertex_array [[ buffer(0) ]],
+vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]],
                               constant float4x4 *trans[[buffer(1)]],
                               constant float *brights[[buffer(2)]],
                               constant packed_float3 *vertex_1[[buffer(3)]],
@@ -168,7 +172,7 @@ vertex ColorInOut vertex_3d_color(constant vertex *vertex_array [[ buffer(0) ]],
                               constant packed_float3 *normal_2[[buffer(7)]],
                               constant packed_float3 *normal_3[[buffer(8)]],
                               constant packed_float4 *vertex_color[[buffer(9)]],
-                              constant int *divisor[[buffer(10)]],
+                              constant uint *divisor[[buffer(10)]],
                               constant shader_3d_color_uniform &uniform [[buffer(11)]],
                               ushort vid [[vertex_id]],
                               uint iid [[instance_id]]
@@ -184,37 +188,32 @@ vertex ColorInOut vertex_3d_color(constant vertex *vertex_array [[ buffer(0) ]],
     float4x4 transform          = trans[iid / divisor[1]];
     float bright                = brights[iid / divisor[2]];
 
-    packed_float3 *vertice[3]   = {vertex_1, vertex_2, vertex_3};
-    packed_float3 *normals[3]   = {normal_1, normal_2, normal_3};
+    constant packed_float3 *vertice[3]   = {vertex_1, vertex_2, vertex_3};
+    constant packed_float3 *normals[3]   = {normal_1, normal_2, normal_3};
 
-    packed_float3 vertex_i      = vertice[vid][iid / divisor[3 + vid]];
-    packed_float3 normal_i      = normals[vid][iid / divisor[6 + vid]];
+    float3 vertex_i             = vertice[vid][iid / divisor[3 + vid]];
+    float3 normal_i             = normals[vid][iid / divisor[6 + vid]];
 
-    float4 alpha                = decodeFloatColor(int(vertex_color[iid / divisor[9]][3]));
-    float4 decodeColor          = decodeFloatColor(int(vertex_color[iid / divisor[9]][vid]));
+    float4 alpha                = decodeFloatColor(vertex_color[iid / divisor[9]][3]);
+    float4 decodeColor          = decodeFloatColor(vertex_color[iid / divisor[9]][vid]);
+    decodeColor.a               = alpha[vid];
 
     /*
      * calculate out
      */
     out.position                = proj * view * transform * float4(vertex_i, 1.0);
-
-    float3 pixel_normal         = float3x3(matrix4_transpose(matrix4_inverse(transform))) * normal_i;
+    float4x4 inv                = matrix4_transpose(matrix4_inverse(transform));
+    float3 pixel_normal         = float3x3(float3(inv[0].xyz), float3(inv[1].xyz), float3(inv[2].xyz)) * normal_i;
     float3 norm                 = normalize(pixel_normal);
-    float3 result               = float3(0, 0, 0);
+    float3 result               = float3(0);
 
-    result += CalcDirLight(uniform.dirLights[0], norm, bright);
+    result += CalcDirLight(uniform.dlights[0], norm, bright);
 
     out.color = decodeColor * float4(result, 1.0);
 
     return out;
 }
 
-//static half3 CalcDirLight(AAPL::DirLight light, float3 normal, float3 viewDir)
-//{
-//    float3 lightDir = normalize(-light.direction);
-//    float diff = fmax(dot(normal, lightDir), 0);
-//    return half3(light.ambient + light.diffuse * diff);
-//}
 
 // static float3 CalcPointLight(PointLight light, float3 normal, float3 fragPos, float3 viewDir) {
 //     float3 lightDir = normalize(light.position - fragPos);
@@ -230,10 +229,9 @@ vertex ColorInOut vertex_3d_color(constant vertex *vertex_array [[ buffer(0) ]],
 //     return (ambient + diffuse);
 // }
 
-// fragment shader function
 fragment float4 fragment_3d_color(ColorInOut in [[stage_in]]
                              ,
-                             constant shader_cube_uniform &uniform [[buffer(0)]]
+                             constant shader_3d_color_uniform &uniform [[buffer(0)]]
                              )
 {
     return in.color;

@@ -43,6 +43,15 @@
 - (void)viewController:(AppViewController *)controller willPause:(BOOL)pause;
 
 - (void)destroyGame;
+
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event andView:(UIView*)view;
+
+-(void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event andView:(UIView*)view;
+
+-(void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event andView:(UIView*)view;
+
+-(void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event andView:(UIView*)view;
+
 @end
 
 #endif

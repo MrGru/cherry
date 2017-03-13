@@ -24,6 +24,7 @@ struct touch_event {
     struct event e;
 };
 
+
 @interface GameController () {
     GameView *glview;
     bool updateViewport;
@@ -58,6 +59,8 @@ struct touch_event {
     
     INIT_LIST_HEAD(&touch_list);
     spin_lock_init(&touch_lock, 0);
+    
+    _game = game_alloc();
 }
 
 - (void)handleDisplayLink:(CADisplayLink *)displayLink
@@ -143,31 +146,31 @@ struct touch_event {
 
 - (void)glkViewControllerUpdate:(GLKViewController *)controller
 {
+    if(!_game) return;
+    
     if(updateViewport) {
         glViewport(0, 0, video_width, video_height);
     }
-    if(!_game) {
-        _game = game_alloc();
-    } else {
-        struct list_head *head = NULL;
-    get_touch:;
-        spin_lock_lock(&touch_lock);
-        if(!list_singular(&touch_list)) {
-            head = touch_list.next;
-            list_del(head);
-        }
-        spin_lock_unlock(&touch_lock);
-        
-        if(head) {
-            struct touch_event *te = (struct touch_event *)
-                ((void *)head - offsetof(struct touch_event, head));
-            game_read_event(_game, &te->e);
-            sfree(te);
-            head = NULL;
-            goto get_touch;
-        }
-        game_update(_game);
+
+    struct list_head *head = NULL;
+get_touch:;
+    spin_lock_lock(&touch_lock);
+    if(!list_singular(&touch_list)) {
+        head = touch_list.next;
+        list_del(head);
     }
+    spin_lock_unlock(&touch_lock);
+    
+    if(head) {
+        struct touch_event *te = (struct touch_event *)
+            ((void *)head - offsetof(struct touch_event, head));
+        game_read_event(_game, &te->e);
+        sfree(te);
+        head = NULL;
+        goto get_touch;
+    }
+    game_update(_game);
+    
     if(updateViewport) {
         game_resize(_game, video_width, video_height);
     }

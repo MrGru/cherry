@@ -57,6 +57,25 @@
                        forMode:NSDefaultRunLoopMode];
 }
 
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    [_delegate touchesBegan:touches withEvent:event andView:self.view];
+}
+
+-(void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    [_delegate touchesMoved:touches withEvent:event andView:self.view];
+}
+
+-(void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    [_delegate touchesEnded:touches withEvent:event andView:self.view];
+}
+
+-(void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    [_delegate touchesCancelled:touches withEvent:event andView:self.view];
+}
 
 - (void)initCommon
 {
@@ -122,6 +141,7 @@
     [super viewDidLoad];
 
     AppView *renderView = (AppView *)self.view;
+    renderView.contentScaleFactor = 2.75;
     renderView.delegate = _renderer;
 
     // load all renderer assets before starting game loop

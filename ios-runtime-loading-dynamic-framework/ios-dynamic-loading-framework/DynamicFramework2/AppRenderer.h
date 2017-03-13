@@ -11,6 +11,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+#ifndef __CHERRY_APP_RENDERER__
+#define __CHERRY_APP_RENDERER__
 #import <Foundation/Foundation.h>
 #import "AppView.h"
 #import "AppViewController.h"
@@ -20,3 +22,4 @@
 - (void)configure:(AppView *)view;
 
 @end
+#endif

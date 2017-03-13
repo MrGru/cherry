@@ -26,7 +26,7 @@ static NSMutableArray *buffer_house = nil;
 struct device_buffer *device_buffer_alloc(u8 type, u16 item_size, u8 location)
 {
         if(buffer_house == nil) {
-		buffer_house = [NSMutableArray array];
+		buffer_house = [[NSMutableArray alloc] init];
 	}
         struct device_buffer *p = smalloc(sizeof(struct device_buffer));
         p->ptr                  = NULL;

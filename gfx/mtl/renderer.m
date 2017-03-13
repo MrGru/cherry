@@ -24,8 +24,9 @@
 #import <cherry/graphic/texture.h>
 
 static id<MTLRenderCommandEncoder> encoder = nil;
-MTLDepthStencilDescriptor *depthless = nil;
-MTLDepthStencilDescriptor *depthnone = nil;
+static id<MTLDepthStencilState> depthless = nil;
+static id<MTLDepthStencilState> depthnone = nil;
+static u8 depth_testing = 0;
 
 static void free_depth()
 {
@@ -39,13 +40,19 @@ static void setup_depth()
 {
         if(!depthless) {
                 cache_add(free_depth);
-                depthless = [MTLDepthStencilDescriptor new];
-                depthless.depthWriteEnabled = YES;
-                depthless.depthCompareFunction = MTLCompareFunctionLess;
+                {
+                        MTLDepthStencilDescriptor * ds = [MTLDepthStencilDescriptor new];
+                        ds.depthWriteEnabled = YES;
+                        ds.depthCompareFunction = MTLCompareFunctionLess;
+                        depthless = [shared_mtl_device newDepthStencilStateWithDescriptor:ds];
+                }
 
-                depthnone = [MTLDepthStencilDescriptor new];
-                depthnone.depthWriteEnabled = NO;
-                depthnone.depthCompareFunction = MTLCompareFunctionAlways;
+                {
+                        MTLDepthStencilDescriptor * ds = [MTLDepthStencilDescriptor new];
+                        ds.depthWriteEnabled = NO;
+                        ds.depthCompareFunction = MTLCompareFunctionAlways;
+                        depthnone = [shared_mtl_device newDepthStencilStateWithDescriptor:ds];
+                }
         }
 }
 
@@ -68,7 +75,7 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
 {
         /* draw */
         [encoder setRenderPipelineState:(__bridge id _Nonnull)(queue->pipeline->ptr)];
-        
+
         struct list_head *head;
         list_for_each(head, &queue->content_list) {
                 struct render_content *content = (struct render_content *)
@@ -107,15 +114,15 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                 /* bind vao and draw */
                 if(content->current_instances) {
                         if(content->depth_test) {
-                                if(!depth_testing) {
+                                // if(!depth_testing) {
                                         [encoder setDepthStencilState:depthless];
-                                        depth_testing = 1;
-                                }
+                                        // depth_testing = 1;
+                                // }
                         } else {
-                                if(depth_testing) {
+                                // if(depth_testing) {
                                         [encoder setDepthStencilState:depthnone];
-                                        depth_testing = 0;
-                                }
+                                        // depth_testing = 0;
+                                // }
                         }
                         struct device_buffer_group *g = content->groups[frame];
                         int i;
@@ -151,7 +158,6 @@ void renderer_render(struct renderer *p, u8 frame)
 {
         setup_depth();
         encoder = [shared_mtl_command_buffer renderCommandEncoderWithDescriptor:(__bridge id _Nonnull)(p->pass->ptr)];
-
         struct list_head *head, *next;
         list_for_each_safe(head, next, &p->stage_list) {
                 struct render_stage *stage = (struct render_stage *)

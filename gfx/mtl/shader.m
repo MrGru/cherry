@@ -30,7 +30,7 @@ static NSMutableArray *shader_house = nil;
 struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *des)
 {
  	if(shader_house == nil) {
- 		shader_house = [NSMutableArray array];
+ 		shader_house = [[NSMutableArray alloc] init];
         }
         /* create piepline vertex descriptor from first application buffer descriptor*/
         MTLVertexDescriptor *vertexDescriptor = [MTLVertexDescriptor new];
@@ -78,6 +78,13 @@ struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *de
 	pipelineStateDescriptor.fragmentFunction                = fragmentProgram;
         pipelineStateDescriptor.vertexDescriptor                = vertexDescriptor;
 	pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+        pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
+        pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+        pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+        pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
 	pipelineStateDescriptor.depthAttachmentPixelFormat      = MTLPixelFormatDepth32Float;
 
 	NSError *error = nil;
@@ -189,7 +196,7 @@ void shader_update_uniform(struct shader *p, u8 frame)
 
 void shader_setup_group(struct shader *p, struct device_buffer_group *g)
 {
-        struct device_buffer *divisor = device_buffer_alloc(BUFFER_VERTICE, sizeof(int), BUFFER_PINNED);
+        struct device_buffer *divisor = device_buffer_alloc(BUFFER_VERTICE, sizeof(u32), BUFFER_PINNED);
         device_buffer_group_add(g, divisor);
 
         struct array *data = array_alloc(sizeof(int), ORDERED);
@@ -197,7 +204,7 @@ void shader_setup_group(struct shader *p, struct device_buffer_group *g)
         for_i(i, p->descriptor->buffers->len) {
                 struct shader_buffer_descriptor *sbd = array_get(p->descriptor->buffers,
                         struct shader_buffer_descriptor *, i);
-                int divisor = sbd->divisor;
+                u32 divisor = sbd->divisor;
                 array_push(data, &divisor);
         }
         device_buffer_fill(divisor, data->ptr, data->len * data->item_size);

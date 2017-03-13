@@ -11,8 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+#ifndef __DYNAMIC_HELLO_2__
+#define __DYNAMIC_HELLO_2__
 #import <Foundation/Foundation.h>
 
 @interface CASHello : NSObject
 
 @end
+#endif

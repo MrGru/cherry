@@ -11,6 +11,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+#ifndef __DYNAMIC_HELLO_1__
+#define __DYNAMIC_HELLO_1__
 #import <Foundation/Foundation.h>
 #import "GameController.h"
 
@@ -19,3 +21,4 @@
 @property (strong, nonatomic) GameController *gamecontroller;
 
 @end
+#endif
