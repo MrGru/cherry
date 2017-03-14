@@ -67,9 +67,8 @@ struct gem {
         struct node_3d_color            *flipped_node;
 
         struct action_key               node_move_key;
-        struct action_key               node_choice_key;
-        struct action_key               node_unchoice_key;
-        struct action_key               node_collected_key;
+
+        struct action                   *sequence;
 };
 
 /*
@@ -172,7 +171,11 @@ struct game {
         struct list_head                using_connect_line_list;
         struct list_head                touching_gem_list;
 
+        u8                              connecting_gems_number;
+
         u8                              play_state;
+
+        float                           check_path_delay;
 
 
         struct path_point               *path_point_touches[9][9];

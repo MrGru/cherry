@@ -24,6 +24,10 @@ void gem_set_node(struct gem *p, struct node_3d_color *node, struct node_3d_colo
 
 void gem_update_node(struct gem *p);
 
+void gem_reserve_sequence(struct gem *gem, struct game *game);
+
+void gem_collect(struct gem *p);
+
 void gem_reset_mesh(struct gem *p);
 
 int gem_can_join(struct gem *p, struct gem *q);
