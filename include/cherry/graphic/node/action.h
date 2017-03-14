@@ -24,6 +24,8 @@ struct action *action_alloc_gravity(u64 action_type, union vec4 *target, float v
 
 struct action *action_alloc_delay(union vec4 *target, float duration);
 
+struct action *action_alloc_callback(union vec4 *target, void(*callback)(void *), void *callback_data);
+
 void action_free(struct action *p);
 
 u8 action_update(struct action *p, float delta, u64 *flag);

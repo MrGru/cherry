@@ -135,6 +135,22 @@ struct action *action_alloc_delay(union vec4 *target, float duration)
         return p;
 }
 
+struct action *action_alloc_callback(union vec4 *target, void(*callback)(void *), void *callback_data)
+{
+        struct action *p        = smalloc(sizeof(struct action));
+        p->ease_type            = EASE_CALLBACK;
+        p->target               = target;
+        p->callback             = callback;
+        p->callback_data        = callback_data;
+        p->finish               = 0;
+        p->repeat               = 0;
+        p->action_type          = ACTION_OTHER;
+        INIT_LIST_HEAD(&p->head);
+        INIT_LIST_HEAD(&p->children);
+        INIT_LIST_HEAD(&p->user_head);
+        return p;
+}
+
 void action_free(struct action *p)
 {
         struct list_head *head;
@@ -563,6 +579,12 @@ static void __action_ease_delay(struct action *p, float delta)
         }
 }
 
+static void __action_ease_callback(struct action *p, float delta)
+{
+        if(p->callback) p->callback(p->callback_data);
+        p->finish = 1;
+}
+
 u8 action_update(struct action *p, float delta, u64 *flag)
 {
         u8 finish = 1;
@@ -701,6 +723,10 @@ u8 action_update(struct action *p, float delta, u64 *flag)
                                 break;
                         case EASE_DELAY:
                                 __action_ease_delay(p, delta);
+                                break;
+
+                        case EASE_CALLBACK:
+                                __action_ease_callback(p, delta);
                                 break;
 
                         default:

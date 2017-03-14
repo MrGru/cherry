@@ -249,7 +249,9 @@ enum {
         EASE_PARALLEL,
 
         EASE_FORCE,
-        EASE_DELAY
+        EASE_DELAY,
+
+        EASE_CALLBACK
 };
 
 struct action {
@@ -295,6 +297,13 @@ struct action {
                  */
                 struct {
                         float           delay;
+                };
+                /*
+                 * callback action
+                 */
+                struct {
+                        void(*callback)(void *);
+                        void            *callback_data;
                 };
         };
 
