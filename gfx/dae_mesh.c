@@ -12,6 +12,7 @@
  * GNU General Public License for more details.
  */
 #include <cherry/graphic/dae/dae_mesh.h>
+#include <cherry/graphic/node/conv.h>
 #include <cherry/memory.h>
 #include <cherry/bytes.h>
 #include <cherry/string.h>
@@ -336,6 +337,7 @@ static inline struct dae_mesh *__dae_mesh_alloc()
         p->normal_2             = array_alloc(sizeof(union vec3), ORDERED);
         p->normal_3             = array_alloc(sizeof(union vec3), ORDERED);
         p->colors               = array_alloc(sizeof(union vec4), ORDERED);
+        p->texcoords            = array_alloc(sizeof(union vec4), ORDERED);
         return p;
 }
 
@@ -357,11 +359,19 @@ static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m, union mat4 tr
 
         int i, step;
         union vec4 temp_color;
+        union vec2 temp_uvs[3];
+
+        int pos_offset          = 0;
+        int normal_offset       = 1;
+        int color_offset        = has_color ? 2 : 0;
+        int tex_offset          = 0;
+        if(has_uvs)
+                tex_offset      = has_color ? 3 : 2;
 
         for(i = 0, step = 0; i < m->p->len; i += num_attributes) {
                 /* currently I'm testing only with vertex and normal */
-                int vertex_id   = array_get(m->p, int, i);
-                int normal_id   = array_get(m->p, int, i + 1);
+                int vertex_id   = array_get(m->p, int, i + pos_offset);
+                int normal_id   = array_get(m->p, int, i + normal_offset);
 
                 union vec3 pos  = mat4_mul_vec3_translation(transform, array_get(m->positions, union vec3, vertex_id));
                 union vec3 nor  = array_get(m->normals, union vec3, normal_id);
@@ -381,8 +391,14 @@ static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m, union mat4 tr
                 }
                 union vec3 cor = (union vec3){1, 1, 1};
                 if(has_color) {
-                        int color_id    = array_get(m->p, int, i + 2);
-                        cor  = array_get(m->colors, union vec3, color_id);
+                        int color_id    = array_get(m->p, int, i + color_offset);
+                        cor             = array_get(m->colors, union vec3, color_id);
+                }
+
+                union vec2 tex = (union vec2){0, 0};
+                if(has_uvs) {
+                        int tex_id      = array_get(m->p, int, i + tex_offset);
+                        tex             = array_get(m->uvs, union vec2, tex_id);
                 }
                 /*
                  * packed 3 vec3 colors into 1 vec3 color for instancing
@@ -392,6 +408,15 @@ static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m, union mat4 tr
                 if(step == 2) {
                         temp_color.v[step + 1] = pack_rgb_to_float(255, 255, 255);
                         array_push(p->colors, &temp_color);
+                }
+
+                /*
+                 * packed 3 texcoords
+                 */
+                temp_uvs[step]  = tex;
+                if(step == 2) {
+                        union vec4 tc   = convert_to_3d_texcoord(temp_uvs[0], temp_uvs[1], temp_uvs[2], 0);
+                        array_push(p->texcoords, &tc);
                 }
 
                 step++;
@@ -446,6 +471,7 @@ void dae_mesh_free(struct dae_mesh *p)
         array_free(p->normal_2);
         array_free(p->normal_3);
         array_free(p->colors);
+        array_free(p->texcoords);
         string_free(p->name);
         sfree(p);
 }

@@ -93,6 +93,17 @@ struct device_buffer *buffer_3d_normal_alloc(u32 instances, u8 location)
         return buffer;
 }
 
+struct device_buffer *buffer_3d_texcoord_alloc(u32 instances, u8 location)
+{
+        void *data = smalloc(sizeof(union vec4) * instances);
+        smemset(data, 0, sizeof(union vec4) * instances);
+        struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
+                sizeof(union vec4), location);
+        device_buffer_fill(buffer, data, sizeof(union vec4) * instances);
+        sfree(data);
+        return buffer;
+}
+
 /*
  * 2d buffers collection
  */

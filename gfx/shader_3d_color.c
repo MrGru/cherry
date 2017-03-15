@@ -222,6 +222,27 @@ struct shader *shader_3d_color_alloc(u8 direction_lights, u8 point_lights, u8 sp
                 device_buffer_fill(instance->uniforms[i], &u, sizeof(u));
         }
 #endif
+
+#if GFX == OGL
+        u8 i;
+        for_i_from(i, SHADER_3D_COLOR_IMAGE_0, SHADER_3D_COLOR_IMAGE_N) {
+                struct string *name = string_alloc(10);
+                string_cat(name, "image[", sizeof("image[") - 1);
+                string_cat_int(name, i - SHADER_3D_COLOR_IMAGE_0);
+                string_cat(name, "]", sizeof("]") - 1);
+                shader_reserve_uniform(instance, i, UNIFORM_I1, name->ptr, 0);
+
+                struct shader_uniform *u = shader_uniform_alloc();
+                shader_set_uniform(instance, i, u);
+                u->ref++;
+                array_push(instance->texture_uniforms, &u);
+
+                u32 id = 0;
+                shader_uniform_update(u, &id, sizeof(id));
+
+                string_free(name);
+        }
+#endif
         bytes_free(bytes);
         return instance;
 }

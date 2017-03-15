@@ -149,5 +149,10 @@ struct shader_descriptor *descriptor_3d_color_get(u32 triangles_per_object)
         sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC4, 0, "vertex_color");
         array_push(sbd->attributes, &sad);
         array_push(des->buffers, &sbd);
+        /* texcoord */
+        sbd = shader_buffer_descriptor_alloc(4 * sizeof(float), 1, 1);
+        sad = shader_attribute_descriptor_alloc(ATTRIBUTE_VEC4, 0, "texcoord");
+        array_push(sbd->attributes, &sad);
+        array_push(des->buffers, &sbd);
         return des;
 }
