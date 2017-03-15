@@ -81,6 +81,43 @@ static int mouse_cancel(int eventType, const EmscriptenMouseEvent *e, void *user
         return EMSCRIPTEN_RESULT_SUCCESS;
 }
 
+static void push_touch_event(int x, int y, int state)
+{
+        struct touch_event *te  = smalloc(sizeof(struct touch_event));
+        te->e.type              = EVENT_TOUCH;
+        te->e.touch_x           = x;
+        te->e.touch_y           = y;
+        te->e.touch_state       = state;
+
+        spin_lock_lock(&lock);
+        list_add_tail(&te->head, &touch_list);
+        spin_lock_unlock(&lock);
+}
+
+static int touch_down(int eventType, const EmscriptenTouchEvent *e, void *userData)
+{
+        push_touch_event(e->touches[0].targetX, e->touches[0].targetY, TOUCH_DOWN);
+        return EMSCRIPTEN_RESULT_SUCCESS;
+}
+
+static int touch_up(int eventType, const EmscriptenTouchEvent *e, void *userData)
+{
+        push_touch_event(e->touches[0].targetX, e->touches[0].targetY, TOUCH_UP);
+        return EMSCRIPTEN_RESULT_SUCCESS;
+}
+
+static int touch_move(int eventType, const EmscriptenTouchEvent *e, void *userData)
+{
+        push_touch_event(e->touches[0].targetX, e->touches[0].targetY, TOUCH_MOVE);
+        return EMSCRIPTEN_RESULT_SUCCESS;
+}
+
+static int touch_cancel(int eventType, const EmscriptenTouchEvent *e, void *userData)
+{
+        push_touch_event(e->touches[0].targetX, e->touches[0].targetY, TOUCH_CANCEL);
+        return EMSCRIPTEN_RESULT_SUCCESS;
+}
+
 int init_gl()
 {
         const int width = 500, height = 750;
@@ -108,6 +145,11 @@ int init_gl()
         emscripten_set_mousemove_callback("#canvas", NULL, 1, mouse_move);
         emscripten_set_mouseout_callback("#canvas", NULL, 1, mouse_cancel);
         emscripten_set_mouseleave_callback("#canvas", NULL, 1, mouse_cancel);
+
+        emscripten_set_touchstart_callback("#canvas", NULL, 1, touch_down);
+        emscripten_set_touchend_callback("#canvas", NULL, 1, touch_up);
+        emscripten_set_touchmove_callback("#canvas", NULL, 1, touch_move);
+        emscripten_set_touchcancel_callback("#canvas", NULL, 1, touch_cancel);
         return GL_TRUE;
 }
 
