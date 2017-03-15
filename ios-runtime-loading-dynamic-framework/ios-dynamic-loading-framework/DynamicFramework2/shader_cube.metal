@@ -24,7 +24,7 @@ struct InVertex {
 struct ColorInOut {
         float4 position [[position]];
         float2 texcoord;
-        uint    texid;
+        int    texid;
         float4 color;
 };
 
@@ -105,11 +105,11 @@ static float4 decodeFloatColor(int val)
         return c;
 }
 
-static float2 decodeTexcoord(float val)
+static float2 decodeTexcoord(int val)
 {
     float2 tc;
-    tc[0] = float(int(val) << 16) / 10000.0;
-    tc[1] = float(((int(val) << 16) >> 16 ) / 10000.0;
+    tc[0] = float(val >> 16) / 10000.0;
+    tc[1] = float((val << 16) >> 16 ) / 10000.0;
     return tc;
 }
 
@@ -228,7 +228,7 @@ vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]
     result += CalcDirLight(uniform.dlights[0], norm, bright);
 
     out.color = decodeColor * float4(result, 1.0);
-    out.texid = uint(texcoords[iid / divisor[10]][3]);
+    out.texid = int(texcoords[iid / divisor[10]][3]);
     out.texcoord = texcs[vid];
 
     return out;
@@ -259,27 +259,27 @@ fragment float4 fragment_3d_color(ColorInOut in [[stage_in]],
                                   texture2d<float, access::sample> texture5 [[texture(5)]],
                                   texture2d<float, access::sample> texture6 [[texture(6)]],
                                   texture2d<float, access::sample> texture7 [[texture(7)]],
-                                  sampler texSampler [[sampler(0)]]
+                                  sampler texSampler0 [[sampler(0)]]
                              )
 {
     float4 pixel;
 
     if(in.texid >= 7) {
-        pixel = texture7.sample(texSampler, in.texcoord);
+        pixel = texture7.sample(texSampler0, in.texcoord);
     } else if(in.texid >= 6) {
-        pixel = texture6.sample(texSampler, in.texcoord);
+        pixel = texture6.sample(texSampler0, in.texcoord);
     } else if(in.texid >= 5) {
-        pixel = texture5.sample(texSampler, in.texcoord);
+        pixel = texture5.sample(texSampler0, in.texcoord);
     } else if(in.texid >= 4) {
-        pixel = texture4.sample(texSampler, in.texcoord);
+        pixel = texture4.sample(texSampler0, in.texcoord);
     } else if(in.texid >= 3) {
-        pixel = texture3.sample(texSampler, in.texcoord);
+        pixel = texture3.sample(texSampler0, in.texcoord);
     } else if(in.texid >= 2) {
-        pixel = texture2.sample(texSampler, in.texcoord);
+        pixel = texture2.sample(texSampler0, in.texcoord);
     } else if(in.texid >= 1) {
-        pixel = texture1.sample(texSampler, in.texcoord);
-    } else if(in.texid >= 0) {
-        pixel = texture0.sample(texSampler, in.texcoord);
+        pixel = texture1.sample(texSampler0, in.texcoord);
+    } else {
+        pixel = texture0.sample(texSampler0, in.texcoord);
     }
 
     return in.color * pixel;

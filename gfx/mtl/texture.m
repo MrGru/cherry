@@ -38,7 +38,7 @@ static void texture_cache_setup()
 {
         if(!texture_cache) {
                 texture_cache = map_alloc(sizeof(struct texture *));
-                texture_house = [NSMutableArray array];
+                texture_house = [[NSMutableArray alloc] init];
                 cache_add(texture_cache_dispose);
         }
 }
@@ -75,7 +75,7 @@ struct texture *texture_alloc_image(struct image *p)
                 texture2DDescriptorWithPixelFormat      :image_type(p)
                 width                                   :image_width(p)
                 height                                  :image_height(p)
-                mipmapped                               :NO];
+                mipmapped                               :YES];
         id<MTLTexture> t = [shared_mtl_device newTextureWithDescriptor:textureDescriptor];
 
         MTLRegion region = MTLRegionMake2D(0, 0, image_width(p), image_height(p));

@@ -59,7 +59,7 @@ static const long kInFlightCommandBuffers = BUFFERS;
     // setup view with drawable formats
     view.depthPixelFormat   = MTLPixelFormatDepth32Float;
     view.stencilPixelFormat = MTLPixelFormatInvalid;
-    view.sampleCount        = 1;
+    view.sampleCount        = 4;
 
     // create a new command queue
     _commandQueue = [_device newCommandQueue];
