@@ -70,7 +70,7 @@ static int getDeviceModelNumber(NSString *n)
     } else if([n containsString:@"iPod"]) {
         metal_available = ni >= 7;
     }
-
+    
     if(metal_available) {
         framework = @"DynamicFramework2.framework/DynamicFramework2";
         storyboardbundle = @"com.manh.DynamicFramework2";

@@ -18,6 +18,7 @@
 #import <pthread.h>
 #import <cherry/lock.h>
 #import <cherry/list.h>
+#import <cherry/math/math.h>
 
 struct touch_event {
     struct list_head head;
@@ -59,8 +60,6 @@ struct touch_event {
     
     INIT_LIST_HEAD(&touch_list);
     spin_lock_init(&touch_lock, 0);
-    
-    _game = game_alloc();
 }
 
 - (void)handleDisplayLink:(CADisplayLink *)displayLink
@@ -146,7 +145,9 @@ struct touch_event {
 
 - (void)glkViewControllerUpdate:(GLKViewController *)controller
 {
-    if(!_game) return;
+    if(!_game) {
+        _game = game_alloc();
+    }
     
     if(updateViewport) {
         glViewport(0, 0, video_width, video_height);

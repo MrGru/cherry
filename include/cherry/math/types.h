@@ -33,7 +33,7 @@ union vec3 {
         };
         struct { float r, g, b; };
         float v[3];
-};
+} __attribute__((packed));
 
 union vec4 {
         struct {

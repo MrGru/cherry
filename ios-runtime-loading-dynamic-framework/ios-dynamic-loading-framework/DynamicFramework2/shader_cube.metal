@@ -23,6 +23,8 @@ struct InVertex {
 
 struct ColorInOut {
         float4 position [[position]];
+        float2 texcoord;
+        uint    texid;
         float4 color;
 };
 
@@ -103,6 +105,14 @@ static float4 decodeFloatColor(int val)
         return c;
 }
 
+static float2 decodeTexcoord(float val)
+{
+    float2 tc;
+    tc[0] = float(int(val / 1000.0)) / 1000.0;
+    tc[1] = float(int(val) % 1000) / 1000.0;
+    return tc;
+}
+
 static float4x4 matrix4_inverse(float4x4 m)
 {
         float
@@ -172,8 +182,9 @@ vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]
                               constant packed_float3 *normal_2[[buffer(7)]],
                               constant packed_float3 *normal_3[[buffer(8)]],
                               constant packed_float4 *vertex_color[[buffer(9)]],
-                              constant uint *divisor[[buffer(10)]],
-                              constant shader_3d_color_uniform &uniform [[buffer(11)]],
+                              constant packed_float4 *texcoords[[buffer(10)]],
+                              constant uint *divisor[[buffer(11)]],
+                              constant shader_3d_color_uniform &uniform [[buffer(12)]],
                               ushort vid [[vertex_id]],
                               uint iid [[instance_id]]
                               )
@@ -190,6 +201,13 @@ vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]
 
     constant packed_float3 *vertice[3]   = {vertex_1, vertex_2, vertex_3};
     constant packed_float3 *normals[3]   = {normal_1, normal_2, normal_3};
+    
+    float2 texcs[3] = {
+        decodeTexcoord(texcoords[iid / divisor[10]][0]),
+        decodeTexcoord(texcoords[iid / divisor[10]][1]),
+        decodeTexcoord(texcoords[iid / divisor[10]][2])
+    };
+    
 
     float3 vertex_i             = vertice[vid][iid / divisor[3 + vid]];
     float3 normal_i             = normals[vid][iid / divisor[6 + vid]];
@@ -210,6 +228,8 @@ vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]
     result += CalcDirLight(uniform.dlights[0], norm, bright);
 
     out.color = decodeColor * float4(result, 1.0);
+    out.texid = uint(texcoords[iid / divisor[10]][3]);
+    out.texcoord = texcs[vid];
 
     return out;
 }
@@ -229,10 +249,38 @@ vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]
 //     return (ambient + diffuse);
 // }
 
-fragment float4 fragment_3d_color(ColorInOut in [[stage_in]]
-                             ,
-                             constant shader_3d_color_uniform &uniform [[buffer(0)]]
+fragment float4 fragment_3d_color(ColorInOut in [[stage_in]],
+                                  constant shader_3d_color_uniform &uniform [[buffer(0)]],
+                                  texture2d<float, access::sample> texture0 [[texture(0)]],
+                                  texture2d<float, access::sample> texture1 [[texture(1)]],
+                                  texture2d<float, access::sample> texture2 [[texture(2)]],
+                                  texture2d<float, access::sample> texture3 [[texture(3)]],
+                                  texture2d<float, access::sample> texture4 [[texture(4)]],
+                                  texture2d<float, access::sample> texture5 [[texture(5)]],
+                                  texture2d<float, access::sample> texture6 [[texture(6)]],
+                                  texture2d<float, access::sample> texture7 [[texture(7)]],
+                                  sampler texSampler [[sampler(0)]]
                              )
 {
-    return in.color;
+    float4 pixel;
+    
+    if(in.texid >= 7) {
+        pixel = texture7.sample(texSampler, in.texcoord);
+    } else if(in.texid >= 6) {
+        pixel = texture6.sample(texSampler, in.texcoord);
+    } else if(in.texid >= 5) {
+        pixel = texture5.sample(texSampler, in.texcoord);
+    } else if(in.texid >= 4) {
+        pixel = texture4.sample(texSampler, in.texcoord);
+    } else if(in.texid >= 3) {
+        pixel = texture3.sample(texSampler, in.texcoord);
+    } else if(in.texid >= 2) {
+        pixel = texture2.sample(texSampler, in.texcoord);
+    } else if(in.texid >= 1) {
+        pixel = texture1.sample(texSampler, in.texcoord);
+    } else if(in.texid >= 0) {
+        pixel = texture0.sample(texSampler, in.texcoord);
+    }
+    
+    return in.color * pixel;
 };

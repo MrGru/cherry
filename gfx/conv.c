@@ -20,6 +20,5 @@ union vec4 convert_to_3d_texcoord(union vec2 uv1, union vec2 uv2, union vec2 uv3
         v.y     = (int)(uv2.x * 1000 * 1000) + (int)(uv2.y * 1000);
         v.z     = (int)(uv3.x * 1000 * 1000) + (int)(uv3.y * 1000);
         v.w     = texid + 0.01;
-        printf("%f %f %f %f\n", v.x, v.y, v.z, v.w);
         return v;
 }

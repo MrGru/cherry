@@ -23,9 +23,10 @@
 #import <cherry/graphic/device_buffer.h>
 #import <cherry/graphic/texture.h>
 
-static id<MTLRenderCommandEncoder> encoder = nil;
-static id<MTLDepthStencilState> depthless = nil;
-static id<MTLDepthStencilState> depthnone = nil;
+static id<MTLRenderCommandEncoder> encoder      = nil;
+static id<MTLDepthStencilState> depthless       = nil;
+static id<MTLDepthStencilState> depthnone       = nil;
+static id<MTLSamplerState>   sampler         = nil;
 static u8 depth_testing = 0;
 
 static void free_depth()
@@ -33,10 +34,11 @@ static void free_depth()
         if(depthless) {
                 depthless = nil;
                 depthnone = nil;
+                sampler   = nil;
         }
 }
 
-static void setup_depth()
+static void setup()
 {
         if(!depthless) {
                 cache_add(free_depth);
@@ -52,6 +54,15 @@ static void setup_depth()
                         ds.depthWriteEnabled = NO;
                         ds.depthCompareFunction = MTLCompareFunctionAlways;
                         depthnone = [shared_mtl_device newDepthStencilStateWithDescriptor:ds];
+                }
+                {
+                        MTLSamplerDescriptor* samplerDescriptor = [MTLSamplerDescriptor new];
+                        samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
+                        samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
+                        samplerDescriptor.sAddressMode = MTLSamplerAddressModeClampToEdge;
+                        samplerDescriptor.tAddressMode = MTLSamplerAddressModeClampToEdge;
+
+                        sampler = [shared_mtl_device newSamplerStateWithDescriptor:samplerDescriptor];
                 }
         }
 }
@@ -136,6 +147,18 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                         [encoder setVertexBuffer:buffer offset:0 atIndex:i];
                         i++;
                         [encoder setFragmentBuffer:buffer offset:0 atIndex:0];
+
+                        /* bind textures */
+                        struct texture **tex;
+                        array_for_each_index(tex, i, content->textures) {
+                                if(*tex) {
+                                        id<MTLTexture> texture = (__bridge id _Nonnull)((*tex)->ptr);
+                                        [encoder setFragmentTexture:texture atIndex:i];
+                                }
+                        }
+
+                        [encoder setFragmentSamplerState:sampler atIndex:0];
+
                         [encoder drawPrimitives:MTLPrimitiveTypeTriangle
                                 vertexStart:0 vertexCount:content->vertice
                                 instanceCount: (content->current_instances * content->instance_multiple)
@@ -156,7 +179,7 @@ static inline void queue_list_render(struct list_head *list, u8 frame)
 
 void renderer_render(struct renderer *p, u8 frame)
 {
-        setup_depth();
+        setup();
         encoder = [shared_mtl_command_buffer renderCommandEncoderWithDescriptor:(__bridge id _Nonnull)(p->pass->ptr)];
         struct list_head *head, *next;
         list_for_each_safe(head, next, &p->stage_list) {

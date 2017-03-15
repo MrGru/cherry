@@ -236,8 +236,8 @@
             // scale drawableSize so that drawable is 1:1 width pixels not 1:1 to points
 
             UIScreen* screen = self.window.screen ?: [UIScreen mainScreen];
-            drawableSize.width *= screen.nativeScale;
-            drawableSize.height *= screen.nativeScale;
+            drawableSize.width *= screen.nativeScale * 1.75;
+            drawableSize.height *= screen.nativeScale * 1.75;
 
             _metalLayer.drawableSize = drawableSize;
 

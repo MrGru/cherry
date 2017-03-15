@@ -18,6 +18,7 @@
 #include <cherry/memory.h>
 #include <cherry/array.h>
 #include <cherry/graphic/device_buffer.h>
+#include <cherry/stdio.h>
 
 u32 current_bind_buffer = 0;
 
