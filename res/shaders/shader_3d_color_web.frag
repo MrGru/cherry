@@ -29,7 +29,49 @@
 #endif
 
 input vec4      pixel_color;
+input float     pixel_texid;
+input vec2      pixel_texcoord;
+
+/*
+ * almost mobile devices allow only 8 concurrent sampler2Ds as maximum
+ */
+uniform sampler2D       image[8];
+
 void main()
 {
-        out_pixel = pixel_color;
+        vec4 pixel;
+
+        if(pixel_texid >= 7.0) {
+                pixel = get_pixel(image[7], pixel_texcoord);
+        }
+
+        if(pixel_texid >= 6.0) {
+                pixel = get_pixel(image[6], pixel_texcoord);
+        }
+
+        if(pixel_texid >= 5.0) {
+                pixel = get_pixel(image[5], pixel_texcoord);
+        }
+
+        if(pixel_texid >= 4.0) {
+                pixel = get_pixel(image[4], pixel_texcoord);
+        }
+
+        if(pixel_texid >= 3.0) {
+                pixel = get_pixel(image[3], pixel_texcoord);
+        }
+
+        if(pixel_texid >= 2.0) {
+                pixel = get_pixel(image[2], pixel_texcoord);
+        }
+
+        if(pixel_texid >= 1.0) {
+                pixel = get_pixel(image[1], pixel_texcoord);
+        }
+
+        if(pixel_texid >= 0.0) {
+                pixel = get_pixel(image[0], pixel_texcoord);
+        }
+
+        out_pixel = pixel_color * pixel;
 }

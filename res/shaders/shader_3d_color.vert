@@ -29,7 +29,6 @@
  * vid used to access current texcoord, vertex
  */
 input float     vid;
-// input vec4      color;
 input float     bright;
 input mat4      transform;
 input vec3      vertex_1;
@@ -39,17 +38,21 @@ input vec3      normal_1;
 input vec3      normal_2;
 input vec3      normal_3;
 input vec4      vertex_color;
+input vec4      texcoord;
 
 /*
  * combine vertex_i, normal_i, vertex_color into array to access from vid
  */
 vec3            vertice[3];
 vec3            normals[3];
+vec2            texcoords[3];
 
 /*
  * pixel_color used to adjust fragment color
  */
 output vec4     pixel_color;
+output float    pixel_texid;
+output vec2     pixel_texcoord;
 
 uniform mat4    project;
 uniform mat4    view;
@@ -206,6 +209,14 @@ vec4 decodeFloatColor(highp int val)
         return c;
 }
 
+vec2 decodeTexcoord(float val)
+{
+        vec2 tc;
+        tc.x    = float(int(val / 1000.0)) / 1000.0;
+        tc.y    = mod(val, 1000.0) / 1000.0;
+        return tc;
+}
+
 mat4 matrix4_inverse(mat4 m)
 {
         float
@@ -276,6 +287,13 @@ void main()
         normals[1]              = normal_2;
         normals[2]              = normal_3;
 
+        /*
+         * group texcoords
+         */
+        texcoords[0]            = decodeTexcoord(texcoord[0]);
+        texcoords[1]            = decodeTexcoord(texcoord[1]);
+        texcoords[2]            = decodeTexcoord(texcoord[2]);
+
         vec4 alpha              = decodeFloatColor(int(vertex_color[3]));
         vec4 decodecolor        = decodeFloatColor(int(vertex_color[int(vid)]));
         decodecolor.a           = alpha[int(vid)];
@@ -305,4 +323,7 @@ void main()
 #endif
 
         pixel_color             = decodecolor * vec4(result, 1.0);
+
+        pixel_texid             = texcoord[3];
+        pixel_texcoord          = texcoords[int(vid)];
 }

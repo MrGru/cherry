@@ -29,7 +29,17 @@
 #endif
 
 input vec4      pixel_color;
+input float     pixel_texid;
+input vec2      pixel_texcoord;
+
+/*
+ * almost mobile devices allow only 8 concurrent sampler2Ds as maximum
+ */
+uniform sampler2D       image[8];
+
 void main()
 {
-        out_pixel = pixel_color;
+        vec4 pixel = get_pixel(image[int(pixel_texid)], pixel_texcoord);
+
+        out_pixel = pixel_color * pixel;
 }
