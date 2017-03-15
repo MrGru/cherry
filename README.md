@@ -19,14 +19,14 @@ If you need more information then you can contact me by email <nhatdiep1991@gmai
 ##Run
 
 Linux
-- install SDL2
+- install SDL2, freeglut
 - run make.sh to build and test
 
 IOS
 - require Xcode
 - require SDL2 for OpenGL branch
 - run make_ios.sh to build library
-- developing project to choose OpenGL/Metal branch at runtime
+- OpenGL/Metal branch will be chosen at runtime
 
 OSX
 - require Xcode
