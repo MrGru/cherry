@@ -843,11 +843,11 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					"/Users/manh/Documents/cherry/ios_build_metal/kernel/Debug-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build_metal/gfx/Debug-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build_metal/audio/Debug-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build_metal/game/Debug-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build_metal/xml/Debug-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/kernel/Release-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/gfx/Release-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/audio/Release-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/game/Release-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/xml/Release-iphoneos",
 				);
 				OTHER_LDFLAGS = (
 					"-lkernel",
