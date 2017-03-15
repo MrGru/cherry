@@ -37,5 +37,6 @@ struct node_3d_color *game_empty_node_alloc(struct game *p);
 struct node_3d_color *game_floor_node_alloc(struct game *p);
 struct node_3d_color *game_line_alloc(struct game *p);
 struct node_3d_color *game_star_alloc(struct game *p);
+struct node_3d_color *game_background_effect_alloc(struct game *p);
 
 #endif

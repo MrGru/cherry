@@ -108,6 +108,7 @@ static inline void queue_render(struct render_queue *queue, u8 frame)
                         if(content->depth_test) {
                                 if(!depth_testing) {
                                         glEnable(GL_DEPTH_TEST);
+                                        glDepthFunc(GL_LEQUAL);
                                         depth_testing = 1;
                                 }
                         } else {

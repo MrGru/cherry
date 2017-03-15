@@ -45,7 +45,7 @@ static void setup()
                 {
                         MTLDepthStencilDescriptor * ds = [MTLDepthStencilDescriptor new];
                         ds.depthWriteEnabled = YES;
-                        ds.depthCompareFunction = MTLCompareFunctionLess;
+                        ds.depthCompareFunction = MTLCompareFunctionLessEqual;
                         depthless = [shared_mtl_device newDepthStencilStateWithDescriptor:ds];
                 }
 

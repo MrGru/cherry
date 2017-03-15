@@ -173,6 +173,32 @@ struct effect_star {
         struct action_key                               move_key;
 };
 
+struct sprite_quad {
+        struct list_head                                head;
+
+        union mat4                                      transform;
+        union {
+                union vec3                              position;
+                union vec4                              position_expanded;
+        };
+        union vec4                                      rotate;
+        union {
+                union vec3                              scale;
+                union vec4                              scale_expanded;
+        };
+        union {
+                struct {
+                        struct node_data_segment        *seg_v1;
+                        struct node_data_segment        *seg_v2;
+                        struct node_data_segment        *seg_v3;
+                        struct node_data_segment        *texcoord;
+                };
+                struct node_data_segment                *seg[4];
+        };
+        struct node_3d_color                            *node;
+        struct action_key                               key;
+};
+
 enum {
         PLAY_IDLE,
         PLAY_SEARCH_NODE,
@@ -201,6 +227,12 @@ struct game {
          */
         struct list_head                free_effect_star_list;
         struct list_head                using_effect_star_list;
+
+        /*
+         * background effect
+         */
+        struct list_head                free_background_effect_list;
+        struct list_head                using_background_effect_list;
 
         struct list_head                touching_gem_list;
 

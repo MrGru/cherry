@@ -108,8 +108,8 @@ static float4 decodeFloatColor(int val)
 static float2 decodeTexcoord(float val)
 {
     float2 tc;
-    tc[0] = float(int(val / 1000.0)) / 1000.0;
-    tc[1] = float(int(val) % 1000) / 1000.0;
+    tc[0] = float(int(val) << 16) / 10000.0;
+    tc[1] = float(((int(val) << 16) >> 16 ) / 10000.0;
     return tc;
 }
 
@@ -201,13 +201,13 @@ vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]
 
     constant packed_float3 *vertice[3]   = {vertex_1, vertex_2, vertex_3};
     constant packed_float3 *normals[3]   = {normal_1, normal_2, normal_3};
-    
+
     float2 texcs[3] = {
         decodeTexcoord(texcoords[iid / divisor[10]][0]),
         decodeTexcoord(texcoords[iid / divisor[10]][1]),
         decodeTexcoord(texcoords[iid / divisor[10]][2])
     };
-    
+
 
     float3 vertex_i             = vertice[vid][iid / divisor[3 + vid]];
     float3 normal_i             = normals[vid][iid / divisor[6 + vid]];
@@ -263,7 +263,7 @@ fragment float4 fragment_3d_color(ColorInOut in [[stage_in]],
                              )
 {
     float4 pixel;
-    
+
     if(in.texid >= 7) {
         pixel = texture7.sample(texSampler, in.texcoord);
     } else if(in.texid >= 6) {
@@ -281,6 +281,6 @@ fragment float4 fragment_3d_color(ColorInOut in [[stage_in]],
     } else if(in.texid >= 0) {
         pixel = texture0.sample(texSampler, in.texcoord);
     }
-    
+
     return in.color * pixel;
 };

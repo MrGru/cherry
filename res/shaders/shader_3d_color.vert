@@ -212,8 +212,8 @@ vec4 decodeFloatColor(highp int val)
 vec2 decodeTexcoord(float val)
 {
         vec2 tc;
-        tc.x    = float(int(val / 1000.0)) / 1000.0;
-        tc.y    = mod(val, 1000.0) / 1000.0;
+        tc.x = float(int(val) / 65536) / 10000.0;
+        tc.y = float((int(val) * 65536) / 65536) / 10000.0;
         return tc;
 }
 
