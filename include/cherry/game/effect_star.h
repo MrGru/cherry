@@ -11,24 +11,17 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GRAPHIC_DAE_TYPES_H__
-#define __CHERRY_GRAPHIC_DAE_TYPES_H__
+#ifndef __CHERRY_GAME_EFFECT_STAR_H__
+#define __CHERRY_GAME_EFFECT_STAR_H__
 
-#include <cherry/graphic/types.h>
+#include <cherry/game/types.h>
 
-struct dae_mesh {
-        struct string   *name;
-        struct array    *vertex_1;
-        struct array    *vertex_2;
-        struct array    *vertex_3;
+struct effect_star *effect_star_alloc();
 
-        struct array    *normal_1;
-        struct array    *normal_2;
-        struct array    *normal_3;
+void effect_star_free(struct effect_star *p);
 
-        struct array    *texcoords;
+void effect_star_show(struct effect_star *p, union vec3 pos, struct game *g);
 
-        struct array    *colors;
-};
+void effect_star_update(struct effect_star *p, struct game *g);
 
 #endif

@@ -149,6 +149,30 @@ struct connect_line {
         struct node_3d_color                            *node;
 };
 
+struct effect_star {
+        struct list_head                                head;
+        union mat4                                      transform;
+        union {
+                union vec3                              position;
+                union vec4                              position_expanded;
+        };
+        union vec4                                      rotate;
+        union {
+                union vec3                              scale;
+                union vec4                              scale_expanded;
+        };
+        union {
+                struct {
+                        struct node_data_segment        *seg_v1;
+                        struct node_data_segment        *seg_v2;
+                        struct node_data_segment        *seg_v3;
+                };
+                struct node_data_segment                *seg[3];
+        };
+        struct node_3d_color                            *node;
+        struct action_key                               move_key;
+};
+
 enum {
         PLAY_IDLE,
         PLAY_SEARCH_NODE,
@@ -167,8 +191,17 @@ struct game {
         struct list_head                deliver_delay_list;
         struct list_head                path_point_list;
         struct list_head                element_update_pos_list;
+        /*
+         * connect lines list
+         */
         struct list_head                free_connect_line_list;
         struct list_head                using_connect_line_list;
+        /*
+         * effect stars list
+         */
+        struct list_head                free_effect_star_list;
+        struct list_head                using_effect_star_list;
+
         struct list_head                touching_gem_list;
 
         u8                              connecting_gems_number;
@@ -213,8 +246,10 @@ struct n3d_color_param {
         union vec3      *n2;
         union vec3      *n3;
         union vec4      *color;
+        union vec4      *texcoord;
         u32             vlen;
         u32             clen;
+        u32             tlen;
 };
 
 #endif

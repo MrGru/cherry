@@ -45,6 +45,8 @@ struct device_buffer *buffer_3d_vertex_alloc(u32 instances, u8 location);
 
 struct device_buffer *buffer_3d_normal_alloc(u32 instances, u8 location);
 
+struct device_buffer *buffer_3d_texcoord_alloc(u32 instances, u8 location);
+
 /*
  * 2d buffers collection
  */

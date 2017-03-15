@@ -11,24 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GRAPHIC_DAE_TYPES_H__
-#define __CHERRY_GRAPHIC_DAE_TYPES_H__
+#ifndef __CHERRY_GRAPHIC_NODE_CONV_H__
+#define __CHERRY_GRAPHIC_NODE_CONV_H__
 
-#include <cherry/graphic/types.h>
+#include <cherry/graphic/node/types.h>
 
-struct dae_mesh {
-        struct string   *name;
-        struct array    *vertex_1;
-        struct array    *vertex_2;
-        struct array    *vertex_3;
-
-        struct array    *normal_1;
-        struct array    *normal_2;
-        struct array    *normal_3;
-
-        struct array    *texcoords;
-
-        struct array    *colors;
-};
+union vec4 convert_to_3d_texcoord(union vec2 uv1, union vec2 uv2, union vec2 uv3, int texid);
 
 #endif

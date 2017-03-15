@@ -198,6 +198,15 @@ struct twig_3d_normal {
         u16                     offset_to_node;
 };
 
+struct twig_3d_texcoord {
+        struct list_head        tree_head;
+        
+        union vec4              texcoord;
+
+        u8                      bid;
+        u16                     offset_to_node;
+};
+
 struct node_3d_color {
         struct list_head        node_head;
 
@@ -207,6 +216,7 @@ struct node_3d_color {
         struct list_head        vertex;
         struct list_head        normal;
         struct list_head        vertex_color;
+        struct list_head        texcoord;
 
         struct list_head        life_head;
 };
