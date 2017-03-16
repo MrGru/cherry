@@ -22,4 +22,12 @@ void sprite_quad_free(struct sprite_quad *p);
 
 void sprite_quad_set_texture_frame(struct sprite_quad *p, struct texture_frame *tf);
 
+void sprite_quad_set_position(struct sprite_quad *p, union vec3 pos, struct game *g);
+
+void sprite_quad_set_scale(struct sprite_quad *p, union vec3 scale, struct game *g);
+
+void sprite_quad_set_rotation(struct sprite_quad *p, float rotation, struct game *g);
+
+void sprite_quad_update(struct sprite_quad *p, struct game *g);
+
 #endif

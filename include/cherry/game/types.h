@@ -175,6 +175,7 @@ struct effect_star {
 
 struct sprite_quad {
         struct list_head                                head;
+        struct list_head                                update_head;
 
         union mat4                                      transform;
         union {
@@ -234,6 +235,7 @@ struct game {
          */
         struct list_head                free_background_effect_list;
         struct list_head                using_background_effect_list;
+        struct list_head                updating_background_effect_list;
 
         struct list_head                touching_gem_list;
 
