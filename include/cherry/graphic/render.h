@@ -34,6 +34,10 @@ struct render_content *render_content_alloc(struct render_queue *queue,
 
 void render_content_set_texture(struct render_content *content, u16 index, struct texture *t);
 
+void render_content_set_atlas(struct render_content *content, u16 index, char *atlas_path);
+
+struct texture_frame *render_content_get_texture_frame(struct render_content *content, char *atlas, size_t atlas_len, char *key, size_t key_len);
+
 void render_content_free(struct render_content *content);
 
 /*

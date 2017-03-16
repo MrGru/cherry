@@ -21,6 +21,8 @@
 #include <cherry/math/vec4.h>
 #include <cherry/graphic/shader.h>
 #include <cherry/graphic/texture.h>
+#include <cherry/xml/xml.h>
+#include <cherry/string.h>
 
 struct render_queue *render_queue_alloc(struct list_head *stage, struct shader *pipeline)
 {
@@ -60,6 +62,7 @@ struct render_content *render_content_alloc(struct render_queue *queue,
                 shader_setup_group(queue->pipeline, p->groups[i]);
         }
         p->textures             = array_alloc(sizeof(struct texture *), ORDERED);
+        p->atlases              = map_alloc(sizeof(struct map *));
         p->vertice              = vertice;
         p->max_instances        = max_instances;
         p->instance_multiple    = instance_multiple;
@@ -82,6 +85,59 @@ void render_content_set_texture(struct render_content *content, u16 index, struc
         array_set(content->textures, index, &t);
 }
 
+void render_content_set_atlas(struct render_content *content, u16 index, char *atlas_path)
+{
+        struct map *atlas                       = map_alloc(sizeof(struct texture_frame));
+        struct xml_element *xml                 = xml_parse(atlas_path);
+        struct xml_element *TextureAtlas        = xml_find(xml, "TextureAtlas", 0);
+        struct xml_attribute *TexturePath       = xml_find_attribute(TextureAtlas, "imagePath");
+        struct string *tex_name                 = string_alloc_chars(atlas_path, strlen(atlas_path));
+        int i;
+        back_i(i, tex_name->len) {
+                if(tex_name->ptr[i] == '/') {
+                        tex_name->len -= (tex_name->len - 1 - i);
+                        string_cat_string(tex_name, TexturePath->value);
+                        break;
+                }
+        }
+        render_content_set_texture(content, index, texture_alloc_file(tex_name->ptr));
+        string_free(tex_name);
+
+        int tex_width                           = atoi(xml_find_attribute(TextureAtlas, "width")->value->ptr);
+        int tex_height                          = atoi(xml_find_attribute(TextureAtlas, "height")->value->ptr);
+        struct list_head *head;
+        list_for_each(head, &TextureAtlas->children) {
+                struct xml_element *sprite = (struct xml_element *)
+                        ((void *)head - offsetof(struct xml_element, element_head));
+                struct xml_attribute *sprite_name       = xml_find_attribute(sprite, "n");
+                struct xml_attribute *sprite_x          = xml_find_attribute(sprite, "x");
+                struct xml_attribute *sprite_y          = xml_find_attribute(sprite, "y");
+                struct xml_attribute *sprite_width      = xml_find_attribute(sprite, "w");
+                struct xml_attribute *sprite_height     = xml_find_attribute(sprite, "h");
+                struct texture_frame tf;
+                tf.x            = atoi(sprite_x->value->ptr);
+                tf.y            = atoi(sprite_y->value->ptr);
+                tf.width        = atoi(sprite_width->value->ptr);
+                tf.height       = atoi(sprite_height->value->ptr);
+                tf.tex_width    = tex_width;
+                tf.tex_height   = tex_height;
+                tf.texid        = index;
+                map_set(atlas, sprite_name->value->ptr, sprite_name->value->len, &tf);
+        }
+        xml_free(xml);
+        map_set(content->atlases, atlas_path, strlen(atlas_path), &atlas);
+}
+
+struct texture_frame *render_content_get_texture_frame(struct render_content *content, char *atlas, size_t atlas_len, char *key, size_t key_len)
+{
+        struct texture_frame *tf = NULL;
+        struct map *m = map_get(content->atlases, struct map *, atlas, atlas_len);
+        if(m) {
+                tf = map_get_pointer(m, key, key_len);
+        }
+        return tf;
+}
+
 void render_content_free(struct render_content *content)
 {
         i16 i;
@@ -89,6 +145,7 @@ void render_content_free(struct render_content *content)
                 device_buffer_group_free(content->groups[i]);
         }
         array_deep_free_safe(content->textures, struct texture *, texture_free);
+        map_deep_free(content->atlases, struct map *, map_free);
 
         struct list_head *head;
         list_while_not_singular(head, &content->node_list) {

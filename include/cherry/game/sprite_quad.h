@@ -20,4 +20,6 @@ struct sprite_quad *sprite_quad_alloc();
 
 void sprite_quad_free(struct sprite_quad *p);
 
+void sprite_quad_set_texture_frame(struct sprite_quad *p, struct texture_frame *tf);
+
 #endif

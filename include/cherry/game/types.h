@@ -191,11 +191,12 @@ struct sprite_quad {
                         struct node_data_segment        *seg_v1;
                         struct node_data_segment        *seg_v2;
                         struct node_data_segment        *seg_v3;
-                        struct node_data_segment        *texcoord;
+                        struct node_data_segment        *seg_texcoord;
                 };
                 struct node_data_segment                *seg[4];
         };
         struct node_3d_color                            *node;
+        struct texture_frame                            *current_frame;
         struct action_key                               key;
 };
 

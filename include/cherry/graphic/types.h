@@ -274,6 +274,16 @@ struct texture {
 #endif
 };
 
+struct texture_frame {
+        int             x;
+        int             y;
+        int             width;
+        int             height;
+        int             tex_width;
+        int             tex_height;
+        int             texid;
+};
+
 struct camera {
         union mat4              view;
         union vec3              position;
@@ -294,6 +304,8 @@ struct render_content {
         struct list_head                queue_head;
         struct device_buffer_group      *groups[BUFFERS];
         struct array                    *textures;
+        struct map                      *atlases;
+
         u32                             vertice;
         u32                             max_instances;
         u32                             current_instances;

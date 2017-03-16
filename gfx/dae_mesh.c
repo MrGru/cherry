@@ -399,6 +399,7 @@ static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m, union mat4 tr
                 if(has_uvs) {
                         int tex_id      = array_get(m->p, int, i + tex_offset);
                         tex             = array_get(m->uvs, union vec2, tex_id);
+                        tex.y           = 1.0 - tex.y;
                 }
                 /*
                  * packed 3 vec3 colors into 1 vec3 color for instancing

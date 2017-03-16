@@ -108,7 +108,11 @@ struct xml_element *xml_parse(char *file)
                 char c = text->ptr[i];
                 switch(state) {
                         case xml_read_comment:
-                                if(c == '>') {
+                                if(c == '-'
+                                        && i + 1 < text->len 
+                                        && i + 2 < text->len
+                                        && text->ptr[i + 1] == '-'
+                                        && text->ptr[i + 2] == '>') {
                                         start   = end = 0;
                                         finish  = 0;
                                         state   = xml_none;
