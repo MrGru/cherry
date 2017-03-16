@@ -18,6 +18,32 @@
 #include <cherry/math/types.h>
 #include <cherry/graphic/graphic.h>
 
+// #if GFX == OGL
+
+union texcoord_3d {
+        struct {
+                float x, y, z, w;
+        };
+        struct {
+                float r, g, b, a;
+        };
+        float v[4];
+};
+
+// #elif GFX == MTL
+//
+// union texcoord_3d {
+//         struct {
+//                 u32 x, y, z, w;
+//         };
+//         struct {
+//                 u32 r, g, b, a;
+//         };
+//         u32 v[4];
+// };
+//
+// #endif
+
 struct device_buffer;
 struct shader;
 

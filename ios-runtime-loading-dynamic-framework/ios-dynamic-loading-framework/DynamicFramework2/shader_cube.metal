@@ -23,8 +23,8 @@ struct InVertex {
 
 struct ColorInOut {
         float4 position [[position]];
-        float2 texcoord;
-        int    texid;
+        float2 texcoord ;
+        uint    texid;
         float4 color;
 };
 
@@ -108,8 +108,8 @@ static float4 decodeFloatColor(int val)
 static float2 decodeTexcoord(int val)
 {
     float2 tc;
-    tc[0] = float(val >> 16) / 10000.0;
-    tc[1] = float((val << 16) >> 16 ) / 10000.0;
+    tc[0] = float(val >> 16) / 10000.0;;
+    tc[1] = float((val << 16) >> 16) / 10000.0;
     return tc;
 }
 
@@ -182,7 +182,7 @@ vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]
                               constant packed_float3 *normal_2[[buffer(7)]],
                               constant packed_float3 *normal_3[[buffer(8)]],
                               constant packed_float4 *vertex_color[[buffer(9)]],
-                              constant packed_float4 *texcoords[[buffer(10)]],
+                              constant packed_float4 *texcoordss[[buffer(10)]],
                               constant uint *divisor[[buffer(11)]],
                               constant shader_3d_color_uniform &uniform [[buffer(12)]],
                               ushort vid [[vertex_id]],
@@ -202,12 +202,6 @@ vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]
     constant packed_float3 *vertice[3]   = {vertex_1, vertex_2, vertex_3};
     constant packed_float3 *normals[3]   = {normal_1, normal_2, normal_3};
 
-    float2 texcs[3] = {
-        decodeTexcoord(texcoords[iid / divisor[10]][0]),
-        decodeTexcoord(texcoords[iid / divisor[10]][1]),
-        decodeTexcoord(texcoords[iid / divisor[10]][2])
-    };
-
 
     float3 vertex_i             = vertice[vid][iid / divisor[3 + vid]];
     float3 normal_i             = normals[vid][iid / divisor[6 + vid]];
@@ -220,6 +214,11 @@ vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]
      * calculate out
      */
     out.position                = proj * view * transform * float4(vertex_i, 1.0);
+    
+    out.texcoord                = decodeTexcoord(texcoordss[iid / divisor[10]][vid]);
+    out.texcoord.y = 1.0 - out.texcoord.y;
+    out.texid                   = int(texcoordss[iid / divisor[10]][3]);
+    
     float4x4 inv                = matrix4_transpose(matrix4_inverse(transform));
     float3 pixel_normal         = float3x3(float3(inv[0].xyz), float3(inv[1].xyz), float3(inv[2].xyz)) * normal_i;
     float3 norm                 = normalize(pixel_normal);
@@ -228,9 +227,6 @@ vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]
     result += CalcDirLight(uniform.dlights[0], norm, bright);
 
     out.color = decodeColor * float4(result, 1.0);
-    out.texid = int(texcoords[iid / divisor[10]][3]);
-    out.texcoord = texcs[vid];
-
     return out;
 }
 
@@ -251,14 +247,14 @@ vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]
 
 fragment float4 fragment_3d_color(ColorInOut in [[stage_in]],
                                   constant shader_3d_color_uniform &uniform [[buffer(0)]],
-                                  texture2d<float, access::sample> texture0 [[texture(0)]],
-                                  texture2d<float, access::sample> texture1 [[texture(1)]],
-                                  texture2d<float, access::sample> texture2 [[texture(2)]],
-                                  texture2d<float, access::sample> texture3 [[texture(3)]],
-                                  texture2d<float, access::sample> texture4 [[texture(4)]],
-                                  texture2d<float, access::sample> texture5 [[texture(5)]],
-                                  texture2d<float, access::sample> texture6 [[texture(6)]],
-                                  texture2d<float, access::sample> texture7 [[texture(7)]],
+                                  texture2d<float> texture0 [[texture(0)]],
+                                  texture2d<float> texture1 [[texture(1)]],
+                                  texture2d<float> texture2 [[texture(2)]],
+                                  texture2d<float> texture3 [[texture(3)]],
+                                  texture2d<float> texture4 [[texture(4)]],
+                                  texture2d<float> texture5 [[texture(5)]],
+                                  texture2d<float> texture6 [[texture(6)]],
+                                  texture2d<float> texture7 [[texture(7)]],
                                   sampler texSampler0 [[sampler(0)]]
                              )
 {

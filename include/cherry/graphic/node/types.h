@@ -200,8 +200,8 @@ struct twig_3d_normal {
 
 struct twig_3d_texcoord {
         struct list_head        tree_head;
-        
-        union vec4              texcoord;
+
+        union texcoord_3d       texcoord;
 
         u8                      bid;
         u16                     offset_to_node;

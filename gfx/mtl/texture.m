@@ -75,7 +75,7 @@ struct texture *texture_alloc_image(struct image *p)
                 texture2DDescriptorWithPixelFormat      :image_type(p)
                 width                                   :image_width(p)
                 height                                  :image_height(p)
-                mipmapped                               :YES];
+                mipmapped                               :NO];
         id<MTLTexture> t = [shared_mtl_device newTextureWithDescriptor:textureDescriptor];
 
         MTLRegion region = MTLRegionMake2D(0, 0, image_width(p), image_height(p));

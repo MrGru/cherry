@@ -281,7 +281,7 @@ struct n3d_color_param {
         union vec3      *n2;
         union vec3      *n3;
         union vec4      *color;
-        union vec4      *texcoord;
+        union texcoord_3d      *texcoord;
         u32             vlen;
         u32             clen;
         u32             tlen;

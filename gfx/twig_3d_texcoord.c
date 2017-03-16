@@ -21,7 +21,7 @@ struct twig_3d_texcoord *twig_3d_texcoord_alloc(u8 bid)
 {
         struct twig_3d_texcoord *p      = smalloc(sizeof(struct twig_3d_texcoord));
         p->bid                          = bid;
-        p->texcoord                     = (union vec4){0, 0, 0, 0.01};
+        p->texcoord                     = (union texcoord_3d){0, 0, 0, 0};
         INIT_LIST_HEAD(&p->tree_head);
         return p;
 }

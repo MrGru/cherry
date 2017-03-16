@@ -60,7 +60,7 @@ static const long kInFlightCommandBuffers = BUFFERS;
     view.depthPixelFormat   = MTLPixelFormatDepth32Float;
     view.stencilPixelFormat = MTLPixelFormatInvalid;
     view.sampleCount        = 4;
-
+    
     // create a new command queue
     _commandQueue = [_device newCommandQueue];
 

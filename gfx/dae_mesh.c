@@ -337,7 +337,7 @@ static inline struct dae_mesh *__dae_mesh_alloc()
         p->normal_2             = array_alloc(sizeof(union vec3), ORDERED);
         p->normal_3             = array_alloc(sizeof(union vec3), ORDERED);
         p->colors               = array_alloc(sizeof(union vec4), ORDERED);
-        p->texcoords            = array_alloc(sizeof(union vec4), ORDERED);
+        p->texcoords            = array_alloc(sizeof(union texcoord_3d), ORDERED);
         return p;
 }
 
@@ -416,7 +416,7 @@ static struct dae_mesh *__geo_mesh_to_dae_mesh(struct geo_mesh *m, union mat4 tr
                  */
                 temp_uvs[step]  = tex;
                 if(step == 2) {
-                        union vec4 tc   = convert_to_3d_texcoord(temp_uvs[0], temp_uvs[1], temp_uvs[2], 0);
+                        union texcoord_3d tc   = convert_to_3d_texcoord(temp_uvs[0], temp_uvs[1], temp_uvs[2], 0);
                         array_push(p->texcoords, &tc);
                 }
 

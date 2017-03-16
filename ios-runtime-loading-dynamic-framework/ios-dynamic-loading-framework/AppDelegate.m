@@ -71,6 +71,10 @@ static int getDeviceModelNumber(NSString *n)
         metal_available = ni >= 7;
     }
     
+    
+    
+//    metal_available = FALSE;
+    
     if(metal_available) {
         framework = @"DynamicFramework2.framework/DynamicFramework2";
         storyboardbundle = @"com.manh.DynamicFramework2";

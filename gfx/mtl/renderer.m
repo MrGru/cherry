@@ -57,7 +57,7 @@ static void setup()
                 }
                 {
                         MTLSamplerDescriptor* samplerDescriptor = [MTLSamplerDescriptor new];
-                        samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
+                        samplerDescriptor.minFilter = MTLSamplerMinMagFilterLinear;
                         samplerDescriptor.magFilter = MTLSamplerMinMagFilterLinear;
                         samplerDescriptor.sAddressMode = MTLSamplerAddressModeClampToEdge;
                         samplerDescriptor.tAddressMode = MTLSamplerAddressModeClampToEdge;

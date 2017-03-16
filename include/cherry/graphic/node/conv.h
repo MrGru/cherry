@@ -16,8 +16,8 @@
 
 #include <cherry/graphic/node/types.h>
 
-union vec4 convert_to_3d_texcoord(union vec2 uv1, union vec2 uv2, union vec2 uv3, int texid);
+union texcoord_3d convert_to_3d_texcoord(union vec2 uv1, union vec2 uv2, union vec2 uv3, int texid);
 
-void decode_3d_texcoord(union vec4 texcoord, union vec2 *result);
+void decode_3d_texcoord(union texcoord_3d texcoord, union vec2 *result);
 
 #endif

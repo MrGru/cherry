@@ -95,11 +95,11 @@ struct device_buffer *buffer_3d_normal_alloc(u32 instances, u8 location)
 
 struct device_buffer *buffer_3d_texcoord_alloc(u32 instances, u8 location)
 {
-        void *data = smalloc(sizeof(union vec4) * instances);
-        smemset(data, 0, sizeof(union vec4) * instances);
+        void *data = smalloc(sizeof(union texcoord_3d) * instances);
+        smemset(data, 0, sizeof(union texcoord_3d) * instances);
         struct device_buffer *buffer = device_buffer_alloc(BUFFER_VERTICE,
-                sizeof(union vec4), location);
-        device_buffer_fill(buffer, data, sizeof(union vec4) * instances);
+                sizeof(union texcoord_3d), location);
+        device_buffer_fill(buffer, data, sizeof(union texcoord_3d) * instances);
         sfree(data);
         return buffer;
 }
