@@ -87,4 +87,15 @@ struct bytes {
         char            *ptr;
 };
 
+struct utf8_head {
+        unsigned int bit_7 : 1;
+        unsigned int bit_6 : 1;
+        unsigned int bit_5 : 1;
+        unsigned int bit_4 : 1;
+        unsigned int bit_3 : 1;
+        unsigned int bit_2 : 1;
+        unsigned int bit_1 : 1;
+        unsigned int bit_0 : 1;
+} __attribute__((packed));
+
 #endif

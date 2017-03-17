@@ -246,8 +246,9 @@ struct game {
                 struct {
                         struct sprite_quad_context      low_background_context;
                         struct sprite_quad_context      middle_background_context;
+                        struct sprite_quad_context      top_background_context;
                 };
-                struct sprite_quad_context      sprite_quad_context_list[2];
+                struct sprite_quad_context      sprite_quad_context_list[3];
         } __attribute__((packed));
 
         struct list_head                touching_gem_list;

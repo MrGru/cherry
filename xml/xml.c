@@ -104,12 +104,14 @@ struct xml_element *xml_parse(char *file)
         struct xml_element *current     = host;
         struct xml_attribute *attr      = NULL;
 
-        for_i(i, text->len) {
+        int head_size = 1;
+        for_i_step(i, head_size, text->len) {
                 char c = text->ptr[i];
+                head_size = __check_utf8_bytes(&c);
                 switch(state) {
                         case xml_read_comment:
                                 if(c == '-'
-                                        && i + 1 < text->len 
+                                        && i + 1 < text->len
                                         && i + 2 < text->len
                                         && text->ptr[i + 1] == '-'
                                         && text->ptr[i + 2] == '>') {
@@ -155,7 +157,7 @@ struct xml_element *xml_parse(char *file)
                                                 finish  = 1;
                                                 state   = xml_none;
                                         } else {
-                                                end++;
+                                                end += head_size;
                                         }
                                 }
                                 if(finish) {
@@ -198,7 +200,7 @@ struct xml_element *xml_parse(char *file)
                                         finish  = 0;
                                         state   = xml_find_attribute_value;
                                 } else {
-                                        end++;
+                                        end += head_size;
                                 }
                                 break;
                         case xml_find_attribute_value:
@@ -228,7 +230,7 @@ struct xml_element *xml_parse(char *file)
                                         finish  = 0;
                                         state   = xml_find_attribute_name;
                                 } else {
-                                        end++;
+                                        end += head_size;
                                 }
                                break;
                           case xml_find_element:

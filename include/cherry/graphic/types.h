@@ -285,13 +285,30 @@ struct texture {
 };
 
 struct texture_frame {
-        int             x;
-        int             y;
-        int             width;
-        int             height;
-        int             tex_width;
-        int             tex_height;
-        int             texid;
+        i16             x;
+        i16             y;
+        i16             width;
+        i16             height;
+        i16             tex_width;
+        i16             tex_height;
+        i16             texid;
+};
+
+struct font_frame {
+        i16             x;
+        i16             y;
+        i16             width;
+        i16             height;
+        i16             tex_width;
+        i16             tex_height;
+        i16             texid;
+        
+        i16             xoffset;
+        i16             yoffset;
+        i16             xadvance;
+        i16             line_height;
+        i16             base;
+        i16             size;
 };
 
 struct camera {

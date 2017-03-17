@@ -38,4 +38,23 @@ void string_replace(struct string *p, char *search, char *replace);
 
 u8 string_contain(struct string *p, char *search);
 
+static inline int __check_utf8_bytes(char *c) {
+        struct utf8_head *head = (struct utf8_head *)c;
+        if(head->bit_0 == 0)
+                return 1;
+        else {
+                if(head->bit_1 == 1
+                        && head->bit_2 == 0) return 2;
+                else if(head->bit_1 == 1
+                        && head->bit_2 == 1
+                        && head->bit_3 == 0) return 3;
+                else if(head->bit_1 == 1
+                        && head->bit_2 == 1
+                        && head->bit_3 == 1
+                        && head->bit_4 == 0) return 4;
+        }
+
+        return 1;
+}
+
 #endif

@@ -93,6 +93,75 @@ struct texture *render_content_get_texture(struct render_content *content, u16 i
         return NULL;
 }
 
+void render_content_set_bitmap_font(struct render_content *content, u16 index, char *font_path)
+{
+        struct map *font                        = map_alloc(sizeof(struct texture_frame));
+        struct xml_element *xml                 = xml_parse(font_path);
+
+        i16 size;
+        i16 line_height;
+        i16 base;
+        i16 tex_width;
+        i16 tex_height;
+
+        /*
+         * read size and common info
+         */
+        struct xml_element *info                = xml_find(xml, "info", 0);
+        size                                    = atoi(xml_find_attribute(info, "size")->value->ptr);
+
+        struct xml_element *common              = xml_find(xml, "common", 0);
+        line_height                             = atoi(xml_find_attribute(common, "lineHeight")->value->ptr);
+        base                                    = atoi(xml_find_attribute(common, "base")->value->ptr);
+        tex_width                               = atoi(xml_find_attribute(common, "scaleW")->value->ptr);
+        tex_height                              = atoi(xml_find_attribute(common, "scaleH")->value->ptr);
+
+        /*
+         * load texture
+         */
+        struct string *tex_name                 = string_alloc_chars(font_path, strlen(font_path));
+        int i;
+        back_i(i, tex_name->len) {
+                if(tex_name->ptr[i] == '/') {
+                        tex_name->len -= (tex_name->len - 1 - i);
+                        string_cat_string(tex_name, xml_find_attribute(xml_find(xml, "page", 0), "file")->value);
+                        break;
+                }
+        }
+        render_content_set_texture(content, index, texture_alloc_file(tex_name->ptr));
+        string_free(tex_name);
+
+        /*
+         * load frame
+         */
+        struct xml_element *chars                      = xml_find(xml, "chars", 0);
+        struct list_head *head;
+        list_for_each(head, &chars->children) {
+                struct xml_element *character = (struct xml_element *)
+                        ((void *)head - offsetof(struct xml_element, element_head));
+                struct font_frame ff;
+                ff.size         = size;
+                ff.line_height  = line_height;
+                ff.base         = base;
+                ff.tex_width    = tex_width;
+                ff.tex_height   = tex_height;
+                ff.texid        = index;
+                ff.x            = atoi(xml_find_attribute(character, "x")->value->ptr);
+                ff.y            = atoi(xml_find_attribute(character, "y")->value->ptr);
+                ff.width        = atoi(xml_find_attribute(character, "width")->value->ptr);
+                ff.height       = atoi(xml_find_attribute(character, "height")->value->ptr);
+                ff.xoffset      = atoi(xml_find_attribute(character, "xoffset")->value->ptr);
+                ff.yoffset      = atoi(xml_find_attribute(character, "xoffset")->value->ptr);
+                ff.xadvance     = atoi(xml_find_attribute(character, "xadvance")->value->ptr);
+                struct xml_attribute *id = xml_find_attribute(character, "id");
+                int n = atoi(id->value->ptr);
+                map_set(font, &n, sizeof(n), &ff);
+        }
+
+        xml_free(xml);
+        map_set(content->atlases, font_path, strlen(font_path), &font);
+}
+
 void render_content_set_atlas(struct render_content *content, u16 index, char *atlas_path)
 {
         struct map *atlas                       = map_alloc(sizeof(struct texture_frame));

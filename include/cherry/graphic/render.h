@@ -36,7 +36,11 @@ void render_content_set_texture(struct render_content *content, u16 index, struc
 
 void render_content_set_atlas(struct render_content *content, u16 index, char *atlas_path);
 
+void render_content_set_bitmap_font(struct render_content *content, u16 index, char *font_path);
+
 struct texture_frame *render_content_get_texture_frame(struct render_content *content, char *atlas, size_t atlas_len, char *key, size_t key_len);
+
+struct texture_frame *render_content_get_font_frame(struct render_content *content, char *font_path, size_t font_path_len, char* character, size_t character_len);
 
 struct texture *render_content_get_texture(struct render_content *content, u16 index);
 
