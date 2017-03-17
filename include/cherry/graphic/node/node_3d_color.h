@@ -49,6 +49,8 @@ struct twig_3d_vertex *node_3d_color_get_twig_3d_vertex(struct node_3d_color *p)
 
 struct twig_3d_texcoord *node_3d_color_get_twig_3d_texcoord(struct node_3d_color *p);
 
+struct twig_vertex_color *node_3d_color_get_twig_vertex_color(struct node_3d_color *p);
+
 struct node *node_3d_color_get_node(struct node_3d_color *p);
 
 /*

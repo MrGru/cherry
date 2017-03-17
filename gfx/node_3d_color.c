@@ -266,6 +266,17 @@ struct twig_3d_texcoord *node_3d_color_get_twig_3d_texcoord(struct node_3d_color
         return NULL;
 }
 
+struct twig_vertex_color *node_3d_color_get_twig_vertex_color(struct node_3d_color *p)
+{
+        if( ! list_singular(&p->vertex_color)) {
+                struct list_head *head = p->vertex_color.next;
+                struct twig_vertex_color *ob = (struct twig_vertex_color *)
+                        ((void *)head - offsetof(struct twig_vertex_color, tree_head));
+                return ob;
+        }
+        return NULL;
+}
+
 struct node *node_3d_color_get_node(struct node_3d_color *p)
 {
         if(!list_singular(&p->node_head)) {

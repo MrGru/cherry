@@ -43,33 +43,19 @@ void main()
 
         if(pixel_texid >= 7.0) {
                 pixel = get_pixel(image[7], pixel_texcoord);
-        }
-
-        if(pixel_texid >= 6.0) {
+        } else if(pixel_texid >= 6.0) {
                 pixel = get_pixel(image[6], pixel_texcoord);
-        }
-
-        if(pixel_texid >= 5.0) {
+        } else if(pixel_texid >= 5.0) {
                 pixel = get_pixel(image[5], pixel_texcoord);
-        }
-
-        if(pixel_texid >= 4.0) {
+        } else if(pixel_texid >= 4.0) {
                 pixel = get_pixel(image[4], pixel_texcoord);
-        }
-
-        if(pixel_texid >= 3.0) {
+        } else if(pixel_texid >= 3.0) {
                 pixel = get_pixel(image[3], pixel_texcoord);
-        }
-
-        if(pixel_texid >= 2.0) {
+        } else if(pixel_texid >= 2.0) {
                 pixel = get_pixel(image[2], pixel_texcoord);
-        }
-
-        if(pixel_texid >= 1.0) {
+        } else if(pixel_texid >= 1.0) {
                 pixel = get_pixel(image[1], pixel_texcoord);
-        }
-
-        if(pixel_texid >= 0.0) {
+        } else if(pixel_texid >= 0.0) {
                 pixel = get_pixel(image[0], pixel_texcoord);
         }
 

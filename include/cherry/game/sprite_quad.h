@@ -30,6 +30,12 @@ void sprite_quad_set_scale(struct sprite_quad *p, union vec3 scale);
 
 void sprite_quad_set_rotation(struct sprite_quad *p, float rotation);
 
+void sprite_quad_set_color(struct sprite_quad *p, union vec4 color);
+
+void sprite_quad_request_update(struct sprite_quad *p);
+
 void sprite_quad_update(struct sprite_quad *p);
+
+void sprite_quad_recycle(struct sprite_quad *p);
 
 #endif

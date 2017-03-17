@@ -193,14 +193,16 @@ struct sprite_quad {
                 union vec3                              scale;
                 union vec4                              scale_expanded;
         };
+        union vec4                                      color;
         union {
                 struct {
                         struct node_data_segment        *seg_v1;
                         struct node_data_segment        *seg_v2;
                         struct node_data_segment        *seg_v3;
                         struct node_data_segment        *seg_texcoord;
+                        struct node_data_segment        *seg_color;
                 };
-                struct node_data_segment                *seg[4];
+                struct node_data_segment                *seg[5];
         };
         struct node_3d_color                            *node;
         struct texture_frame                            *current_frame;
