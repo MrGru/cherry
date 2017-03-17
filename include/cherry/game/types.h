@@ -173,6 +173,12 @@ struct effect_star {
         struct action_key                               move_key;
 };
 
+struct sprite_quad_context {
+        struct list_head        free_list;
+        struct list_head        use_list;
+        struct list_head        update_list;
+};
+
 struct sprite_quad {
         struct list_head                                head;
         struct list_head                                update_head;
@@ -199,6 +205,7 @@ struct sprite_quad {
         struct node_3d_color                            *node;
         struct texture_frame                            *current_frame;
         struct action_key                               key;
+        struct sprite_quad_context                      *context;
 };
 
 enum {
@@ -233,9 +240,13 @@ struct game {
         /*
          * background effect
          */
-        struct list_head                free_background_effect_list;
-        struct list_head                using_background_effect_list;
-        struct list_head                updating_background_effect_list;
+        union {
+                struct {
+                        struct sprite_quad_context      low_background_context;
+                        struct sprite_quad_context      middle_background_context;
+                };
+                struct sprite_quad_context      sprite_quad_context_list[2];
+        } __attribute__((packed));
 
         struct list_head                touching_gem_list;
 

@@ -85,6 +85,14 @@ void render_content_set_texture(struct render_content *content, u16 index, struc
         array_set(content->textures, index, &t);
 }
 
+struct texture *render_content_get_texture(struct render_content *content, u16 index)
+{
+        if(content->textures->len > index) {
+                return array_get(content->textures, struct texture *, index);
+        }
+        return NULL;
+}
+
 void render_content_set_atlas(struct render_content *content, u16 index, char *atlas_path)
 {
         struct map *atlas                       = map_alloc(sizeof(struct texture_frame));
