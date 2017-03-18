@@ -220,7 +220,7 @@ vertex ColorInOut vertex_3d_color(constant InVertex *vertex_array [[ buffer(0) ]
     out.texid                   = int(texcoordss[iid / divisor[10]][3]);
     
     float4x4 inv                = matrix4_transpose(matrix4_inverse(transform));
-    float3 pixel_normal         = float3x3(float3(inv[0].xyz), float3(inv[1].xyz), float3(inv[2].xyz)) * normal_i;
+    float3 pixel_normal         = float3x3(inv[0].xyz, inv[1].xyz, inv[2].xyz) * normal_i;
     float3 norm                 = normalize(pixel_normal);
     float3 result               = float3(0);
 
@@ -259,23 +259,32 @@ fragment float4 fragment_3d_color(ColorInOut in [[stage_in]],
                              )
 {
     float4 pixel;
-
-    if(in.texid >= 7) {
-        pixel = texture7.sample(texSampler0, in.texcoord);
-    } else if(in.texid >= 6) {
-        pixel = texture6.sample(texSampler0, in.texcoord);
-    } else if(in.texid >= 5) {
-        pixel = texture5.sample(texSampler0, in.texcoord);
-    } else if(in.texid >= 4) {
-        pixel = texture4.sample(texSampler0, in.texcoord);
-    } else if(in.texid >= 3) {
-        pixel = texture3.sample(texSampler0, in.texcoord);
-    } else if(in.texid >= 2) {
-        pixel = texture2.sample(texSampler0, in.texcoord);
-    } else if(in.texid >= 1) {
-        pixel = texture1.sample(texSampler0, in.texcoord);
-    } else {
-        pixel = texture0.sample(texSampler0, in.texcoord);
+    
+    switch(in.texid) {
+        case 7:
+            pixel = texture7.sample(texSampler0, in.texcoord);
+            break;
+        case 6:
+            pixel = texture6.sample(texSampler0, in.texcoord);
+            break;
+        case 5:
+            pixel = texture5.sample(texSampler0, in.texcoord);
+            break;
+        case 4:
+            pixel = texture4.sample(texSampler0, in.texcoord);
+            break;
+        case 3:
+            pixel = texture3.sample(texSampler0, in.texcoord);
+            break;
+        case 2:
+            pixel = texture2.sample(texSampler0, in.texcoord);
+            break;
+        case 1:
+            pixel = texture1.sample(texSampler0, in.texcoord);
+            break;
+        case 0:
+            pixel = texture0.sample(texSampler0, in.texcoord);
+            break;
     }
 
     return in.color * pixel;

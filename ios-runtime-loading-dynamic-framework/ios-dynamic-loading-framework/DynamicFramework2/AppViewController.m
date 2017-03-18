@@ -141,7 +141,7 @@
     [super viewDidLoad];
 
     AppView *renderView = (AppView *)self.view;
-    renderView.contentScaleFactor = 2.75;
+//    renderView.contentScaleFactor = 2.75;
     renderView.delegate = _renderer;
 
     // load all renderer assets before starting game loop
