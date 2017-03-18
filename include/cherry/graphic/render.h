@@ -40,7 +40,7 @@ void render_content_set_bitmap_font(struct render_content *content, u16 index, c
 
 struct texture_frame *render_content_get_texture_frame(struct render_content *content, char *atlas, size_t atlas_len, char *key, size_t key_len);
 
-struct texture_frame *render_content_get_font_frame(struct render_content *content, char *font_path, size_t font_path_len, char* character, size_t character_len);
+struct font_frame *render_content_get_font_frame(struct render_content *content, char *font_path, size_t font_path_len, u32 code);
 
 struct texture *render_content_get_texture(struct render_content *content, u16 index);
 

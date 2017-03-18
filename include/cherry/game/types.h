@@ -183,6 +183,7 @@ struct sprite_quad {
         struct list_head                                head;
         struct list_head                                update_head;
 
+        union mat4                                      super_transform;
         union mat4                                      transform;
         union {
                 union vec3                              position;
@@ -208,6 +209,50 @@ struct sprite_quad {
         struct texture_frame                            *current_frame;
         struct action_key                               key;
         struct sprite_quad_context                      *context;
+};
+
+struct sprite_quad_text_context {
+        struct list_head        use_list;
+        struct list_head        update_list;
+};
+
+enum {
+        TEXT_ALIGN_LEFT,
+        TEXT_ALIGN_RIGHT,
+        TEXT_ALIGN_CENTER,
+        TEXT_ALIGN_BALANCE
+};
+
+struct sprite_quad_text {
+        struct list_head                        head;
+        struct list_head                        update_head;
+
+        struct array                            *quads;
+        struct sprite_quad_context              *content_context;
+        struct sprite_quad_text_context         *context;
+        struct string                           *text;
+        float                                   text_size;
+        int                                     text_align;
+
+        union {
+                struct {
+                        float                   width;
+                        float                   height;
+                };
+                union vec2                      size;
+        };
+
+
+        union {
+                union vec3                              position;
+                union vec4                              position_expanded;
+        };
+        union vec4                                      rotate;
+        union {
+                union vec3                              scale;
+                union vec4                              scale_expanded;
+        };
+        union vec4                                      color;
 };
 
 enum {
@@ -250,6 +295,8 @@ struct game {
                 };
                 struct sprite_quad_context      sprite_quad_context_list[3];
         } __attribute__((packed));
+
+        struct sprite_quad_text_context text_context;
 
         struct list_head                touching_gem_list;
 

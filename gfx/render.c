@@ -95,7 +95,7 @@ struct texture *render_content_get_texture(struct render_content *content, u16 i
 
 void render_content_set_bitmap_font(struct render_content *content, u16 index, char *font_path)
 {
-        struct map *font                        = map_alloc(sizeof(struct texture_frame));
+        struct map *font                        = map_alloc(sizeof(struct font_frame));
         struct xml_element *xml                 = xml_parse(font_path);
 
         i16 size;
@@ -154,7 +154,7 @@ void render_content_set_bitmap_font(struct render_content *content, u16 index, c
                 ff.yoffset      = atoi(xml_find_attribute(character, "xoffset")->value->ptr);
                 ff.xadvance     = atoi(xml_find_attribute(character, "xadvance")->value->ptr);
                 struct xml_attribute *id = xml_find_attribute(character, "id");
-                int n = atoi(id->value->ptr);
+                u32 n = atoi(id->value->ptr);
                 map_set(font, &n, sizeof(n), &ff);
         }
 
@@ -213,6 +213,16 @@ struct texture_frame *render_content_get_texture_frame(struct render_content *co
                 tf = map_get_pointer(m, key, key_len);
         }
         return tf;
+}
+
+struct font_frame *render_content_get_font_frame(struct render_content *content, char *font_path, size_t font_path_len, u32 code)
+{
+        struct font_frame *ff = NULL;
+        struct map *m = map_get(content->atlases, struct map *, font_path, font_path_len);
+        if(m) {
+                ff = map_get_pointer(m, &code, sizeof(code));
+        }
+        return ff;
 }
 
 void render_content_free(struct render_content *content)

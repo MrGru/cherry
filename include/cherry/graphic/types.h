@@ -295,14 +295,20 @@ struct texture_frame {
 };
 
 struct font_frame {
-        i16             x;
-        i16             y;
-        i16             width;
-        i16             height;
-        i16             tex_width;
-        i16             tex_height;
-        i16             texid;
-        
+        union {
+                struct {
+                        i16             x;
+                        i16             y;
+                        i16             width;
+                        i16             height;
+                        i16             tex_width;
+                        i16             tex_height;
+                        i16             texid;
+                };
+                struct texture_frame    frame;
+        };
+
+
         i16             xoffset;
         i16             yoffset;
         i16             xadvance;

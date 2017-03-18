@@ -57,4 +57,61 @@ static inline int __check_utf8_bytes(char *c) {
         return 1;
 }
 
+static inline u32 __get_utf8_code_point(u8 *c, int head_size)
+{
+        u32 code_point = 0;
+        u32 val = (u32)(*c);
+
+        switch (head_size) {
+                case 1:
+                        val = val & 0x7F;
+                        code_point |= val;
+                        break;
+                case 2:
+                        val = (val & 0x1F) << 6;
+                        code_point |= val;
+
+                        c++;
+                        val = (u32)(*c);
+                        val = val & 0x3F;
+                        code_point |= val;
+                        break;
+                case 3:
+                        val = (val & 0xF) << 12;
+                        code_point |= val;
+
+                        c++;
+                        val = (u32)(*c);
+                        val = (val & 0x3F) << 6;
+                        code_point |= val;
+
+                        c++;
+                        val = (u32)(*c);
+                        val = val & 0x3F;
+                        code_point |= val;
+                        break;
+                case 4:
+                        val = (val & 0x7) << 18;
+                        code_point |= val;
+
+                        c++;
+                        val = (u32)(*c);
+                        val = (val & 0x3F) << 12;
+                        code_point |= val;
+
+                        c++;
+                        val = (u32)(*c);
+                        val = (val & 0x3F) << 6;
+                        code_point |= val;
+
+                        c++;
+                        val = (u32)(*c);
+                        val = (val & 0x3F) << 6;
+                        code_point |= val;
+                        break;
+        }
+
+        return code_point;
+}
+
 #endif
