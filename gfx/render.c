@@ -63,6 +63,7 @@ struct render_content *render_content_alloc(struct render_queue *queue,
         }
         p->textures             = array_alloc(sizeof(struct texture *), ORDERED);
         p->atlases              = map_alloc(sizeof(struct map *));
+        p->fonts                = map_alloc(sizeof(struct map *));
         p->vertice              = vertice;
         p->max_instances        = max_instances;
         p->instance_multiple    = instance_multiple;
@@ -93,9 +94,27 @@ struct texture *render_content_get_texture(struct render_content *content, u16 i
         return NULL;
 }
 
+static struct font_frame *__font_frame_alloc()
+{
+        struct font_frame *p    = smalloc(sizeof(struct font_frame));
+        p->kernings             = map_alloc(sizeof(u32));
+        return p;
+}
+
+static void __font_frame_free(struct font_frame *p)
+{
+        map_free(p->kernings);
+        sfree(p);
+}
+
+struct kerning_val {
+        u32 next_code;
+        i32 amount;
+};
+
 void render_content_set_bitmap_font(struct render_content *content, u16 index, char *font_path)
 {
-        struct map *font                        = map_alloc(sizeof(struct font_frame));
+        struct map *font                        = map_alloc(sizeof(struct font_frame *));
         struct xml_element *xml                 = xml_parse(font_path);
 
         i16 size;
@@ -131,41 +150,80 @@ void render_content_set_bitmap_font(struct render_content *content, u16 index, c
         render_content_set_texture(content, index, texture_alloc_file(tex_name->ptr));
         string_free(tex_name);
 
+        struct list_head *head;
+        /*
+         * load kernings
+         */
+        struct xml_element *kernings                    = xml_find(xml, "kernings", 0);
+        struct map *kmap                                = map_alloc(sizeof(struct array *));
+        if(kernings) {
+                list_for_each(head, &kernings->children) {
+                        struct xml_element *kerning     = (struct xml_element *)
+                                ((void *)head - offsetof(struct xml_element, element_head));
+                        u32 first                       = atoi(xml_find_attribute(kerning, "first")->value->ptr);
+                        u32 second                      = atoi(xml_find_attribute(kerning, "second")->value->ptr);
+                        i32 amount                      = atoi(xml_find_attribute(kerning, "amount")->value->ptr);
+                        struct array *target            = NULL;
+                        if( ! map_has_key(kmap, &first, sizeof(first))) {
+                                target = array_alloc(sizeof(struct kerning_val), ORDERED);
+                                map_set(kmap, &first, sizeof(first), &target);
+                        }
+                        target                          = map_get(kmap, struct array *, &first, sizeof(first));
+                        struct kerning_val kv           = {
+                                .next_code      = second,
+                                .amount         = amount
+                        };
+                        array_push(target, &kv);
+                }
+        }
+
         /*
          * load frame
          */
-        struct xml_element *chars                      = xml_find(xml, "chars", 0);
-        struct list_head *head;
+        struct xml_element *chars                       = xml_find(xml, "chars", 0);
         list_for_each(head, &chars->children) {
                 struct xml_element *character = (struct xml_element *)
                         ((void *)head - offsetof(struct xml_element, element_head));
-                struct font_frame ff;
-                ff.size         = size;
-                ff.line_height  = line_height;
-                ff.base         = base;
-                ff.tex_width    = tex_width;
-                ff.tex_height   = tex_height;
-                ff.texid        = index;
-                ff.x            = atoi(xml_find_attribute(character, "x")->value->ptr);
-                ff.y            = atoi(xml_find_attribute(character, "y")->value->ptr);
-                ff.width        = atoi(xml_find_attribute(character, "width")->value->ptr);
-                ff.height       = atoi(xml_find_attribute(character, "height")->value->ptr);
-                ff.xoffset      = atoi(xml_find_attribute(character, "xoffset")->value->ptr);
-                ff.yoffset      = atoi(xml_find_attribute(character, "yoffset")->value->ptr);
-                ff.xadvance     = atoi(xml_find_attribute(character, "xadvance")->value->ptr);
+                struct font_frame *ff = __font_frame_alloc();
+                ff->size         = size;
+                ff->line_height  = line_height;
+                ff->base         = base;
+                ff->tex_width    = tex_width;
+                ff->tex_height   = tex_height;
+                ff->texid        = index;
+                ff->x            = atoi(xml_find_attribute(character, "x")->value->ptr);
+                ff->y            = atoi(xml_find_attribute(character, "y")->value->ptr);
+                ff->width        = atoi(xml_find_attribute(character, "width")->value->ptr);
+                ff->height       = atoi(xml_find_attribute(character, "height")->value->ptr);
+                ff->xoffset      = atoi(xml_find_attribute(character, "xoffset")->value->ptr);
+                ff->yoffset      = atoi(xml_find_attribute(character, "yoffset")->value->ptr);
+                ff->xadvance     = atoi(xml_find_attribute(character, "xadvance")->value->ptr);
                 struct xml_attribute *id = xml_find_attribute(character, "id");
                 u32 n           = atoi(id->value->ptr);
-                ff.code         = n;
-                map_set(font, &n, sizeof(n), &ff);
+                ff->code         = n;
+                if(!map_has_key(font, &n, sizeof(n))) {
+                        map_set(font, &n, sizeof(n), &ff);
+
+                        struct array *kvarray = map_get(kmap, struct array *, &n, sizeof(n));
+                        if(kvarray) {
+                                struct kerning_val *kv;
+                                array_for_each(kv, kvarray) {
+                                        map_set(ff->kernings, &kv->next_code, sizeof(kv->next_code), &kv->amount);
+                                }
+                        }
+                } else {
+                        __font_frame_free(ff);
+                }
         }
 
         xml_free(xml);
-        map_set(content->atlases, font_path, strlen(font_path), &font);
+        map_deep_free(kmap, struct array *, array_free);
+        map_set(content->fonts, font_path, strlen(font_path), &font);
 }
 
 void render_content_set_atlas(struct render_content *content, u16 index, char *atlas_path)
 {
-        struct map *atlas                       = map_alloc(sizeof(struct texture_frame));
+        struct map *atlas                       = map_alloc(sizeof(struct texture_frame *));
         struct xml_element *xml                 = xml_parse(atlas_path);
         struct xml_element *TextureAtlas        = xml_find(xml, "TextureAtlas", 0);
         struct xml_attribute *TexturePath       = xml_find_attribute(TextureAtlas, "imagePath");
@@ -192,14 +250,14 @@ void render_content_set_atlas(struct render_content *content, u16 index, char *a
                 struct xml_attribute *sprite_y          = xml_find_attribute(sprite, "y");
                 struct xml_attribute *sprite_width      = xml_find_attribute(sprite, "w");
                 struct xml_attribute *sprite_height     = xml_find_attribute(sprite, "h");
-                struct texture_frame tf;
-                tf.x            = atoi(sprite_x->value->ptr);
-                tf.y            = atoi(sprite_y->value->ptr);
-                tf.width        = atoi(sprite_width->value->ptr);
-                tf.height       = atoi(sprite_height->value->ptr);
-                tf.tex_width    = tex_width;
-                tf.tex_height   = tex_height;
-                tf.texid        = index;
+                struct texture_frame *tf = smalloc(sizeof(struct texture_frame));
+                tf->x            = atoi(sprite_x->value->ptr);
+                tf->y            = atoi(sprite_y->value->ptr);
+                tf->width        = atoi(sprite_width->value->ptr);
+                tf->height       = atoi(sprite_height->value->ptr);
+                tf->tex_width    = tex_width;
+                tf->tex_height   = tex_height;
+                tf->texid        = index;
                 map_set(atlas, sprite_name->value->ptr, sprite_name->value->len, &tf);
         }
         xml_free(xml);
@@ -211,7 +269,7 @@ struct texture_frame *render_content_get_texture_frame(struct render_content *co
         struct texture_frame *tf = NULL;
         struct map *m = map_get(content->atlases, struct map *, atlas, atlas_len);
         if(m) {
-                tf = map_get_pointer(m, key, key_len);
+                tf = map_get(m, struct texture_frame *, key, key_len);
         }
         return tf;
 }
@@ -219,11 +277,21 @@ struct texture_frame *render_content_get_texture_frame(struct render_content *co
 struct font_frame *render_content_get_font_frame(struct render_content *content, char *font_path, size_t font_path_len, u32 code)
 {
         struct font_frame *ff = NULL;
-        struct map *m = map_get(content->atlases, struct map *, font_path, font_path_len);
+        struct map *m = map_get(content->fonts, struct map *, font_path, font_path_len);
         if(m) {
-                ff = map_get_pointer(m, &code, sizeof(code));
+                ff = map_get(m, struct font_frame *,&code, sizeof(code));
         }
         return ff;
+}
+
+static void __atlas_free(struct map *atlas)
+{
+        map_deep_free(atlas, struct texture_frame *, sfree);
+}
+
+static void __font_free(struct map *font)
+{
+        map_deep_free(font, struct font_frame *, __font_frame_free);
 }
 
 void render_content_free(struct render_content *content)
@@ -233,7 +301,8 @@ void render_content_free(struct render_content *content)
                 device_buffer_group_free(content->groups[i]);
         }
         array_deep_free_safe(content->textures, struct texture *, texture_free);
-        map_deep_free(content->atlases, struct map *, map_free);
+        map_deep_free(content->atlases, struct map *, __atlas_free);
+        map_deep_free(content->fonts, struct map *, __font_free);
 
         struct list_head *head;
         list_while_not_singular(head, &content->node_list) {

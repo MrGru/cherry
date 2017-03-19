@@ -316,6 +316,8 @@ struct font_frame {
         i16             base;
         i16             size;
         u32             code;
+
+        struct map    *kernings;
 };
 
 struct camera {
@@ -339,6 +341,7 @@ struct render_content {
         struct device_buffer_group      *groups[BUFFERS];
         struct array                    *textures;
         struct map                      *atlases;
+        struct map                      *fonts;
 
         u32                             vertice;
         u32                             max_instances;

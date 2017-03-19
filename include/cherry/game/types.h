@@ -220,6 +220,7 @@ struct sprite_quad_text_context {
 enum {
         TEXT_ALIGN_LEFT,
         TEXT_ALIGN_RIGHT,
+        TEXT_ALIGN_CENTER,
         TEXT_ALIGN_BALANCE
 };
 
