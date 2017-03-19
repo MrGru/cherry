@@ -315,6 +315,7 @@ struct font_frame {
         i16             line_height;
         i16             base;
         i16             size;
+        u32             code;
 };
 
 struct camera {

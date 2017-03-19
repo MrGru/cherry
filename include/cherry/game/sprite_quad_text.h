@@ -17,7 +17,7 @@
 #include <cherry/game/types.h>
 
 struct sprite_quad_text *sprite_quad_text_alloc(struct sprite_quad_text_context *ctx,
-        struct sprite_quad_context *content_ctx, float text_size);
+        struct sprite_quad_context *content_ctx, float text_size, char *font);
 
 void sprite_quad_text_free(struct sprite_quad_text *p);
 

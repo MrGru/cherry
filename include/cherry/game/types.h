@@ -184,6 +184,7 @@ struct sprite_quad {
         struct list_head                                update_head;
 
         union mat4                                      super_transform;
+        union mat4                                      last_transform;
         union mat4                                      transform;
         union {
                 union vec3                              position;
@@ -219,7 +220,6 @@ struct sprite_quad_text_context {
 enum {
         TEXT_ALIGN_LEFT,
         TEXT_ALIGN_RIGHT,
-        TEXT_ALIGN_CENTER,
         TEXT_ALIGN_BALANCE
 };
 
@@ -231,6 +231,7 @@ struct sprite_quad_text {
         struct sprite_quad_context              *content_context;
         struct sprite_quad_text_context         *context;
         struct string                           *text;
+        struct string                           *font;
         float                                   text_size;
         int                                     text_align;
 
@@ -253,6 +254,8 @@ struct sprite_quad_text {
                 union vec4                              scale_expanded;
         };
         union vec4                                      color;
+
+        struct action_key                               key;
 };
 
 enum {
@@ -296,9 +299,9 @@ struct game {
                 struct sprite_quad_context      sprite_quad_context_list[3];
         } __attribute__((packed));
 
-        struct sprite_quad_text_context text_context;
-
         struct list_head                touching_gem_list;
+
+        struct sprite_quad_text_context text_context;
 
         u8                              connecting_gems_number;
 

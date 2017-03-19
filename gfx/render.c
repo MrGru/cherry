@@ -151,10 +151,11 @@ void render_content_set_bitmap_font(struct render_content *content, u16 index, c
                 ff.width        = atoi(xml_find_attribute(character, "width")->value->ptr);
                 ff.height       = atoi(xml_find_attribute(character, "height")->value->ptr);
                 ff.xoffset      = atoi(xml_find_attribute(character, "xoffset")->value->ptr);
-                ff.yoffset      = atoi(xml_find_attribute(character, "xoffset")->value->ptr);
+                ff.yoffset      = atoi(xml_find_attribute(character, "yoffset")->value->ptr);
                 ff.xadvance     = atoi(xml_find_attribute(character, "xadvance")->value->ptr);
                 struct xml_attribute *id = xml_find_attribute(character, "id");
-                u32 n = atoi(id->value->ptr);
+                u32 n           = atoi(id->value->ptr);
+                ff.code         = n;
                 map_set(font, &n, sizeof(n), &ff);
         }
 
