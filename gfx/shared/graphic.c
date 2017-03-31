@@ -11,19 +11,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GRAPHIC_SHADER_H__
-#define __CHERRY_GRAPHIC_SHADER_H__
+#include <cherry/graphic/graphic.h>
+#include <cherry/math/math.h>
 
-#include <cherry/graphic/types.h>
-
-struct shader *shader_alloc(char *vert, char *frag);
-
-void shader_free(struct shader *p);
-
-#if   GFX == OGL
-void shader_use(struct shader *p);
-
-struct string *shader_read_file(char *file);
-#endif
-
-#endif
+int video_width                 = 800;
+int video_height                = 480;
+int shadow_width                = 1024;

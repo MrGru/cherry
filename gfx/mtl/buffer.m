@@ -91,6 +91,15 @@ void device_buffer_group_add(struct device_buffer_group *g, struct device_buffer
         array_push(g->buffers, &b);
 }
 
+void device_buffer_group_clear(struct device_buffer_group *g)
+{
+        struct device_buffer **b;
+        array_for_each(b, g->buffers) {
+                device_buffer_free(*b);
+        }
+        array_force_len(g->buffers, 0);
+}
+
 /*
  * deallocate device buffer group
  */

@@ -38,7 +38,7 @@ struct texture *texture_alloc_depth(u16 width, u16 height);
 void texture_free(struct texture *p);
 
 #if GFX == OGL
-void texture_bind(struct texture *p);
+void texture_bind(struct texture *p, u32 active_id);
 #endif
 
 /*

@@ -11,19 +11,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GRAPHIC_SHADER_H__
-#define __CHERRY_GRAPHIC_SHADER_H__
+#ifndef __CHERRY_GAME_GAME_H__
+#define __CHERRY_GAME_GAME_H__
 
-#include <cherry/graphic/types.h>
+#include <types.h>
 
-struct shader *shader_alloc(char *vert, char *frag);
+struct game *game_alloc();
 
-void shader_free(struct shader *p);
+void game_update(struct game *p);
 
-#if   GFX == OGL
-void shader_use(struct shader *p);
+void game_render(struct game *p);
 
-struct string *shader_read_file(char *file);
-#endif
+void game_read_event(struct game *p, struct event *e);
+
+void game_free(struct game *p);
+
+void game_resize(struct game *p, int width, int height);
 
 #endif

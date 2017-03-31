@@ -26,36 +26,25 @@
  */
 static struct map *texture_cache = NULL;
 
-/*
- * priority queue to maintain texture binding chain
- * application may bind several textures for a render pass so
- * for a render cycle :
- * - if number of textures is smaller than max_texture_units then
- * priority queue can prevent rebind textures
- * - if number of textures is greater than max_texture_units then
- * priority queue can maintain binding chain
- */
-static struct list_head bind_list = LIST_HEAD_INIT(bind_list);
-static struct array *remain_binds = NULL;
+static struct texture *bindings[8] = {
+        NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL
+};
 
 static void texture_cache_dispose()
 {
         map_deep_free(texture_cache, struct texture *, texture_free);
-        array_free(remain_binds);
         texture_cache = NULL;
-        remain_binds = NULL;
+
+        int i;
+        for_i(i, sizeof(bindings) / sizeof(struct texture *)) {
+                bindings[i] = NULL;
+        }
 }
 
 static void texture_cache_setup()
 {
         if(!texture_cache) {
                 texture_cache = map_alloc(sizeof(struct texture *));
-                remain_binds = array_alloc(sizeof(i16), UNORDERED);
-                /* reserve binding plots */
-                i16 i;
-                for_i(i, opengl_max_textures) {
-                        array_push(remain_binds, &i);
-                }
                 cache_add(texture_cache_dispose);
         }
 }
@@ -91,20 +80,12 @@ struct texture *texture_alloc_image(struct image *p)
         texture_cache_setup();
 
         i16 bid;
-        struct texture *t = NULL;
-
-        if(remain_binds->len > 0) {
-                bid = array_get(remain_binds, i16, 0);
-        } else {
-                /* use lowest priority texture in queue */
-                t = (struct texture *)(bind_list.prev - offsetof(struct texture, bind_head));
-                bid = t->active_id;
-        }
+        struct texture *t = bindings[0];
 
         /* allocate texture and data */
         struct texture *r = smalloc(sizeof(struct texture));
         glGenTextures(1, &r->id);
-        glActiveTexture(GL_TEXTURE0 + bid);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, r->id);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width(p),
                 image_height(p), 0, image_type(p), GL_UNSIGNED_BYTE, image_pixels(p));
@@ -117,7 +98,6 @@ struct texture *texture_alloc_image(struct image *p)
         r->height       = image_height(p);
         r->ref          = 0;
         r->active_id    = -1;
-        INIT_LIST_HEAD(&r->bind_head);
 
         /* rebind previous texture */
         if(t) glBindTexture(GL_TEXTURE_2D, t->id);
@@ -132,20 +112,12 @@ struct texture *texture_alloc_depth(u16 width, u16 height)
         texture_cache_setup();
 
         i16 bid;
-        struct texture *t = NULL;
-
-        if(remain_binds->len > 0) {
-                bid = array_get(remain_binds, i16, 0);
-        } else {
-                /* use lowest priority texture in queue */
-                t = (struct texture *)(bind_list.prev - offsetof(struct texture, bind_head));
-                bid = t->active_id;
-        }
+        struct texture *t = bindings[0];
         /* allocate texture and data */
 
         struct texture *r = smalloc(sizeof(struct texture));
         glGenTextures(1, &r->id);
-        glActiveTexture(GL_TEXTURE0 + bid);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, r->id);
 
         if(depth_texture_enable) {
@@ -163,7 +135,6 @@ struct texture *texture_alloc_depth(u16 width, u16 height)
         r->height       = height;
         r->ref          = 0;
         r->active_id    = -1;
-        INIT_LIST_HEAD(&r->bind_head);
 
         /* rebind previous texture */
         if(t) glBindTexture(GL_TEXTURE_2D, t->id);
@@ -179,8 +150,7 @@ void texture_free(struct texture *p)
         p->ref--;
         if(p->ref <= 0) {
                 if(p->active_id >= 0) {
-                        array_push(remain_binds, &p->active_id);
-                        list_del(&p->bind_head);
+                        bindings[p->active_id] = NULL;
                 }
                 glDeleteTextures(1, &p->id);
                 sfree(p);
@@ -190,40 +160,19 @@ void texture_free(struct texture *p)
 /*
  * bind texture
  */
-void texture_bind(struct texture *p)
+void texture_bind(struct texture *p, u32 active_id)
 {
+        if(p->active_id == active_id) return;
+
         /* if texture is already binded, set it's priority is highest */
         if(p->active_id >= 0)
         {
-                list_del(&p->bind_head);
-                list_add(&p->bind_head, &bind_list);
-                return;
+                bindings[p->active_id] = NULL;
         }
 
-        /* id to bind */
-        i16 bid;
-
-        if(remain_binds->len) {
-                /* reserve one remain id */
-                bid = array_get(remain_binds, i16, remain_binds->len - 1);
-                array_remove(remain_binds, remain_binds->len - 1);
-        } else {
-                /*
-                 * all plots are used, I decide to bind this texture to active_id
-                 * of lowest priority texture in queue because there is a chain
-                 * of textures needing to bind
-                 */
-                 struct texture *lowest = (struct texture *)(bind_list.prev - offsetof(struct texture, bind_head));
-                 i16 bid = lowest->active_id;
-                 lowest->active_id = -1;
-                 list_del(&lowest->bind_head);
-        }
-        /* bind texture to bid */
-        p->active_id = bid;
-        glActiveTexture(GL_TEXTURE0 + bid);
+        p->active_id = active_id;
+        glActiveTexture(GL_TEXTURE0 + active_id);
         glBindTexture(GL_TEXTURE_2D, p->id);
-        /* set texture's priority is highest in queue to maintain binding chain */
-        list_add(&p->bind_head, &bind_list);
 }
 
 /*

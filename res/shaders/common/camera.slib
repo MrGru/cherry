@@ -1,0 +1,5 @@
+struct camera_uniform {
+        mat4    project;
+        mat4    view;
+        vec3    position;
+};

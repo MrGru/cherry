@@ -13,6 +13,7 @@
  */
 #include <cherry/memory.h>
 #include <cherry/platform.h>
+#include <game.h>
 
 #if OS == WEB
         #include <GL/glew.h>
@@ -27,7 +28,6 @@
         #include <SDL2/SDL_image.h>
 #endif
 
-#include <cherry/game/game.h>
 #include <cherry/string.h>
 #include <cherry/stdio.h>
 #include <cherry/math/math.h>
@@ -290,9 +290,9 @@ int main(int args, char **argv)
                         }
                 }
                 game_update(game);
-                if(game->can_draw) {
+                // if(game->can_draw) {
                         game_render(game);
-                }
+                // }
                 SDL_GL_SwapWindow(window);
         }
 exit:;

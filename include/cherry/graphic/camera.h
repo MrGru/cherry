@@ -16,9 +16,11 @@
 
 #include <cherry/graphic/types.h>
 
-struct camera *camera_alloc(union mat4 lookat);
+struct camera *camera_alloc(union mat4 project, union mat4 lookat);
 
 void camera_free(struct camera *p);
+
+void camera_set_project(struct camera *p, union mat4 project);
 
 void camera_move_around(struct camera *p, union vec3 offset);
 

@@ -11,19 +11,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GRAPHIC_SHADER_H__
-#define __CHERRY_GRAPHIC_SHADER_H__
+#ifndef __CHERRY_GAME_TYPES_H__
+#define __CHERRY_GAME_TYPES_H__
 
 #include <cherry/graphic/types.h>
 
-struct shader *shader_alloc(char *vert, char *frag);
-
-void shader_free(struct shader *p);
-
-#if   GFX == OGL
-void shader_use(struct shader *p);
-
-struct string *shader_read_file(char *file);
-#endif
+struct game {
+        union {
+                struct {
+                        struct node_manager     *manager_game;
+                        struct node_manager     *manager_hub;
+                };
+                struct node_manager             *manager[2];
+        };
+        struct camera           *game_camera;
+        struct camera           *hub_camera;
+};
 
 #endif

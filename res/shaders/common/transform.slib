@@ -1,0 +1,3 @@
+struct transform_uniform {
+        mat4    transform;
+};

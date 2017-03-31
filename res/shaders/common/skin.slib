@@ -1,0 +1,79 @@
+#define BONES __
+#define WEIGHTS __
+
+#if WEIGHTS >= 1
+input vec4      weight_01;
+#endif
+
+#if WEIGHTS >= 3
+input vec4      weight_23;
+#endif
+
+#if WEIGHTS >= 5
+input vec4      weight_45;
+#endif
+
+#if WEIGHTS >= 7
+input vec4      weight_67;
+#endif
+
+uniform mat4    bones[BONES];
+
+struct skin_result {
+        vec4 skin_pos;
+        vec4 skin_norm;
+};
+
+skin_result skin_calculate(vec3 pos, vec3 norm)
+{
+        vec4 pos_exp    = vec4(pos, 1.0);
+        vec4 norm_exp   = vec4(norm, 1.0);
+
+        skin_result res;
+#if WEIGHTS == 0
+        res.skin_pos    = pos_exp;
+        res.skin_norm   = norm_exp;
+#endif
+
+#if WEIGHTS >= 1
+        res.skin_pos    = bones[int(weight_01[0])] * pos_exp * weight_01[1];
+        res.skin_norm   = bones[int(weight_01[0])] * norm_exp * weight_01[1];
+#endif
+
+#if WEIGHTS >= 2
+        res.skin_pos    = bones[int(weight_01[2])] * pos_exp * weight_01[3] + res.skin_pos;
+        res.skin_norm   = bones[int(weight_01[2])] * norm_exp * weight_01[3] + res.skin_norm;
+#endif
+
+#if WEIGHTS >= 3
+        res.skin_pos    = bones[int(weight_23[0])] * pos_exp * weight_23[1] + res.skin_pos;
+        res.skin_norm   = bones[int(weight_23[0])] * norm_exp * weight_23[1] + res.skin_norm;
+#endif
+
+#if WEIGHTS >= 4
+        res.skin_pos    = bones[int(weight_23[2])] * pos_exp * weight_23[3] + res.skin_pos;
+        res.skin_norm   = bones[int(weight_23[2])] * norm_exp * weight_23[3] + res.skin_norm;
+#endif
+
+#if WEIGHTS >= 5
+        res.skin_pos    = bones[int(weight_45[0])] * pos_exp * weight_45[1] + res.skin_pos;
+        res.skin_norm   = bones[int(weight_45[0])] * norm_exp * weight_45[1] + res.skin_norm;
+#endif
+
+#if WEIGHTS >= 6
+        res.skin_pos    = bones[int(weight_45[2])] * pos_exp * weight_45[3] + res.skin_pos;
+        res.skin_norm   = bones[int(weight_45[2])] * norm_exp * weight_45[3] + res.skin_norm;
+#endif
+
+#if WEIGHTS >= 7
+        res.skin_pos    = bones[int(weight_67[0])] * pos_exp * weight_67[1] + res.skin_pos;
+        res.skin_norm   = bones[int(weight_67[0])] * norm_exp * weight_67[1] + res.skin_norm;
+#endif
+
+#if WEIGHTS >= 8
+        res.skin_pos    = bones[int(weight_67[2])] * pos_exp * weight_67[3] + res.skin_pos;
+        res.skin_norm   = bones[int(weight_67[2])] * norm_exp * weight_67[3] + res.skin_norm;
+#endif
+
+        return res;
+}

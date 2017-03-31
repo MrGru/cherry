@@ -40,6 +40,7 @@ add_subdirectory(../audio ../${OUT}/audio)
 add_subdirectory(../xml ../${OUT}/xml)
 
 include_directories(../include)
+include_directories(../game_include)
 
 if(${BUILD_WEB} MATCHES "true")
         set(CMAKE_EXECUTABLE_SUFFIX ".html")

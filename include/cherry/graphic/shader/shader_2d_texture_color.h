@@ -11,19 +11,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GRAPHIC_SHADER_H__
-#define __CHERRY_GRAPHIC_SHADER_H__
+#ifndef __CHERRY_GRAPHIC_SHADER_SHADER_2D_TEXTURE_COLOR_H__
+#define __CHERRY_GRAPHIC_SHADER_SHADER_2D_TEXTURE_COLOR_H__
 
-#include <cherry/graphic/types.h>
+#include <cherry/graphic/shader/types.h>
 
-struct shader *shader_alloc(char *vert, char *frag);
-
-void shader_free(struct shader *p);
-
-#if   GFX == OGL
-void shader_use(struct shader *p);
-
-struct string *shader_read_file(char *file);
-#endif
+struct shader *shader_2d_texture_color_get();
 
 #endif

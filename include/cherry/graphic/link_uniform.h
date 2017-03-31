@@ -11,19 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GRAPHIC_SHADER_H__
-#define __CHERRY_GRAPHIC_SHADER_H__
+#ifndef __CHERRY_GRAPHIC_LINK_UNIFORM_H__
+#define __CHERRY_GRAPHIC_LINK_UNIFORM_H__
 
 #include <cherry/graphic/types.h>
 
-struct shader *shader_alloc(char *vert, char *frag);
+struct link_uniform *link_uniform_alloc();
 
-void shader_free(struct shader *p);
-
-#if   GFX == OGL
-void shader_use(struct shader *p);
-
-struct string *shader_read_file(char *file);
-#endif
+void link_uniform_free(struct link_uniform *p);
 
 #endif

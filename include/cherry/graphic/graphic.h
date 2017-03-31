@@ -103,8 +103,6 @@
 
 #endif
 
-float pack_rgb_to_float(int r, int g, int b);
-
 /*
  * screen width and height, application needs change these values
  */

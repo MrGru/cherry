@@ -36,6 +36,10 @@ void string_cat_int(struct string *p, int number);
 
 void string_replace(struct string *p, char *search, char *replace);
 
+void string_replace_direct(struct string *p, u32 index, u32 range, char *replace, u32 replace_len);
+
+void string_find(struct string *p, char *search, struct array *result);
+
 u8 string_contain(struct string *p, char *search);
 
 static inline int __check_utf8_bytes(char *c) {

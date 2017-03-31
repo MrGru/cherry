@@ -207,6 +207,22 @@ static u32 __string_find_occurence(struct string *s, char *search, u32 src_len, 
 	return occur;
 }
 
+void string_find(struct string *p, char *search, struct array *result)
+{
+        __string_find_occurence(p, search, strlen(search), result);
+}
+
+void string_replace_direct(struct string *p, u32 index, u32 range, char *replace, u32 replace_len)
+{
+        struct string *buff = __string_alloc(0);
+        __string_cat(buff, p->ptr, index);
+        __string_cat(buff, replace, replace_len);
+        __string_cat(buff, p->ptr + index + range, p->len - (index +range));
+        p->len = 0;
+        __string_cat(p, buff->ptr, buff->len);
+        __string_free(buff);
+}
+
 static void __string_replace_double_buffer(struct string *s, char* search,
         u32 src_len, char *replace, u32 rpl_len)
 {

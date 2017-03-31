@@ -69,6 +69,8 @@ struct device_buffer_group *device_buffer_group_alloc();
  */
 void device_buffer_group_add(struct device_buffer_group *g, struct device_buffer *b);
 
+void device_buffer_group_clear(struct device_buffer_group *g);
+
 #if GFX == OGL
 void device_buffer_group_bind_construct(struct device_buffer_group *p);
 void device_buffer_group_bind_draw(struct device_buffer_group *p);

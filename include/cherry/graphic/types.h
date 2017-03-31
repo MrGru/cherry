@@ -18,16 +18,6 @@
 #include <cherry/math/types.h>
 #include <cherry/graphic/graphic.h>
 
-union texcoord_3d {
-        struct {
-                float x, y, z, w;
-        };
-        struct {
-                float r, g, b, a;
-        };
-        float v[4];
-};
-
 struct device_buffer;
 struct shader;
 
@@ -67,6 +57,7 @@ struct device_buffer {
         u8      location;
 #if   GFX == OGL
         u32     id;
+        u64     size;
 #elif GFX == MTL
         void    *ptr;
         u64     size;
@@ -103,133 +94,49 @@ enum {
         UNIFORM_M4
 };
 
-/*
- * shader attribute type
- */
-enum {
-        ATTRIBUTE_FLOAT,
-        ATTRIBUTE_VEC2,
-        ATTRIBUTE_VEC3,
-        ATTRIBUTE_VEC4,
-        ATTRIBUTE_MAT2,
-        ATTRIBUTE_MAT3,
-        ATTRIBUTE_MAT4
+struct uniform_type {
+        i8      mask;
+        u8      type;
+        i16     offset;
+        i8      frame;
 };
 
-/*
- * uniform uses this index to keep track to shaders it's linking to
- * @pipeline    : shader that uniform is linking to
- * @index       : index of uniform in shader
- */
-struct shader_uniform_index {
-        struct shader   *pipeline;
-        i16             index;
-};
+struct uniform_buffer {
+        void                    *types;
+        void                    *data;
 
-/*
- * uniform object
- * @data        : uniform's data
- * @ref         : life-time counter
- * @indice      : array of shaders that uniform is linking to
- */
-struct shader_uniform {
-        struct bytes    *data;
-        i16             ref;
-        struct array    *indice;
-};
+        struct array            *update_indice;
 
-/*
- * shader uniform tracker
- * @uniform     : link to uniform object
- * @pipeline    : shader owning this tracker
- * @type        : uniform data type
- * @index       : uniform index in shader
- *
- * OGL
- * @name        : opengl uniform name
- * @id          : opengl uniform id
- *
- * MTL
- * @offset      : mtl uniform offset in buffer
- */
-struct shader_uniform_track {
-        struct shader_uniform   *uniform;
-        struct shader           *pipeline;
+        u8                      update;
+
 #if GFX == OGL
-        struct string           *name;
-        i32                     id;
+        struct shader           *last_pipeline;
 #endif
-        u8                      type;
-        i16                     index;
+
 #if GFX == MTL
-        i16                     offset;
+        struct device_buffer    *buffers[BUFFERS];
 #endif
 };
 
-/*
- * shader attribute descriptor
- * @type        : attribute type
- * @offset      : attribute offset in buffer
- *
- * OGL
- * name         : attribute name
- */
-struct shader_attribute_descriptor {
-        u8              type;
-        u16             offset;
-#if GFX == OGL
-        struct string   *name;
-#endif
-};
-
-/*
- * @attributes  : array of attributes used in buffer
- * @vertex_size : one vertex size in buffer
- * @instanced   : indicate buffer is instanced or not
- */
-struct shader_buffer_descriptor {
-        struct array    *attributes;
-        u16             vertex_size;
-        u8              instanced;
-        u32             divisor;
-};
-
-/*
- * @buffers     : array of buffers used in pipeline
- */
-struct shader_descriptor {
-        struct array *buffers;
+struct link_uniform {
+        struct array    *ids;
 };
 
 /*
  * shader object
- * @tracks              : array of uniform trackers registered
- * @flags               : array of flag to find active trackers
- * @pendings            : array of active trackers indice
- * @update              : flag allows shader to update uniforms datas
- * @mesh_types          : mesh vertex types allowed in pipeline
- *                        application should have max 256 mesh types
  *
  * OGL
  * @id                  : opengl shader id
- * @texture_uniforms    : opengl sampler2D ids
  *
  * MTL
- * @uniforms            : mtl uniforms buffers
  * @ptr                 : bridge pointer to mtl pipeline object
  */
 struct shader {
-        struct array                    *tracks;
-        struct array                    *flags;
-        struct array                    *pendings;
-        u8                              update[BUFFERS];
-        struct shader_descriptor        *descriptor;
 #if GFX == OGL
         u32                             id;
-        struct array                    *texture_uniforms;
+        struct array                    *link_uniforms;
 #endif
 #if GFX == MTL
-        struct device_buffer            *uniforms[BUFFERS];
         void                            *ptr;
 #endif
 };
@@ -263,7 +170,6 @@ struct image {
  * OGL
  * @id          : opengl texture id
  * @active_id   : current active texture id that texture is binding
- * @bind_head   : node in binding list
  *
  * MTL
  * @ptr         : bridge pointer to mtl texture object
@@ -276,164 +182,209 @@ struct texture {
 
 #if GFX == OGL
         u32                     id;
-        i16                     active_id;
-        struct list_head        bind_head;
+        u32                     active_id;
 #endif
 #if GFX == MTL
         void*                   ptr;
 #endif
 };
 
-struct texture_frame {
-        i16             x;
-        i16             y;
-        i16             width;
-        i16             height;
-        i16             tex_width;
-        i16             tex_height;
-        i16             texid;
+/*
+ * input keys
+ */
+enum {
+        INPUT_POSITION_2D,
+        INPUT_POSITION_3D,
+        INPUT_NORMAL,
+        INPUT_TEXCOORD,
+        INPUT_COLOR
 };
 
-struct font_frame {
-        union {
-                struct {
-                        i16             x;
-                        i16             y;
-                        i16             width;
-                        i16             height;
-                        i16             tex_width;
-                        i16             tex_height;
-                        i16             texid;
-                };
-                struct texture_frame    frame;
+/*
+ * uniform keys
+ */
+enum {
+        UNIFORM_CAMERA,
+        UNIFORM_TRANSFORM,
+        UNIFORM_LIGHT
+};
+
+/*
+ * node types
+ */
+enum {
+        NODE_SPRITE
+};
+
+/*
+ * shader types
+ */
+enum {
+        SHADER_2D_TEXTURE_COLOR,
+        SHADER_3D_TEXTURE_COLOR
+};
+
+/*
+ * camera definition
+ */
+
+union camera_uniform_type {
+        struct {
+                struct uniform_type     project;
+                struct uniform_type     view;
+                struct uniform_type     position;
         };
+        struct uniform_type     types[3];
+};
 
+struct camera_uniform {
+        union mat4      project;
+        union mat4      view;
+        union vec3      position;
+};
 
-        i16             xoffset;
-        i16             yoffset;
-        i16             xadvance;
-        i16             line_height;
-        i16             base;
-        i16             size;
-        u32             code;
-
-        struct map    *kernings;
+enum {
+        CAMERA_UNIFORM_PROJECT,
+        CAMERA_UNIFORM_VIEW,
+        CAMERA_UNIFORM_POSITION
 };
 
 struct camera {
-        union mat4              view;
-        union vec3              position;
         u8                      position_update;
-
-        struct shader_uniform   *view_uniform;
-        struct shader_uniform   *position_uniform;
+        struct uniform_buffer   *buffer;
 };
 
 /*
- * render technique
- * I want application to have number draw calls as low as possible
- * read node folder for information
- *
- * each render_content will consume one draw call
+ * trasnform definition
  */
-struct render_content {
-        struct list_head                queue_head;
-        struct device_buffer_group      *groups[BUFFERS];
-        struct array                    *textures;
-        struct map                      *atlases;
-        struct map                      *fonts;
+union transform_uniform_type {
+        struct {
+                struct uniform_type     transform;
+        };
+        struct uniform_type     types[1];
+};
 
-        u32                             vertice;
-        u32                             max_instances;
-        u32                             current_instances;
-        u32                             instance_multiple;
-        u8                              depth_test;
+struct transform_uniform {
+        union mat4      transform;
+};
 
-        struct list_head                node_list;
-        struct list_head                pending_updaters;
+enum {
+        TRANSFORM_UNIFORM_TRANSFORM
 };
 
 /*
- * each node will have permission to manipulate a small part
- * of render_content's buffers
+ * light definition
  */
-struct node_data_segment {
-        struct list_head        head;
-        u8                      frames;
-        u32                     start;
-        u32                     end;
+struct direction_light {
+        union vec3      direction;
+        union vec3      ambient;
+        union vec3      diffuse;
+        union vec3      specular;
 };
 
-struct node_data {
-        u8                              buffer_id;
-        struct bytes                    *data;
-        struct list_head                segments;
-        struct node_data_segment        *fill_segment;
+struct point_light {
+        union vec3      position;
+        float           constant;
+        float           linear;
+        float           quadratic;
+        union vec3      ambient;
+        union vec3      diffuse;
+        union vec3      specular;
+};
+
+struct spot_light {
+        union vec3      position;
+        union vec3      direction;
+        float           cutOff;
+        float           outerCutOff;
+
+        float           constant;
+        float           linear;
+        float           quadratic;
+
+        union vec3      ambient;
+        union vec3      diffuse;
+        union vec3      specular;
+};
+
+
+/*
+ * sprite definition
+ */
+struct sprite_buffer_interface {
+        struct device_buffer    *position;
+        struct device_buffer    *texcoord;
+        struct device_buffer    *color;
+};
+
+struct sprite_common_uniform_interface {
+        struct uniform_buffer   *camera;
+};
+
+struct sprite_uniform_interface {
+        struct uniform_buffer  *transform;
+};
+
+struct node_manager {
+        struct map              *common_uniform_buffers;
+        struct map              *shaders;
+
+        struct list_head        transform_queue;
+        struct node             *transform_root;
+        u8                      transform_full;
+
+        struct list_head        *nodes;
 };
 
 struct node {
-        struct list_head        content_head;
-        u32                     content_index;
-        struct render_content   *host;
+        struct list_head                life_head;
 
-        struct list_head        updater_head;
+        struct list_head                head;
+        struct list_head                children;
+        struct node                     *parent;
 
-        struct list_head        user_head;
+        struct list_head                transform_queue_head;
+        struct list_head                updater_head;
+        struct list_head                updating_transform_children;
+        u8                              update;
 
-        struct array            *pending_datas;
-        struct array            *datas;
-};
+        i32                             type;
 
-/*
- * render_queue is where to group all render_contents having same pipeline
- * because changing pipeline during rendering is expensive
- */
-struct render_queue {
-        struct list_head        content_list;
-        struct list_head        stage_head;
-        struct shader           *pipeline;
-};
+        union {
+                union vec3              position;
+                union vec4              position_expand;
+        };
+        union {
+                union vec3              scale;
+                union vec4              scale_expand;
+        };
+        union {
+                union vec3              size;
+                union vec4              size_expand;
+        };
+        union {
+                union vec3              origin;
+                union vec4              origin_expand;
+        };
+        union vec4                      quaternion;
+        union vec4                      quaternion_animation;
 
-/*
- * render_stage holds a group of render_queues to render
- * stencil_queue_list renders all it's content to stencil buffer
- */
-struct render_stage {
-        struct list_head        renderer_head;
-        struct list_head        stencil_queue_list;
-        struct list_head        content_queue_list;
-};
+        void                            *data;
 
-/*
- * render_pass interface for renderer
- */
-struct render_pass {
-#if     GFX == OGL
-        u32     id;
-#elif   GFX == MTL
-        void    *ptr;
-#endif
-        void(*del)(struct render_pass *);
-};
+        struct node_manager             *manager;
 
-struct main_render_pass {
-        struct render_pass      pass;
-};
+        int                             vertice_count;
 
-struct shadow_render_pass {
-        struct render_pass      pass;
-        struct texture          *map;
-};
+        struct device_buffer_group      *current_buffer_group[BUFFERS];
 
-/*
- * each renderer render to one application pass
- * it is useful when application needs several passes like shadow
- */
-struct renderer {
-        struct list_head        stage_list;
-        struct render_pass      *pass;
-        union vec4              *color;
-        struct list_head        chain_head;
+        struct array                    *current_common_uniform_buffers;
+
+        struct array                    *current_uniform_buffers;
+
+        struct array                    *textures;
+
+        i32                             shader_type;
+        struct shader                   *current_shader;
 };
 
 /*
