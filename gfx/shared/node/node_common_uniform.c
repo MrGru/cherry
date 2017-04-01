@@ -19,6 +19,7 @@
 #include <cherry/string.h>
 #include <cherry/bytes.h>
 #include <cherry/math/math.h>
+#include <cherry/stdio.h>
 #include <cherry/graphic/shader.h>
 #include <cherry/graphic/uniform.h>
 #include <cherry/graphic/texture.h>
@@ -27,8 +28,10 @@
 static int __setup_uniform(struct node *p, u32 key)
 {
         struct uniform_buffer *ub       = map_get(p->manager->common_uniform_buffers, struct uniform_buffer *, &key, sizeof(key));
-        debug("lack of common uniform with key %d\n", key);
-        if(ub) return 0;
+        if(!ub) {
+                debug("lack of common uniform with key %d\n", key);
+                return 0;
+        }
         array_push(p->current_common_uniform_buffers, &ub);
         return 1;
 }

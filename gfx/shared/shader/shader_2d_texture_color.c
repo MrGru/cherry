@@ -14,7 +14,10 @@
 #include <cherry/graphic/shader/shader_2d_texture_color.h>
 #include <cherry/memory.h>
 #include <cherry/array.h>
+#include <cherry/string.h>
 #include <cherry/graphic/shader.h>
+#include <cherry/graphic/uniform.h>
+#include <cherry/graphic/link_uniform.h>
 
 /*
  * setup for opengl branch
@@ -24,12 +27,12 @@
 #if OS == WEB
 static inline struct string *get_vert()
 {
-        return shader_read_file("res/shaders/shader_2d_texture_color_web.vert");
+        return shader_read_file("res/shaders/gles2/shader_2d_texture_color.vert");
 }
 
 static inline struct string *get_frag()
 {
-        return shader_read_file("res/shaders/shader_2d_texture_color_web.frag");
+        return shader_read_file("res/shaders/gles2/shader_2d_texture_color.frag");
 }
 #else
 static inline struct string *get_vert()
@@ -78,6 +81,13 @@ static void __add_link(struct shader *p, struct link_uniform *link, char *name)
         array_push(link->ids, &id);
 }
 
+static void __link_texture(struct shader *p, char *name, i32 val)
+{
+        i32 tex0 = glGetUniformLocation(p->id, name);
+        GLint data = val;
+        glUniform1iv((GLint)tex0, 1, (GLint *)&data);
+}
+
 /*
  * link has to be setup in order carefully
  */
@@ -92,6 +102,8 @@ static void __setup_link_uniform(struct shader *p)
         link = link_uniform_alloc();
         array_push(p->link_uniforms, &link);
         __add_link(p, link, "transform.transform");
+
+        __link_texture(p, "texture0", 0);
 }
 #endif
 

@@ -170,9 +170,14 @@ void texture_bind(struct texture *p, u32 active_id)
                 bindings[p->active_id] = NULL;
         }
 
+        if(bindings[active_id]) {
+                bindings[active_id]->active_id = -1;
+        }
+
         p->active_id = active_id;
         glActiveTexture(GL_TEXTURE0 + active_id);
         glBindTexture(GL_TEXTURE_2D, p->id);
+        bindings[active_id] = p;
 }
 
 /*

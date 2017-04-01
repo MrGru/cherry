@@ -182,7 +182,7 @@ struct texture {
 
 #if GFX == OGL
         u32                     id;
-        u32                     active_id;
+        i32                     active_id;
 #endif
 #if GFX == MTL
         void*                   ptr;
@@ -333,7 +333,7 @@ struct node_manager {
         struct node             *transform_root;
         u8                      transform_full;
 
-        struct list_head        *nodes;
+        struct list_head        nodes;
 };
 
 struct node {
@@ -347,6 +347,7 @@ struct node {
         struct list_head                updater_head;
         struct list_head                updating_transform_children;
         u8                              update;
+        u8                              visible;
 
         i32                             type;
 
@@ -368,6 +369,8 @@ struct node {
         };
         union vec4                      quaternion;
         union vec4                      quaternion_animation;
+
+        union mat4                      transform;
 
         void                            *data;
 

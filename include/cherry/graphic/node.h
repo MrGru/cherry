@@ -24,6 +24,20 @@ void node_show_sprite(struct node *p, u32 shader_type, struct texture *tex);
 
 void node_request_update_transform(struct node *p);
 
+void node_set_position(struct node *p, union vec3 position);
+
+void node_set_scale(struct node *p, union vec3 scale);
+
+void node_set_size(struct node *p, union vec3 size);
+
+void node_set_rotation(struct node *p, union vec4 quaternion);
+
+void node_set_origin(struct node *p, union vec3 origin);
+
+void node_set_visible(struct node *p, u8 visible);
+
+void node_add_child(struct node *p, struct node *child);
+
 void node_update_transform(struct node *p);
 
 #if GFX == OGL

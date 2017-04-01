@@ -24,8 +24,9 @@
         #define output  out
 #endif
 
-#include <common/camera.slib>
-#include <common/matrix.slib>
+#include <../common/camera.slib>
+#include <../common/transform.slib>
+#include <../common/matrix.slib>
 
 input vec2                      position;
 input vec2                      texcoord;

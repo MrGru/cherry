@@ -24,9 +24,9 @@
         #define output  out
 #endif
 
-#include <common/light.slib>
-#include <common/matrix.slib>
-#include <common/skin.slib>
+#include <../common/light.slib>
+#include <../common/matrix.slib>
+#include <../common/skin.slib>
 
 input vec3      vertex;
 input vec3      normal;

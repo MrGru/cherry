@@ -28,6 +28,8 @@
 static void __require_transform_uniform(struct node *p)
 {
         struct uniform_buffer *ub = transform_uniform_buffer_alloc();
+        union mat4 trans = mat4_identity;
+        uniform_buffer_set(ub, TRANSFORM_UNIFORM_TRANSFORM, &trans, sizeof(trans));
         array_push(p->current_uniform_buffers, &ub);
 }
 

@@ -20,12 +20,19 @@ struct game {
         union {
                 struct {
                         struct node_manager     *manager_game;
-                        struct node_manager     *manager_hub;
+                        struct node_manager     *manager_hud;
                 };
                 struct node_manager             *manager[2];
         };
-        struct camera           *game_camera;
-        struct camera           *hub_camera;
+        union {
+                struct {
+                        struct camera           *game_camera;
+                        struct camera           *hud_camera;
+                };
+                struct camera                   *camera[2];
+        };
+
+        u8                                      frame;
 };
 
 #endif

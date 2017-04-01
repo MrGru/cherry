@@ -29,7 +29,9 @@
 
 void node_render(struct node *p, u8 frame)
 {
-        if(p->type == -1) return;
+        if(!p->visible) return;
+
+        if(p->type == -1 || p->shader_type == -1) goto render_children;
 
         shader_use(p->current_shader);
         /*
@@ -64,6 +66,14 @@ void node_render(struct node *p, u8 frame)
          */
         device_buffer_group_bind_draw(p->current_buffer_group[frame]);
         glDrawArrays(GL_TRIANGLES, 0, p->vertice_count);
+
+render_children:;
+        struct list_head *head;
+        list_for_each(head, &p->children) {
+                struct node *n = (struct node *)
+                        ((void *)head - offsetof(struct node, head));
+                node_render(n, frame);
+        }
 }
 
 #endif

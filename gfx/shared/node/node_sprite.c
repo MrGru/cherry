@@ -28,13 +28,13 @@
  * sprite 2d input
  */
 static float sprite_2d_position_input[12] = {
-        -1,  1,
-         1, -1,
-         1, -1,
+        -0.5,  0.5,
+        -0.5, -0.5,
+         0.5, -0.5,
 
-        -1,  1,
-         1,  1,
-         1, -1
+        -0.5,  0.5,
+         0.5,  0.5,
+         0.5, -0.5
 };
 
 static float sprite_2d_texcoord_input[12] = {
