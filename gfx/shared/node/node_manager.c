@@ -19,6 +19,7 @@
 #include <cherry/graphic/node.h>
 #include <cherry/graphic/shader.h>
 #include <cherry/graphic/uniform.h>
+#include <cherry/graphic/update_task.h>
 
 struct node_manager *node_manager_alloc()
 {
@@ -29,6 +30,7 @@ struct node_manager *node_manager_alloc()
         p->transform_root               = NULL;
         p->transform_full               = 0;
         INIT_LIST_HEAD(&p->nodes);
+        INIT_LIST_HEAD(&p->update_tasks);
         return p;
 }
 
@@ -43,7 +45,31 @@ void node_manager_free(struct node_manager *p)
                         ((void *)head - offsetof(struct node, life_head));
                 node_free(n);
         }
+        list_while_not_singular(head, &p->update_tasks) {
+                struct update_task *n = (struct update_task *)
+                        ((void *)head - offsetof(struct update_task, head));
+                update_task_free(n);
+        }
         sfree(p);
+}
+
+void node_manager_update_tasks(struct node_manager *p, float time, u8 frame)
+{
+        struct list_head temp = LIST_HEAD_INIT(temp);
+        struct list_head *head;
+        list_while_not_singular(head, &p->update_tasks) {
+                list_del(head);
+                list_add_tail(head, &temp);
+                struct update_task *t = (struct update_task *)
+                        ((void *)head - offsetof(struct update_task, head));
+                t->callback(t->data, time, frame);
+                if(t->count > 0) t->count--;
+                if(t->count == 0) update_task_free(t);
+        }
+        list_while_not_singular(head, &temp) {
+                list_del(head);
+                list_add_tail(head, &p->update_tasks);
+        }
 }
 
 void node_manager_update_transform(struct node_manager *p)

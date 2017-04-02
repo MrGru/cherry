@@ -311,6 +311,16 @@ struct spot_light {
 /*
  * node definition
  */
+
+typedef void(*update_task_callback)(void*,float,u8);
+
+struct update_task {
+        struct list_head        head;
+        void                    *data;
+        update_task_callback    callback;
+        int count;
+};
+
 struct node_manager {
         struct map              *common_uniform_buffers;
         struct map              *shaders;
@@ -320,6 +330,7 @@ struct node_manager {
         u8                      transform_full;
 
         struct list_head        nodes;
+        struct list_head        update_tasks;
 };
 
 enum {

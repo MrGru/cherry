@@ -24,6 +24,7 @@
 #include <cherry/graphic/uniform.h>
 #include <cherry/graphic/texture.h>
 #include <cherry/graphic/device_buffer.h>
+#include <cherry/graphic/update_task.h>
 
 #define SPINE_SHORT_NAMES
 #include <spine/spine.h>
@@ -41,6 +42,7 @@ static union vec4       buffer_color[SPINE_MESH_VERTEX_COUNT_MAX/2];
 static float worldVertices[SPINE_MESH_VERTEX_COUNT_MAX];
 
 struct spine_data {
+        struct update_task      *task;
         AnimationState          *state;
         Skeleton                *skeleton;
         float                   timeScale;
@@ -50,6 +52,9 @@ struct spine_data {
 
 static void __spin_data_free(struct spine_data *p)
 {
+        if(p->task) {
+                update_task_free(p->task);
+        }
         AnimationState_dispose(p->state);
         Skeleton_dispose(p->skeleton);
         string_free(p->spine_file);
@@ -236,7 +241,7 @@ void node_update_spine(struct node *p, float time, u8 frame)
         }
 }
 
-void node_spin_set_animation(struct node * p, int trackindex, char *name, int loop)
+void node_spine_set_animation(struct node * p, int trackindex, char *name, int loop)
 {
         if(p->type == NODE_SPINE) {
                 struct spine_data *data = p->data;
@@ -244,11 +249,32 @@ void node_spin_set_animation(struct node * p, int trackindex, char *name, int lo
         }
 }
 
-void node_spin_add_animation(struct node * p, int trackindex, char *name, int loop, float delay)
+void node_spine_add_animation(struct node * p, int trackindex, char *name, int loop, float delay)
 {
         if(p->type == NODE_SPINE) {
                 struct spine_data *data = p->data;
                 AnimationState_addAnimationByName(data->state, trackindex, name, loop, delay);
+        }
+}
+
+void node_spine_run_animation(struct node *p)
+{
+        if(p->type == NODE_SPINE) {
+                struct spine_data *data = p->data;
+                if( ! data->task) {
+                        data->task = update_task_request(p->manager, p, (update_task_callback) node_update_spine, -1);
+                }
+        }
+}
+
+void node_spine_stop_animation(struct node *p)
+{
+        if(p->type == NODE_SPINE) {
+                struct spine_data *data = p->data;
+                if(data->task) {
+                        update_task_free(data->task);
+                        data->task = NULL;
+                }
         }
 }
 
@@ -362,6 +388,7 @@ setup_input:;
         p->data                 = data;
         p->data_free            = (void(*)(void*))__spin_data_free;
 
+        data->task       = NULL;
         data->timeScale         = 1;
         data->spine_file        = string_alloc_chars(spine_file, strlen(spine_file));
         data->atlas_file        = string_alloc_chars(atlas_file, strlen(atlas_file));

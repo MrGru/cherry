@@ -120,7 +120,7 @@ static int touch_cancel(int eventType, const EmscriptenTouchEvent *e, void *user
 
 int init_gl()
 {
-        const int width = 500, height = 750;
+        const int width = 1024, height = 768;
 
         if (glfwInit() != GL_TRUE) {
                 printf("glfwInit() failed\n");

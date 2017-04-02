@@ -45,9 +45,10 @@ void node_show_spine(struct node *p, u32 shader_type, char *spine_file, char *at
 
 void node_update_spine(struct node *p, float time, u8 frame);
 
-void node_spin_set_animation(struct node * p, int trackindex, char *name, int loop);
-
-void node_spin_add_animation(struct node * p, int trackindex, char *name, int loop, float delay);
+void node_spine_set_animation(struct node * p, int trackindex, char *name, int loop);
+void node_spine_add_animation(struct node * p, int trackindex, char *name, int loop, float delay);
+void node_spine_run_animation(struct node *p);
+void node_spine_stop_animation(struct node *p);
 
 void node_request_update_transform(struct node *p);
 

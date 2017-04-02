@@ -11,17 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifndef __CHERRY_GRAPHIC_NODE_MANAGER_H__
-#define __CHERRY_GRAPHIC_NODE_MANAGER_H__
+#ifndef __CHERRY_GRAPHIC_UPDATE_TASK_H__
+#define __CHERRY_GRAPHIC_UPDATE_TASK_H__
 
 #include <cherry/graphic/types.h>
 
-struct node_manager *node_manager_alloc();
+struct update_task *update_task_request(struct node_manager *manager, void *data, update_task_callback callback, int count);
 
-void node_manager_free(struct node_manager *p);
-
-void node_manager_update_tasks(struct node_manager *p, float time, u8 frame);
-
-void node_manager_update_transform(struct node_manager *p);
+void update_task_free(struct update_task *p);
 
 #endif

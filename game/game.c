@@ -31,15 +31,25 @@ struct game *game_alloc()
         p->frame = 0;
 
         test_node = node_alloc(p->manager_game);
-        node_show_spine(test_node, SHADER_2D_TEXTURE_COLOR, "res/spine/raptor.skel", "res/spine/raptor.atlas", 0.005);
-        node_set_size(test_node, (union vec3){100, 100, 0});
-
-        node_spin_set_animation(test_node, 0, "walk", 1);
-        node_spin_add_animation(test_node, 1, "gungrab", 0, 2);
-
-        // node_set_rotation(test_node, quat_angle_axis(DEG_TO_RAD(-45), (float[3]){0, 0, 1}));
-        node_set_position(test_node, (union vec3){100, 100, 0});
         node_set_origin(test_node, (union vec3){0, 0, 0});
+
+        int i;
+        for_i(i, 100) {
+                struct node *child = node_alloc(p->manager_game);
+                node_show_spine(child, SHADER_2D_TEXTURE_COLOR, "res/spine/raptor.skel", "res/spine/raptor.atlas", 0.0005);
+                node_set_size(child, (union vec3){100, 100, 0});
+
+                node_spine_set_animation(child, 0, "walk", 1);
+                node_spine_add_animation(child, 1, "gungrab", 0, 2);
+
+                node_set_position(child, (union vec3){rand_rf(0, video_width), rand_rf(0, video_height), 0});
+                node_set_origin(child, (union vec3){0, 0, 0});
+
+                node_add_child(test_node, child);
+
+                node_spine_run_animation(child);
+        }
+
         // node_set_scale(test_node, (union vec3){2, 2, 2});
         // {
         //         struct node *child = node_alloc(p->manager_game);
@@ -63,15 +73,30 @@ struct game *game_alloc()
         return p;
 }
 
-void game_update(struct game *p)
+static inline void __game_update_task(struct game *p)
 {
-        node_update_spine(test_node, 1.0f / 60, p->frame);
+        int i;
+        struct node_manager **manager    = &p->manager[0];
+        for_i(i, sizeof(p->manager) / sizeof(p->manager[0])) {
+                node_manager_update_tasks(*manager, 1.0f / 60, p->frame);
+                manager++;
+        }
+}
+
+static inline void __game_update_transform(struct game *p)
+{
         int i;
         struct node_manager **manager    = &p->manager[0];
         for_i(i, sizeof(p->manager) / sizeof(p->manager[0])) {
                 node_manager_update_transform(*manager);
                 manager++;
         }
+}
+
+void game_update(struct game *p)
+{
+        __game_update_task(p);
+        __game_update_transform(p);
 }
 
 void game_render(struct game *p)
