@@ -44,16 +44,14 @@ struct node *node_alloc(struct node_manager *m)
         p->quaternion_animation = quat_identity;
         p->data                 = NULL;
         p->manager              = m;
-        p->vertice_count        = 0;
         p->update               = 0;
         p->visible              = 1;
         int i;
         for_i(i, BUFFERS) {
-                p->current_buffer_group[i]      = NULL;
+                p->current_render_content[i]    = NULL;
         }
         p->current_common_uniform_buffers       = array_alloc(sizeof(struct uniform_buffer *), ORDERED);
         p->current_uniform_buffers              = array_alloc(sizeof(struct uniform_buffer *), ORDERED);
-        p->textures                             = array_alloc(sizeof(struct texture *), ORDERED);
         p->current_shader                       = NULL;
         list_add_tail(&p->life_head, &m->nodes);
         return p;
@@ -63,13 +61,12 @@ void node_free(struct node *p)
 {
         int i;
         for_i(i, BUFFERS) {
-                if(p->current_buffer_group[i]) {
-                        device_buffer_group_free(p->current_buffer_group[i]);
+                if(p->current_render_content[i]) {
+                        node_render_content_free(p->current_render_content[i]);
                 }
         }
         array_free(p->current_common_uniform_buffers);
         array_deep_free(p->current_uniform_buffers, struct uniform_buffer *, uniform_buffer_free);
-        array_deep_free(p->textures, struct texture *, texture_free);
 
         list_del(&p->head);
         list_del(&p->transform_queue_head);

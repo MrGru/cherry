@@ -27,6 +27,37 @@
 #include <cherry/graphic/texture.h>
 #include <cherry/graphic/device_buffer.h>
 
+static u8 current_blend = BLEND_NONE;
+
+static void __blend(u8 mode)
+{
+        if(current_blend == mode) return;
+
+        current_blend = mode;
+
+        switch (current_blend) {
+                case BLEND_NONE:
+                        glDisable(GL_BLEND);
+                        break;
+                case BLEND_ALPHA:
+                        glEnable(GL_BLEND);
+                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        break;
+                case BLEND_MULTIPLY:
+                        glEnable(GL_BLEND);
+                        glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+                        break;
+                case BLEND_ADDITIVE:
+                        glEnable(GL_BLEND);
+                        glBlendFunc(GL_ONE, GL_ONE);
+                        break;
+                default:
+                        glEnable(GL_BLEND);
+                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        break;
+        }
+}
+
 void node_render(struct node *p, u8 frame)
 {
         if(!p->visible) return;
@@ -54,18 +85,30 @@ void node_render(struct node *p, u8 frame)
                 uniform_buffer_force_update(ub, link);
                 ub->update = 0;
         }
-        /*
-         * update textures
-         */
-        struct texture **tex;
-        array_for_each_index(tex, i, p->textures) {
-                texture_bind(*tex, i);
-        }
+
         /*
          * render
          */
-        device_buffer_group_bind_draw(p->current_buffer_group[frame]);
-        glDrawArrays(GL_TRIANGLES, 0, p->vertice_count);
+        for_i(i, p->current_render_content[frame]->actives) {
+                struct node_render_buffer_group *group = array_get(p->current_render_content[frame]->buffer_groups,
+                        struct node_render_buffer_group *, i);
+                /*
+                 * update textures
+                 */
+                struct texture **tex;
+                array_for_each_index(tex, j, group->textures) {
+                        texture_bind(*tex, j);
+                }
+                /*
+                 * update blend
+                 */
+                __blend(group->blend_mode);
+                /*
+                * draw
+                 */
+                device_buffer_group_bind_draw(group->group);
+                glDrawArrays(GL_TRIANGLES, 0, group->vertice_count);
+        }
 
 render_children:;
         struct list_head *head;

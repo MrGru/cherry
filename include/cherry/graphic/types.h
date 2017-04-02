@@ -336,6 +336,25 @@ struct node_manager {
         struct list_head        nodes;
 };
 
+enum {
+        BLEND_NONE,
+        BLEND_ALPHA,
+        BLEND_MULTIPLY,
+        BLEND_ADDITIVE
+};
+
+struct node_render_buffer_group {
+        struct device_buffer_group      *group;
+        u8                              blend_mode;
+        int                             vertice_count;
+        struct array                    *textures;
+};
+
+struct node_render_content {
+        struct array    *buffer_groups;
+        int             actives;
+};
+
 struct node {
         struct list_head                life_head;
 
@@ -347,6 +366,7 @@ struct node {
         struct list_head                updater_head;
         struct list_head                updating_transform_children;
         u8                              update;
+
         u8                              visible;
 
         i32                             type;
@@ -376,15 +396,11 @@ struct node {
 
         struct node_manager             *manager;
 
-        int                             vertice_count;
-
-        struct device_buffer_group      *current_buffer_group[BUFFERS];
+        struct node_render_content      *current_render_content[BUFFERS];
 
         struct array                    *current_common_uniform_buffers;
 
         struct array                    *current_uniform_buffers;
-
-        struct array                    *textures;
 
         i32                             shader_type;
         struct shader                   *current_shader;

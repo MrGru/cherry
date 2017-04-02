@@ -16,6 +16,23 @@
 
 #include <cherry/graphic/types.h>
 
+/*
+ * node render declarations
+ */
+struct node_render_buffer_group *node_render_buffer_group_alloc();
+void node_render_buffer_group_free(struct node_render_buffer_group *p);
+void node_render_buffer_group_clear_group(struct node_render_buffer_group *p);
+void node_render_buffer_group_clear_texture(struct node_render_buffer_group *p);
+void node_render_buffer_group_add_texture(struct node_render_buffer_group *p, struct texture *tex);
+
+struct node_render_content *node_render_content_alloc();
+void node_render_content_clear(struct node_render_content *p);
+void node_render_content_reserve(struct node_render_content *p, int count);
+void node_render_content_free(struct node_render_content *p);
+
+/*
+ * node declarations
+ */
 struct node *node_alloc(struct node_manager *m);
 
 void node_free(struct node *p);

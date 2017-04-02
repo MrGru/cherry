@@ -67,35 +67,45 @@ static inline void __setup_buffer(struct node *p, struct device_buffer_group *gr
 #endif
 }
 
-static void __setup_shader_2d_texture_color(struct node *p)
+static void __add_texture_shader_2d_texture_color(struct node *p, struct texture *tex)
 {
         int i;
         for_i(i, BUFFERS) {
-                device_buffer_group_bind_construct(p->current_buffer_group[i]);
+                if(p->current_render_content[i]->buffer_groups->len == 1) {
+                        struct node_render_buffer_group *group  = array_get(p->current_render_content[i]->buffer_groups,
+                                struct node_render_buffer_group *, 0);
+                        node_render_buffer_group_clear_texture(group);
+                        node_render_buffer_group_add_texture(group, tex);
+                }
+        }
+}
 
-                __setup_buffer(p, p->current_buffer_group[i], sizeof(union vec2), BUFFER_DEVICE,
+static void __setup_shader_2d_texture_color(struct node *p, struct texture *tex)
+{
+        int i;
+        for_i(i, BUFFERS) {
+                node_render_content_reserve(p->current_render_content[i], 1);
+                p->current_render_content[i]->actives   = 1;
+                struct node_render_buffer_group *group  = array_get(p->current_render_content[i]->buffer_groups,
+                        struct node_render_buffer_group *, 0);
+                group->vertice_count                    = 6;
+                group->blend_mode                       = BLEND_MULTIPLY;
+                node_render_buffer_group_add_texture(group, tex);
+                device_buffer_group_bind_construct(group->group);
+
+                __setup_buffer(p, group->group, sizeof(union vec2), BUFFER_DEVICE,
                         sprite_2d_position_input, sizeof(sprite_2d_position_input), INPUT_POSITION_2D);
-                __setup_buffer(p, p->current_buffer_group[i], sizeof(union vec2), BUFFER_DEVICE,
+                __setup_buffer(p, group->group, sizeof(union vec2), BUFFER_DEVICE,
                         sprite_2d_texcoord_input, sizeof(sprite_2d_texcoord_input), INPUT_TEXCOORD);
-                __setup_buffer(p, p->current_buffer_group[i], sizeof(union vec4), BUFFER_DEVICE,
+                __setup_buffer(p, group->group, sizeof(union vec4), BUFFER_DEVICE,
                         sprite_2d_color_input, sizeof(sprite_2d_color_input), INPUT_COLOR);
 
                 device_buffer_group_bind_construct(NULL);
         }
-        p->vertice_count = 6;
 }
 
 void node_show_sprite(struct node *p, u32 shader_type, struct texture *tex)
 {
-        /*
-         * clear textures
-         */
-        struct texture **t;
-        array_for_each(t, p->textures) {
-                texture_free(*t);
-        }
-        array_force_len(p->textures, 0);
-
         int i;
         switch (p->type) {
                 case NODE_SPRITE:
@@ -109,13 +119,14 @@ fail:;
         p->shader_type          = -1;
         p->current_shader       = NULL;
         for_i(i, BUFFERS) {
-                if(p->current_buffer_group[i]) {
-                        device_buffer_group_clear(p->current_buffer_group[i]);
+                if(p->current_render_content[i]) {
+                        node_render_content_clear(p->current_render_content[i]);
                 }
         }
         array_force_len(p->current_common_uniform_buffers, 0);
         array_force_len(p->current_uniform_buffers, 0);
         return;
+
 setup_input:;
         p->type                 = NODE_SPRITE;
         p->shader_type          = shader_type;
@@ -123,23 +134,25 @@ setup_input:;
         if(!p->current_shader) goto fail;
 
         for_i(i, BUFFERS) {
-                if(p->current_buffer_group[i]) {
-                        device_buffer_group_clear(p->current_buffer_group[i]);
+                if(p->current_render_content[i]) {
+                        node_render_content_clear(p->current_render_content[i]);
                 } else {
-                        p->current_buffer_group[i] = device_buffer_group_alloc();
+                        p->current_render_content[i] = node_render_content_alloc();
                 }
         }
         switch (shader_type) {
                 case SHADER_2D_TEXTURE_COLOR:
-                        __setup_shader_2d_texture_color(p);
+                        __setup_shader_2d_texture_color(p, tex);
                         break;
                 default:
                         goto fail;
         }
+
 setup_uniform:;
         if(!node_setup_common_uniform(p)) goto fail;
         if(!node_setup_uniform(p)) goto fail;
+        return;
+
 assign_texture:;
-        tex->ref++;
-        array_push(p->textures, &tex);
+        __add_texture_shader_2d_texture_color(p, tex);
 }
