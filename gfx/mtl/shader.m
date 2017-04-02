@@ -28,6 +28,18 @@ static NSMutableArray *shader_house = nil;
 
 struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *des)
 {
+        /* create application shader object */
+        struct shader *p = smalloc(sizeof(struct shader));
+        goto setup;
+
+fail:;
+        sfree(p);
+        return NULL;
+setup:;
+        int i;
+        for_i(i, sizeof(p->ptr) / sizeof(void*)) {
+                p->ptr[i] = NULL;
+        }
  	if(shader_house == nil) {
  		shader_house = [[NSMutableArray alloc] init];
         }
@@ -42,32 +54,116 @@ struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *de
                 debug(">> ERROR: Couldn't load vertex function from default library");
 
   	/* create pipeline descriptor */
-	MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+        /*
+         * blend none
+         */
+        {
+                MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
 
-	pipelineStateDescriptor.sampleCount                     = shared_mtl_sample_count;
-	pipelineStateDescriptor.vertexFunction                  = vertexProgram;
-	pipelineStateDescriptor.fragmentFunction                = fragmentProgram;
-	pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-        pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
-        pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-        pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-        pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-        pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-        pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-        pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-	pipelineStateDescriptor.depthAttachmentPixelFormat      = MTLPixelFormatDepth32Float;
+        	pipelineStateDescriptor.sampleCount                     = shared_mtl_sample_count;
+        	pipelineStateDescriptor.vertexFunction                  = vertexProgram;
+        	pipelineStateDescriptor.fragmentFunction                = fragmentProgram;
+        	pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+                pipelineStateDescriptor.colorAttachments[0].blendingEnabled = NO;
+        	pipelineStateDescriptor.depthAttachmentPixelFormat      = MTLPixelFormatDepth32Float;
 
-	NSError *error = nil;
-	id <MTLRenderPipelineState> pipelineState = [shared_mtl_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-	if(!pipelineState) {
-	    return NULL;
-	}
+        	NSError *error = nil;
+        	id <MTLRenderPipelineState> pipelineState = [shared_mtl_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+        	if(!pipelineState) {
+                        goto fail;
+                }
 
-	[shader_house addObject:pipelineState];
+        	[shader_house addObject:pipelineState];
 
-        /* create application shader object */
-	struct shader *p = smalloc(sizeof(struct shader));
-	p->ptr = (__bridge void *)(pipelineState);
+        	p->ptr_none = (__bridge void *)(pipelineState);
+        }
+        /*
+         * blend alpha
+         */
+        {
+                MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+
+        	pipelineStateDescriptor.sampleCount                     = shared_mtl_sample_count;
+        	pipelineStateDescriptor.vertexFunction                  = vertexProgram;
+        	pipelineStateDescriptor.fragmentFunction                = fragmentProgram;
+        	pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+                pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
+                pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+                pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+                pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+                pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+                pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+                pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        	pipelineStateDescriptor.depthAttachmentPixelFormat      = MTLPixelFormatDepth32Float;
+
+        	NSError *error = nil;
+        	id <MTLRenderPipelineState> pipelineState = [shared_mtl_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+        	if(!pipelineState) {
+                        goto fail;
+        	}
+
+        	[shader_house addObject:pipelineState];
+
+        	p->ptr_alpha = (__bridge void *)(pipelineState);
+        }
+        /*
+         * blend multiply
+         */
+        {
+                MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+
+        	pipelineStateDescriptor.sampleCount                     = shared_mtl_sample_count;
+        	pipelineStateDescriptor.vertexFunction                  = vertexProgram;
+        	pipelineStateDescriptor.fragmentFunction                = fragmentProgram;
+        	pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+                pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
+                pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+                pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+                pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorDestinationColor;
+                pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorDestinationColor;
+                pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+                pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        	pipelineStateDescriptor.depthAttachmentPixelFormat      = MTLPixelFormatDepth32Float;
+
+        	NSError *error = nil;
+        	id <MTLRenderPipelineState> pipelineState = [shared_mtl_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+                if(!pipelineState) {
+                        goto fail;
+        	}
+
+        	[shader_house addObject:pipelineState];
+
+        	p->ptr_multiply = (__bridge void *)(pipelineState);
+        }
+        /*
+         * blend additive
+         */
+        {
+                MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+
+        	pipelineStateDescriptor.sampleCount                     = shared_mtl_sample_count;
+        	pipelineStateDescriptor.vertexFunction                  = vertexProgram;
+        	pipelineStateDescriptor.fragmentFunction                = fragmentProgram;
+        	pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+                pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
+                pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+                pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+                pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+                pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
+                pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOne;
+                pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOne;
+        	pipelineStateDescriptor.depthAttachmentPixelFormat      = MTLPixelFormatDepth32Float;
+
+        	NSError *error = nil;
+        	id <MTLRenderPipelineState> pipelineState = [shared_mtl_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+                if(!pipelineState) {
+                        goto fail;
+        	}
+
+        	[shader_house addObject:pipelineState];
+
+        	p->ptr_additive = (__bridge void *)(pipelineState);
+        }
 
 	return p;
 }
@@ -77,9 +173,12 @@ struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *de
  */
 void shader_free(struct shader *p)
 {
-        if(p->ptr) {
-                [shader_house removeObject:(__bridge id _Nonnull)(p->ptr)];
-		p->ptr = NULL;
+        void **ptr = p->ptr[0];
+        int i;
+        for_i(i, sizeof(p->ptr) / sizeof(p->ptr[0])) {
+                [shader_house removeObject:(__bridge id _Nonnull)(p->ptr[i])];
         }
         sfree(p);
 }
+
+#endif

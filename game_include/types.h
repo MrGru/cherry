@@ -31,6 +31,12 @@ struct game {
                 };
                 struct camera                   *camera[2];
         };
+        union {
+                struct {
+                        struct render_pass      *main_pass;
+                };
+                struct render_pass              *pass[1];
+        };
 
         u8                                      frame;
 };

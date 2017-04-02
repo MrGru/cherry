@@ -11,15 +11,15 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#include <cherry/graphic/texture.h>
+#import <cherry/graphic/texture.h>
 
 #if GFX == MTL
 
 #define SPINE_SHORT_NAMES
-#include <spine/spine.h>
-#include <spine/extension.h>
-#include <cherry/stdio.h>
-#include <cherry/string.h>
+#import <spine/spine.h>
+#import <spine/extension.h>
+#import <cherry/stdio.h>
+#import <cherry/string.h>
 
 void _AtlasPage_createTexture (AtlasPage* self, const char* path){
         struct texture *texture = texture_alloc_file((char*)path);

@@ -137,7 +137,15 @@ struct shader {
         struct array                    *link_uniforms;
 #endif
 #if GFX == MTL
-        void                            *ptr;
+        union {
+                struct {
+                        void                            *ptr_none;
+                        void                            *ptr_alpha;
+                        void                            *ptr_multiply;
+                        void                            *ptr_additive;
+                };
+                void                                    *ptr[4];
+        };
 #endif
 };
 
@@ -187,6 +195,23 @@ struct texture {
 #if GFX == MTL
         void*                   ptr;
 #endif
+};
+
+/*
+ * render_pass definition
+ */
+
+typedef void(*render_pass_data_free)(void *);
+
+struct render_pass {
+#if GFX == OGL
+        u32                     id;
+#elif GFX == MTL
+        void                    *ptr;
+#endif
+        i8                      frame;
+        void                    *data;
+        render_pass_data_free   data_free;
 };
 
 /*

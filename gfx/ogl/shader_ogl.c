@@ -12,6 +12,8 @@
  * GNU General Public License for more details.
  */
 #include <cherry/graphic/shader.h>
+
+#if GFX == OGL
 #include <cherry/memory.h>
 #include <cherry/array.h>
 #include <cherry/string.h>
@@ -143,3 +145,5 @@ void shader_use(struct shader *p)
                 glUseProgram(p->id);
         }
 }
+
+#endif

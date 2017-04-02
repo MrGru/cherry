@@ -12,6 +12,9 @@
  * GNU General Public License for more details.
  */
 #include <cherry/graphic/uniform.h>
+
+#if GFX == OGL
+
 #include <cherry/memory.h>
 #include <cherry/array.h>
 #include <cherry/bytes.h>
@@ -77,3 +80,5 @@ void uniform_buffer_free(struct uniform_buffer *p)
         array_free(p->update_indice);
         sfree(p);
 }
+
+#endif

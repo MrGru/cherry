@@ -26,6 +26,27 @@
 #include <cherry/graphic/uniform.h>
 #include <cherry/graphic/texture.h>
 #include <cherry/graphic/device_buffer.h>
+#include <cherry/graphic/render_pass.h>
+
+static struct render_pass *current_pass = NULL;
+
+void render_pass_begin(struct render_pass *p, u8 frame)
+{
+        if(current_pass != p) {
+                current_pass = p;
+                glBindFramebuffer(GL_FRAMEBUFFER, current_pass->id);
+        }
+        if(current_pass->frame != frame) {
+                current_pass->frame = frame;
+                glClearColor(1, 1, 1, 1);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        }
+}
+
+void render_pass_end()
+{
+
+}
 
 static u8 current_blend = BLEND_NONE;
 
@@ -60,7 +81,7 @@ static void __blend(u8 mode)
 
 void node_render(struct node *p, u8 frame)
 {
-        if(!p->visible) return;
+        if(!current_pass || !p->visible) return;
 
         if(p->type == -1 || p->shader_type == -1) goto render_children;
 
@@ -91,7 +112,7 @@ void node_render(struct node *p, u8 frame)
          */
         for_i(i, p->current_render_content[frame]->actives) {
                 struct node_render_buffer_group *group = array_get(p->current_render_content[frame]->buffer_groups,
-                        struct node_render_buffer_group *, i);                
+                        struct node_render_buffer_group *, i);
                 /*
                  * update textures
                  */

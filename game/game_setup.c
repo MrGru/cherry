@@ -21,6 +21,7 @@
 #include <cherry/graphic/uniform.h>
 #include <cherry/graphic/node_manager.h>
 #include <cherry/graphic/shader/shader_2d_texture_color.h>
+#include <cherry/graphic/render_pass.h>
 
 static void __setup_game_camera(struct game *p)
 {
@@ -84,8 +85,15 @@ static void __setup_hud_manager(struct game *p)
         p->manager_hud          = m;
 }
 
+static void __setup_main_pass(struct game *p)
+{
+        p->main_pass            = render_pass_main_alloc();
+}
+
 void game_setup(struct game *p)
 {
+        __setup_main_pass(p);
+        
         __setup_game_camera(p);
         __setup_hud_camera(p);
 

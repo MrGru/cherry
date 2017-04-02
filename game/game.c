@@ -20,6 +20,7 @@
 #include <cherry/graphic/camera.h>
 #include <cherry/graphic/node.h>
 #include <cherry/graphic/texture.h>
+#include <cherry/graphic/render_pass.h>
 
 struct node *test_node;
 
@@ -36,19 +37,19 @@ struct game *game_alloc()
         int i;
         for_i(i, 100) {
                 struct node *child = node_alloc(p->manager_game);
-                node_show_spine(child, SHADER_2D_TEXTURE_COLOR, "res/spine/raptor.skel", "res/spine/raptor.atlas", 0.0005);
-                node_set_size(child, (union vec3){100, 100, 0});
+                node_show_spine(child, SHADER_2D_TEXTURE_COLOR, "res/spine/raptor.skel", "res/spine/raptor.atlas", 0.05);
 
                 node_spine_set_animation(child, 0, "walk", 1);
                 node_spine_add_animation(child, 1, "gungrab", 0, 2);
 
-                node_set_position(child, (union vec3){rand_rf(0, video_width), rand_rf(0, video_height), 0});
                 node_set_origin(child, (union vec3){0, 0, 0});
+                node_set_position(child, (union vec3){rand_rf(0, video_width), rand_rf(0, video_height), 0});
 
                 node_add_child(test_node, child);
 
                 node_spine_run_animation(child);
         }
+
 
         // node_set_scale(test_node, (union vec3){2, 2, 2});
         // {
@@ -101,9 +102,9 @@ void game_update(struct game *p)
 
 void game_render(struct game *p)
 {
-        glClearColor(1, 1, 1, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        render_pass_begin(p->main_pass, p->frame);
         node_render(test_node, p->frame);
+        render_pass_end();
 
         p->frame++;
         if(p->frame == BUFFERS) p->frame = 0;
@@ -117,16 +118,22 @@ void game_read_event(struct game *p, struct event *e)
 void game_free(struct game *p)
 {
         int i;
-        struct node_manager **manager    = &p->manager[0];
+        struct node_manager **manager   = &p->manager[0];
         for_i(i, sizeof(p->manager) / sizeof(p->manager[0])) {
                 node_manager_free(*manager);
                 manager++;
         }
 
-        struct camera **camera           = &p->camera[0];
+        struct camera **camera          = &p->camera[0];
         for_i(i, sizeof(p->camera) / sizeof(p->camera[0])) {
                 camera_free(*camera);
                 camera++;
+        }
+
+        struct render_pass **pass       = &p->pass[0];
+        for_i(i, sizeof(p->pass) / sizeof(p->pass[0])) {
+                render_pass_free(*pass);
+                pass++;
         }
         sfree(p);
 }

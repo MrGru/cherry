@@ -11,11 +11,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#include <cherry/graphic/uniform.h>
-#include <cherry/memory.h>
-#include <cherry/array.h>
-#include <cherry/bytes.h>
-#include <cherry/graphic/device_buffer.h>
+#import <cherry/graphic/uniform.h>
+
+#if GFX == MTL
+#import <cherry/graphic/metal.h>
+#import <cherry/memory.h>
+#import <cherry/array.h>
+#import <cherry/bytes.h>
+#import <cherry/graphic/device_buffer.h>
 
 void uniform_buffer_init(struct uniform_buffer *p, size_t size)
 {
@@ -98,3 +101,5 @@ void uniform_buffer_free(struct uniform_buffer *p)
         }
         sfree(p);
 }
+
+#endif
