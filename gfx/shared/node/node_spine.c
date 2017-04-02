@@ -381,9 +381,15 @@ setup_input:;
                         p->current_render_content[i] = node_render_content_alloc();
                 }
         }
+        switch (shader_type) {
+                case SHADER_2D_TEXTURE_COLOR:
+                        break;
+                default:
+                        goto fail;
+        }
+
 
         if(data) __spin_data_free(data);
-
         data                    = smalloc(sizeof(struct spine_data));
         p->data                 = data;
         p->data_free            = (void(*)(void*))__spin_data_free;
