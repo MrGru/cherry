@@ -22,11 +22,13 @@
 struct node_render_buffer_group *node_render_buffer_group_alloc();
 void node_render_buffer_group_free(struct node_render_buffer_group *p);
 void node_render_buffer_group_clear_group(struct node_render_buffer_group *p);
+void node_render_buffer_group_clear_group_keep(struct node_render_buffer_group *p);
 void node_render_buffer_group_clear_texture(struct node_render_buffer_group *p);
 void node_render_buffer_group_add_texture(struct node_render_buffer_group *p, struct texture *tex);
 
 struct node_render_content *node_render_content_alloc();
 void node_render_content_clear(struct node_render_content *p);
+void node_render_content_clear_keep(struct node_render_content *p);
 void node_render_content_reserve(struct node_render_content *p, int count);
 void node_render_content_free(struct node_render_content *p);
 
@@ -38,6 +40,14 @@ struct node *node_alloc(struct node_manager *m);
 void node_free(struct node *p);
 
 void node_show_sprite(struct node *p, u32 shader_type, struct texture *tex);
+
+void node_show_spine(struct node *p, u32 shader_type, char *spine_file, char *atlas_file, float scale);
+
+void node_update_spine(struct node *p, float time, u8 frame);
+
+void node_spin_set_animation(struct node * p, int trackindex, char *name, int loop);
+
+void node_spin_add_animation(struct node * p, int trackindex, char *name, int loop, float delay);
 
 void node_request_update_transform(struct node *p);
 

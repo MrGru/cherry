@@ -91,7 +91,7 @@ void node_render(struct node *p, u8 frame)
          */
         for_i(i, p->current_render_content[frame]->actives) {
                 struct node_render_buffer_group *group = array_get(p->current_render_content[frame]->buffer_groups,
-                        struct node_render_buffer_group *, i);
+                        struct node_render_buffer_group *, i);                
                 /*
                  * update textures
                  */

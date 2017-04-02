@@ -89,7 +89,7 @@ static void __setup_shader_2d_texture_color(struct node *p, struct texture *tex)
                 struct node_render_buffer_group *group  = array_get(p->current_render_content[i]->buffer_groups,
                         struct node_render_buffer_group *, 0);
                 group->vertice_count                    = 6;
-                group->blend_mode                       = BLEND_MULTIPLY;
+                group->blend_mode                       = BLEND_ALPHA;
                 node_render_buffer_group_add_texture(group, tex);
                 device_buffer_group_bind_construct(group->group);
 

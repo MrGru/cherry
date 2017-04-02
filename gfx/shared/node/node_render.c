@@ -39,6 +39,12 @@ void node_render_buffer_group_free(struct node_render_buffer_group *p)
 void node_render_buffer_group_clear_group(struct node_render_buffer_group *p)
 {
         device_buffer_group_clear(p->group);
+        p->vertice_count = 0;
+}
+
+void node_render_buffer_group_clear_group_keep(struct node_render_buffer_group *p)
+{
+        p->vertice_count = 0;
 }
 
 void node_render_buffer_group_clear_texture(struct node_render_buffer_group *p)
@@ -76,6 +82,16 @@ void node_render_content_reserve(struct node_render_content *p, int count)
                 struct node_render_buffer_group *group = node_render_buffer_group_alloc();
                 array_push(p->buffer_groups, &group);
         }
+}
+
+void node_render_content_clear_keep(struct node_render_content *p)
+{
+        struct node_render_buffer_group **group;
+        array_for_each(group, p->buffer_groups) {
+                node_render_buffer_group_clear_group_keep(*group);
+                node_render_buffer_group_clear_texture(*group);
+        }
+        p->actives = 0;
 }
 
 void node_render_content_clear(struct node_render_content *p)

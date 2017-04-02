@@ -31,36 +31,41 @@ struct game *game_alloc()
         p->frame = 0;
 
         test_node = node_alloc(p->manager_game);
-        node_show_sprite(test_node, SHADER_2D_TEXTURE_COLOR, texture_alloc_file("res/images/gradient_1.jpg"));
+        node_show_spine(test_node, SHADER_2D_TEXTURE_COLOR, "res/spine/raptor.skel", "res/spine/raptor.atlas", 0.005);
         node_set_size(test_node, (union vec3){100, 100, 0});
-        node_set_rotation(test_node, quat_angle_axis(DEG_TO_RAD(45), (float[3]){0, 0, 1}));
+
+        node_spin_set_animation(test_node, 0, "walk", 1);
+        node_spin_add_animation(test_node, 1, "gungrab", 0, 2);
+
+        // node_set_rotation(test_node, quat_angle_axis(DEG_TO_RAD(-45), (float[3]){0, 0, 1}));
         node_set_position(test_node, (union vec3){100, 100, 0});
         node_set_origin(test_node, (union vec3){0, 0, 0});
-        node_set_scale(test_node, (union vec3){2, 2, 2});
-        {
-                struct node *child = node_alloc(p->manager_game);
-                node_show_sprite(child, SHADER_2D_TEXTURE_COLOR, texture_alloc_file("res/images/gradient_2.jpg"));
-                node_set_size(child, (union vec3){100, 100, 0});
-                node_set_position(child, (union vec3){50, 50, 0});
-                node_set_origin(child, (union vec3){0, 0, 0});
-                node_set_rotation(child, quat_angle_axis(DEG_TO_RAD(45), (float[3]){0, 0, 1}));
-                node_add_child(test_node, child);
-        }
-        {
-                struct node *child = node_alloc(p->manager_game);
-                node_show_sprite(child, SHADER_2D_TEXTURE_COLOR, texture_alloc_file("res/images/gradient_2.jpg"));
-                node_show_sprite(child, SHADER_2D_TEXTURE_COLOR, texture_alloc_file("res/images/gradient_1.jpg"));
-                node_set_size(child, (union vec3){100, 100, 0});
-                node_set_position(child, (union vec3){50, 50, 0});
-                node_set_origin(child, (union vec3){0, 0, 0});
-                node_set_rotation(child, quat_angle_axis(DEG_TO_RAD(-60), (float[3]){0, 0, 1}));
-                node_add_child(test_node, child);
-        }
+        // node_set_scale(test_node, (union vec3){2, 2, 2});
+        // {
+        //         struct node *child = node_alloc(p->manager_game);
+        //         node_show_sprite(child, SHADER_2D_TEXTURE_COLOR, texture_alloc_file("res/images/gradient_2.jpg"));
+        //         node_set_size(child, (union vec3){100, 100, 0});
+        //         node_set_position(child, (union vec3){50, 50, 0});
+        //         node_set_origin(child, (union vec3){0, 0, 0});
+        //         node_set_rotation(child, quat_angle_axis(DEG_TO_RAD(45), (float[3]){0, 0, 1}));
+        //         node_add_child(test_node, child);
+        // }
+        // {
+        //         struct node *child = node_alloc(p->manager_game);
+        //         node_show_sprite(child, SHADER_2D_TEXTURE_COLOR, texture_alloc_file("res/images/gradient_2.jpg"));
+        //         node_show_sprite(child, SHADER_2D_TEXTURE_COLOR, texture_alloc_file("res/images/gradient_1.jpg"));
+        //         node_set_size(child, (union vec3){100, 100, 0});
+        //         node_set_position(child, (union vec3){50, 50, 0});
+        //         node_set_origin(child, (union vec3){0, 0, 0});
+        //         node_set_rotation(child, quat_angle_axis(DEG_TO_RAD(-60), (float[3]){0, 0, 1}));
+        //         node_add_child(test_node, child);
+        // }
         return p;
 }
 
 void game_update(struct game *p)
 {
+        node_update_spine(test_node, 1.0f / 60, p->frame);
         int i;
         struct node_manager **manager    = &p->manager[0];
         for_i(i, sizeof(p->manager) / sizeof(p->manager[0])) {

@@ -213,7 +213,8 @@ enum {
  * node types
  */
 enum {
-        NODE_SPRITE
+        NODE_SPRITE,
+        NODE_SPINE
 };
 
 /*
@@ -307,24 +308,9 @@ struct spot_light {
         union vec3      specular;
 };
 
-
 /*
- * sprite definition
+ * node definition
  */
-struct sprite_buffer_interface {
-        struct device_buffer    *position;
-        struct device_buffer    *texcoord;
-        struct device_buffer    *color;
-};
-
-struct sprite_common_uniform_interface {
-        struct uniform_buffer   *camera;
-};
-
-struct sprite_uniform_interface {
-        struct uniform_buffer  *transform;
-};
-
 struct node_manager {
         struct map              *common_uniform_buffers;
         struct map              *shaders;
@@ -393,6 +379,7 @@ struct node {
         union mat4                      transform;
 
         void                            *data;
+        void(*data_free)(void*);
 
         struct node_manager             *manager;
 

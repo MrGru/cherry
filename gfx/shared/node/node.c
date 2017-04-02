@@ -43,6 +43,7 @@ struct node *node_alloc(struct node_manager *m)
         p->quaternion           = quat_identity;
         p->quaternion_animation = quat_identity;
         p->data                 = NULL;
+        p->data_free            = NULL;
         p->manager              = m;
         p->update               = 0;
         p->visible              = 1;
@@ -59,6 +60,9 @@ struct node *node_alloc(struct node_manager *m)
 
 void node_free(struct node *p)
 {
+        if(p->data_free) {
+                p->data_free(p->data);
+        }
         int i;
         for_i(i, BUFFERS) {
                 if(p->current_render_content[i]) {

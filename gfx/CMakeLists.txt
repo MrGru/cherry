@@ -76,6 +76,7 @@ endif()
 
 
 include_directories(../include)
+include_directories(../spin_include)
 
 add_library(gfx STATIC ${SOURCES})
 target_link_libraries(gfx ${PROJECT_LINK_LIBS})
