@@ -26,7 +26,7 @@
  */
 static NSMutableArray *shader_house = nil;
 
-struct shader *shader_alloc(char* vert, char* frag, struct shader_descriptor *des)
+struct shader *shader_alloc(char* vert, char* frag)
 {
         /* create application shader object */
         struct shader *p = smalloc(sizeof(struct shader));
@@ -173,7 +173,6 @@ setup:;
  */
 void shader_free(struct shader *p)
 {
-        void **ptr = p->ptr[0];
         int i;
         for_i(i, sizeof(p->ptr) / sizeof(p->ptr[0])) {
                 [shader_house removeObject:(__bridge id _Nonnull)(p->ptr[i])];

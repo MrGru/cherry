@@ -446,6 +446,7 @@
 					5F4B9B451CEC80AE0096D67C = {
 						CreatedOnToolsVersion = 7.3.1;
 						DevelopmentTeam = XZJ73VT9TV;
+						ProvisioningStyle = Automatic;
 					};
 					5F4B9B5E1CEC80AE0096D67C = {
 						CreatedOnToolsVersion = 7.3.1;
@@ -680,11 +681,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = XZJ73VT9TV;
 				INFOPLIST_FILE = "ios-dynamic-loading-framework/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.manh.ios-dynamic-loading-framework";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.manh.test-cherry";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -693,11 +695,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = XZJ73VT9TV;
 				INFOPLIST_FILE = "ios-dynamic-loading-framework/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.manh.ios-dynamic-loading-framework";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.manh.test-cherry";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -745,6 +748,8 @@
 				HEADER_SEARCH_PATHS = (
 					/Users/manh/Documents/cherry/include,
 					/usr/local/include,
+					/Users/manh/Documents/cherry/game_include,
+					/Users/manh/Documents/cherry/spine_include,
 				);
 				INFOPLIST_FILE = DynamicFramework1/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -792,6 +797,8 @@
 				HEADER_SEARCH_PATHS = (
 					/Users/manh/Documents/cherry/include,
 					/usr/local/include,
+					/Users/manh/Documents/cherry/game_include,
+					/Users/manh/Documents/cherry/spine_include,
 				);
 				INFOPLIST_FILE = DynamicFramework1/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -837,17 +844,21 @@
 					"GFX=MTL",
 					"IMAGE_TYPE=IMAGE_OBJC",
 				);
-				HEADER_SEARCH_PATHS = /Users/manh/Documents/cherry/include;
+				HEADER_SEARCH_PATHS = (
+					/Users/manh/Documents/cherry/include,
+					/Users/manh/Documents/cherry/spine_include,
+					/Users/manh/Documents/cherry/game_include,
+				);
 				INFOPLIST_FILE = DynamicFramework2/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					"/Users/manh/Documents/cherry/ios_build_metal/kernel/Release-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build_metal/gfx/Release-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build_metal/audio/Release-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build_metal/game/Release-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build_metal/xml/Release-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/kernel/Debug-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/gfx/Debug-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/audio/Debug-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/game/Debug-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/xml/Debug-iphoneos",
 				);
 				OTHER_LDFLAGS = (
 					"-lkernel",
@@ -877,17 +888,21 @@
 					"GFX=MTL",
 					"IMAGE_TYPE=IMAGE_OBJC",
 				);
-				HEADER_SEARCH_PATHS = /Users/manh/Documents/cherry/include;
+				HEADER_SEARCH_PATHS = (
+					/Users/manh/Documents/cherry/include,
+					/Users/manh/Documents/cherry/spine_include,
+					/Users/manh/Documents/cherry/game_include,
+				);
 				INFOPLIST_FILE = DynamicFramework2/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					"/Users/manh/Documents/cherry/ios_build_metal/kernel/Release-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build_metal/gfx/Release-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build_metal/audio/Release-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build_metal/game/Release-iphoneos",
-					"/Users/manh/Documents/cherry/ios_build_metal/xml/Release-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/kernel/Debug-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/gfx/Debug-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/audio/Debug-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/game/Debug-iphoneos",
+					"/Users/manh/Documents/cherry/ios_build_metal/xml/Debug-iphoneos",
 				);
 				OTHER_LDFLAGS = (
 					"-lkernel",

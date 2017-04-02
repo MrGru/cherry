@@ -20,7 +20,6 @@
 
 struct render_pass *render_pass_main_alloc()
 {
-        __store_main_pass();
         struct render_pass *p   = smalloc(sizeof(struct render_pass));
         p->ptr                  = (__bridge void *)(shared_mtl_main_pass);
         p->data                 = NULL;

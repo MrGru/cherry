@@ -18,6 +18,7 @@
 #import <cherry/memory.h>
 #import <cherry/array.h>
 #import <cherry/bytes.h>
+#import <cherry/stdio.h>
 #import <cherry/graphic/device_buffer.h>
 
 void uniform_buffer_init(struct uniform_buffer *p, size_t size)
@@ -49,7 +50,6 @@ void uniform_buffer_update(struct uniform_buffer *p, u8 frame)
                 }
 
                 void *data              = p->data + types[index].offset;
-
                 switch (types[index].type) {
                         case UNIFORM_F1:
                                 device_buffer_sub(p->buffers[frame], types[index].offset, data, sizeof(float));

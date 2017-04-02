@@ -16,7 +16,7 @@
 #import "AppView.h"
 #import <cherry/graphic/graphic.h>
 #import <cherry/graphic/metal.h>
-#import <cherry/game/game.h>
+#import <game.h>
 #import <cherry/memory.h>
 #import <pthread.h>
 #import <cherry/lock.h>
@@ -83,7 +83,7 @@ static const long kInFlightCommandBuffers = BUFFERS;
 {
     if(!game) return;
     
-    if(game->can_draw) {
+    //if(game->can_draw) {
         dispatch_semaphore_wait(_inflight_semaphore, DISPATCH_TIME_FOREVER);
         
         id <MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
@@ -100,7 +100,7 @@ static const long kInFlightCommandBuffers = BUFFERS;
         }];
         
         [commandBuffer commit];
-    }
+   // }
 }
 
 - (void)reshape:(AppView *)view

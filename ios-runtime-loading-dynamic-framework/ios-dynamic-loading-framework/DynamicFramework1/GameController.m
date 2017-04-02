@@ -176,9 +176,9 @@ get_touch:;
         game_resize(_game, video_width, video_height);
     }
     updateViewport = FALSE;
-    if(_game->can_draw) {
+    //if(_game->can_draw) {
         [self.view setNeedsDisplay];
-    }
+    //}
 }
 
 -(void)reshape:(GameView *)view

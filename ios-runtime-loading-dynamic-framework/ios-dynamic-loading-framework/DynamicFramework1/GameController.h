@@ -13,7 +13,7 @@
  */
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
-#import <cherry/game/game.h>
+#import <game.h>
 #import "GameControllerProtocol.h"
 #import "GameView.h"
 

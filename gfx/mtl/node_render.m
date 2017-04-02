@@ -22,13 +22,14 @@
 #import <cherry/string.h>
 #import <cherry/bytes.h>
 #import <cherry/math/math.h>
+#import <cherry/stdio.h>
 #import <cherry/graphic/shader.h>
 #import <cherry/graphic/uniform.h>
 #import <cherry/graphic/texture.h>
 #import <cherry/graphic/device_buffer.h>
 #import <cherry/graphic/render_pass.h>
 
-static render_pass *current_pass                = NULL;
+static struct render_pass *current_pass                = NULL;
 static id<MTLRenderCommandEncoder> encoder      = nil;
 static id<MTLSamplerState>   sampler            = nil;
 static struct shader *current_shader            = NULL;
@@ -105,6 +106,7 @@ static void __blend(u8 mode, struct shader *pipeline)
 
 void node_render(struct node *p, u8 frame)
 {
+        setup();
         if(!current_pass || !p->visible) return;
 
         if(p->type == -1 || p->shader_type == -1) goto render_children;
@@ -113,25 +115,11 @@ void node_render(struct node *p, u8 frame)
          * update uniform
          */
         int i, j;
-        for(i = 0, j = 0; j < p->current_common_uniform_buffers->len; i++, j++) {
-                struct uniform_buffer *ub       = array_get(p->current_common_uniform_buffers, struct uniform_buffer *, j);
-                uniform_buffer_update(ub, frame);
-                id<MTLBuffer> buffer = (__bridge id _Nonnull)(ub->buffers[frame]->ptr);
-                [encoder setVertexBuffer:buffer offset:0 atIndex:i];
-                [encoder setFragmentBuffer:buffer offset:0 atIndex:i];
-        }
-        for(j = 0; j < p->current_uniform_buffers->len; i++, j++) {
-                struct uniform_buffer *ub       = array_get(p->current_uniform_buffers, struct uniform_buffer *, j);
-                uniform_buffer_update(ub, frame);
-                id<MTLBuffer> buffer = (__bridge id _Nonnull)(ub->buffers[frame]->ptr);
-                [encoder setVertexBuffer:buffer offset:0 atIndex:i];
-                [encoder setFragmentBuffer:buffer offset:0 atIndex:i];
-        }
 
         /*
          * render
          */
-        int start_index = i;
+        int start_index = 0;
         for_i(i, p->current_render_content[frame]->actives) {
                 int si = start_index;
                 struct node_render_buffer_group *group = array_get(p->current_render_content[frame]->buffer_groups,
@@ -149,6 +137,22 @@ void node_render(struct node *p, u8 frame)
                         [encoder setVertexBuffer:buffer offset:0 atIndex:si];
                         si++;
                 }
+
+                int fi = 0;
+                for(j = 0; j < p->current_common_uniform_buffers->len; si++, fi++, j++) {
+                        struct uniform_buffer *ub       = array_get(p->current_common_uniform_buffers, struct uniform_buffer *, j);
+                        uniform_buffer_update(ub, frame);
+                        id<MTLBuffer> buffer = (__bridge id _Nonnull)(ub->buffers[frame]->ptr);
+                        [encoder setVertexBuffer:buffer offset:0 atIndex:si];
+                        [encoder setFragmentBuffer:buffer offset:0 atIndex:fi];
+                }
+                for(j = 0; j < p->current_uniform_buffers->len; si++, fi++, j++) {
+                        struct uniform_buffer *ub       = array_get(p->current_uniform_buffers, struct uniform_buffer *, j);
+                        uniform_buffer_update(ub, frame);
+                        id<MTLBuffer> buffer = (__bridge id _Nonnull)(ub->buffers[frame]->ptr);
+                        [encoder setVertexBuffer:buffer offset:0 atIndex:si];
+                        [encoder setFragmentBuffer:buffer offset:0 atIndex:fi];
+                }
                 /*
                  * update textures
                  */
@@ -157,10 +161,10 @@ void node_render(struct node *p, u8 frame)
                         id<MTLTexture> texture = (__bridge id _Nonnull)((*tex)->ptr);
                         [encoder setFragmentTexture:texture atIndex:j];
                 }
+                [encoder setFragmentSamplerState:sampler atIndex:0];
 
                 [encoder drawPrimitives:MTLPrimitiveTypeTriangle
                                 vertexStart:0 vertexCount:group->vertice_count
-                                instanceCount: 1
                 ];
         }
 

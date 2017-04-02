@@ -22,13 +22,14 @@
 #include <cherry/graphic/node_manager.h>
 #include <cherry/graphic/shader/shader_2d_texture_color.h>
 #include <cherry/graphic/render_pass.h>
+#include <cherry/stdio.h>
 
 static void __setup_game_camera(struct game *p)
 {
         union mat4 project      = mat4_new_ortho(
                 0, video_width,
                 0, video_height,
-                0, 10000
+                0, 2
         );
 
         union mat4 lookat       = mat4_new_look_at(
@@ -45,7 +46,7 @@ static void __setup_hud_camera(struct game *p)
         union mat4 project      = mat4_new_ortho(
                 0, video_width,
                 0, video_height,
-                0, 10000
+                0, 2
         );
 
         union mat4 lookat       = mat4_new_look_at(
@@ -93,7 +94,7 @@ static void __setup_main_pass(struct game *p)
 void game_setup(struct game *p)
 {
         __setup_main_pass(p);
-        
+
         __setup_game_camera(p);
         __setup_hud_camera(p);
 
